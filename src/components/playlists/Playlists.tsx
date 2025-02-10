@@ -1,9 +1,11 @@
+
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
 import { PlaylistHeader } from "./PlaylistHeader";
 import { PlaylistItem } from "./PlaylistItem";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 
 type Playlist = {
   id: number;
