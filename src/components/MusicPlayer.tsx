@@ -1,9 +1,17 @@
 
-import { Play, Pause, SkipBack, SkipForward, Volume2, Volume1, VolumeX } from "lucide-react";
+import { Play, Pause, SkipBack, SkipForward, Volume2, Volume1, VolumeX, Shuffle, Repeat, Repeat1, ListMusic } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
-import { useState } from "react";
+import { useState, useCallback } from "react";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { useToast } from "@/components/ui/use-toast";
 
 const songs = [
   {
@@ -16,16 +24,68 @@ const songs = [
   },
 ];
 
+type RepeatMode = "none" | "all" | "one";
+
 export const MusicPlayer = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState([75]);
   const [progress, setProgress] = useState([0]);
   const [currentSongIndex, setCurrentSongIndex] = useState(0);
   const [currentPlaylist, setCurrentPlaylist] = useState<number[] | null>(null);
+  const [isShuffleOn, setIsShuffleOn] = useState(false);
+  const [repeatMode, setRepeatMode] = useState<RepeatMode>("none");
+  const [queue, setQueue] = useState<number[]>([]);
+  const { toast } = useToast();
 
   const currentSong = songs[currentSongIndex];
 
   const togglePlay = () => setIsPlaying(!isPlaying);
+
+  const toggleShuffle = () => {
+    setIsShuffleOn(!isShuffleOn);
+    toast({
+      title: !isShuffleOn ? "Shuffle mode enabled" : "Shuffle mode disabled",
+      duration: 2000,
+    });
+  };
+
+  const cycleRepeatMode = () => {
+    const modes: RepeatMode[] = ["none", "all", "one"];
+    const currentIndex = modes.indexOf(repeatMode);
+    const nextMode = modes[(currentIndex + 1) % modes.length];
+    setRepeatMode(nextMode);
+    
+    const messages = {
+      none: "Repeat mode disabled",
+      all: "Repeating all songs",
+      one: "Repeating current song"
+    };
+    
+    toast({
+      title: messages[nextMode],
+      duration: 2000,
+    });
+  };
+
+  const getNextSongIndex = useCallback(() => {
+    if (repeatMode === "one") return currentSongIndex;
+    
+    if (!currentPlaylist) {
+      if (currentSongIndex === songs.length - 1) {
+        return repeatMode === "all" ? 0 : currentSongIndex;
+      }
+      return currentSongIndex + 1;
+    }
+    
+    const currentIndex = currentPlaylist.indexOf(currentSong.id);
+    if (currentIndex < currentPlaylist.length - 1) {
+      const nextSongId = currentPlaylist[currentIndex + 1];
+      const nextSongIndex = songs.findIndex(song => song.id === nextSongId);
+      return nextSongIndex !== -1 ? nextSongIndex : currentSongIndex;
+    }
+    
+    return repeatMode === "all" ? 0 : currentSongIndex;
+  }, [currentSongIndex, currentPlaylist, currentSong.id, repeatMode]);
 
   const handlePrevious = () => {
     if (!currentPlaylist) {
@@ -42,17 +102,21 @@ export const MusicPlayer = () => {
   };
 
   const handleNext = () => {
-    if (!currentPlaylist) {
-      setCurrentSongIndex((prev) => (prev === songs.length - 1 ? 0 : prev + 1));
-      return;
+    if (isShuffleOn && currentPlaylist) {
+      const availableSongs = currentPlaylist.filter(id => id !== currentSong.id);
+      if (availableSongs.length > 0) {
+        const randomIndex = Math.floor(Math.random() * availableSongs.length);
+        const nextSongId = availableSongs[randomIndex];
+        const nextSongIndex = songs.findIndex(song => song.id === nextSongId);
+        if (nextSongIndex !== -1) {
+          setCurrentSongIndex(nextSongIndex);
+          return;
+        }
+      }
     }
     
-    const currentIndex = currentPlaylist.indexOf(currentSong.id);
-    if (currentIndex < currentPlaylist.length - 1) {
-      const nextSongId = currentPlaylist[currentIndex + 1];
-      const nextSongIndex = songs.findIndex(song => song.id === nextSongId);
-      setCurrentSongIndex(nextSongIndex !== -1 ? nextSongIndex : 0);
-    }
+    const nextIndex = getNextSongIndex();
+    setCurrentSongIndex(nextIndex);
   };
 
   // Export these methods to be used by other components
@@ -64,6 +128,7 @@ export const MusicPlayer = () => {
       if (firstSongIndex !== -1) {
         setCurrentSongIndex(firstSongIndex);
         setCurrentPlaylist(songIds);
+        setQueue(songIds.slice(1));
         setIsPlaying(true);
       }
     }
@@ -114,6 +179,14 @@ export const MusicPlayer = () => {
                     <Button
                       variant="ghost"
                       size="icon"
+                      className={`text-[#F2FCE2] transition-colors ${isShuffleOn ? 'text-[#1EAEDB]' : 'hover:text-[#1EAEDB]'}`}
+                      onClick={toggleShuffle}
+                    >
+                      <Shuffle className="h-5 w-5" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
                       className="text-[#F2FCE2] hover:text-[#1EAEDB] transition-colors"
                       onClick={handlePrevious}
                     >
@@ -138,6 +211,20 @@ export const MusicPlayer = () => {
                     >
                       <SkipForward className="h-6 w-6" />
                     </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className={`text-[#F2FCE2] transition-colors ${
+                        repeatMode !== "none" ? 'text-[#1EAEDB]' : 'hover:text-[#1EAEDB]'
+                      }`}
+                      onClick={cycleRepeatMode}
+                    >
+                      {repeatMode === "one" ? (
+                        <Repeat1 className="h-5 w-5" />
+                      ) : (
+                        <Repeat className="h-5 w-5" />
+                      )}
+                    </Button>
                   </div>
                   <div className="flex items-center gap-2">
                     <Button
@@ -160,6 +247,46 @@ export const MusicPlayer = () => {
                       step={1}
                       className="w-24"
                     />
+                    <Sheet>
+                      <SheetTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-[#F2FCE2] hover:text-[#1EAEDB] transition-colors ml-2"
+                        >
+                          <ListMusic className="h-5 w-5" />
+                        </Button>
+                      </SheetTrigger>
+                      <SheetContent side="right" className="w-[400px] bg-black/90 border-[#1EAEDB]/10">
+                        <SheetHeader>
+                          <SheetTitle className="text-[#FEF7CD]">Queue</SheetTitle>
+                        </SheetHeader>
+                        <div className="mt-4">
+                          {queue.length > 0 ? (
+                            <div className="space-y-2">
+                              {queue.map((songId) => {
+                                const song = songs.find(s => s.id === songId);
+                                if (!song) return null;
+                                return (
+                                  <div
+                                    key={song.id}
+                                    className="flex items-center justify-between p-2 rounded bg-black/20 text-[#F2FCE2]"
+                                  >
+                                    <div>
+                                      <p className="font-medium">{song.title}</p>
+                                      <p className="text-sm text-[#F2FCE2]/70">{song.artist}</p>
+                                    </div>
+                                    <span className="text-sm text-[#F2FCE2]/50">{song.duration}</span>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          ) : (
+                            <p className="text-[#F2FCE2]/50 text-center">Queue is empty</p>
+                          )}
+                        </div>
+                      </SheetContent>
+                    </Sheet>
                   </div>
                 </div>
               </div>
@@ -170,3 +297,4 @@ export const MusicPlayer = () => {
     </section>
   );
 };
+
