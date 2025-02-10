@@ -1,6 +1,14 @@
 
 import { PlayCircle, User, Mail, Library, ListMusic } from "lucide-react";
-import { Sidebar as SidebarComponent, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
+import { 
+  Sidebar as SidebarComponent, 
+  SidebarContent, 
+  SidebarGroup, 
+  SidebarGroupContent, 
+  SidebarMenu, 
+  SidebarMenuButton, 
+  SidebarMenuItem 
+} from "@/components/ui/sidebar";
 
 const sidebarItems = [
   {
@@ -9,14 +17,14 @@ const sidebarItems = [
     url: "#now-playing"
   },
   {
-    title: "Library",
-    icon: Library,
-    url: "#library"
-  },
-  {
     title: "Playlists",
     icon: ListMusic,
     url: "#playlists"
+  },
+  {
+    title: "Library",
+    icon: Library,
+    url: "#library"
   },
   {
     title: "About Artist",

@@ -6,6 +6,7 @@ import { MusicPlayer } from "@/components/MusicPlayer";
 import { Library } from "@/components/Library";
 import { About } from "@/components/About";
 import { ContactForm } from "@/components/ContactForm";
+import { Playlists } from "@/components/Playlists";
 
 const Index = () => {
   return (
@@ -15,6 +16,7 @@ const Index = () => {
         <div className="flex-1 overflow-auto">
           <Header />
           <MusicPlayer />
+          <Playlists />
           <About />
           <Library />
           <ContactForm />
