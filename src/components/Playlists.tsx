@@ -1,10 +1,15 @@
-
-import { Plus, X, Play, GripVertical, Pencil, Trash2 } from "lucide-react";
+import { Plus, X, Play, GripVertical, Pencil, Trash2, Loader } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 type Playlist = {
   id: number;
@@ -31,6 +36,8 @@ export const Playlists = () => {
   const [expandedPlaylist, setExpandedPlaylist] = useState<number | null>(null);
   const [editingPlaylist, setEditingPlaylist] = useState<number | null>(null);
   const [editName, setEditName] = useState("");
+  const [playingPlaylist, setPlayingPlaylist] = useState<number | null>(null);
+  const [draggingIndex, setDraggingIndex] = useState<number | null>(null);
   const { toast } = useToast();
 
   const handleCreatePlaylist = () => {
@@ -129,7 +136,7 @@ export const Playlists = () => {
     setExpandedPlaylist(current => current === playlistId ? null : playlistId);
   };
 
-  const handlePlayPlaylist = (playlist: Playlist) => {
+  const handlePlayPlaylist = async (playlist: Playlist) => {
     if (playlist.songs.length === 0) {
       toast({
         title: "Error",
@@ -139,13 +146,17 @@ export const Playlists = () => {
       return;
     }
 
+    setPlayingPlaylist(playlist.id);
+    
     if ((window as any).musicPlayerControls) {
-      (window as any).musicPlayerControls.playPlaylist(playlist.songs);
+      await (window as any).musicPlayerControls.playPlaylist(playlist.songs);
       toast({
         title: "Success",
         description: `Playing playlist: ${playlist.name}`,
       });
     }
+    
+    setPlayingPlaylist(null);
   };
 
   return (
@@ -163,7 +174,7 @@ export const Playlists = () => {
             />
             <Button
               onClick={handleCreatePlaylist}
-              className="bg-[#1EAEDB] hover:bg-[#1EAEDB]/80 text-white"
+              className="bg-[#1EAEDB] hover:bg-[#1EAEDB]/80 text-white transition-colors duration-200"
             >
               <Plus className="h-5 w-5 mr-2" />
               Create
@@ -172,8 +183,8 @@ export const Playlists = () => {
 
           <div className="space-y-2">
             {playlists.map((playlist) => (
-              <div key={playlist.id} className="space-y-2">
-                <div className="flex items-center justify-between p-3 rounded-lg bg-black/20 hover:bg-[#1EAEDB]/5 transition-colors">
+              <div key={playlist.id} className="space-y-2 animate-fade-in">
+                <div className="flex items-center justify-between p-3 rounded-lg bg-black/20 hover:bg-[#1EAEDB]/5 transition-all duration-200">
                   <div className="flex items-center gap-3 flex-1">
                     {editingPlaylist === playlist.id ? (
                       <div className="flex gap-2 flex-1">
@@ -189,7 +200,7 @@ export const Playlists = () => {
                         />
                         <Button
                           onClick={() => handleSaveRename(playlist.id)}
-                          className="bg-[#1EAEDB] hover:bg-[#1EAEDB]/80"
+                          className="bg-[#1EAEDB] hover:bg-[#1EAEDB]/80 transition-colors duration-200"
                         >
                           Save
                         </Button>
@@ -197,7 +208,7 @@ export const Playlists = () => {
                     ) : (
                       <>
                         <span 
-                          className="text-[#F2FCE2] cursor-pointer"
+                          className="text-[#F2FCE2] cursor-pointer hover:text-[#1EAEDB] transition-colors duration-200"
                           onClick={() => togglePlaylist(playlist.id)}
                         >
                           {playlist.name}
@@ -209,45 +220,79 @@ export const Playlists = () => {
                     )}
                   </div>
                   <div className="flex items-center gap-2">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handlePlayPlaylist(playlist)}
-                      className="text-[#F2FCE2] hover:text-[#1EAEDB] transition-colors"
-                    >
-                      <Play className="h-5 w-5" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleStartRename(playlist)}
-                      className="text-[#F2FCE2] hover:text-[#1EAEDB] transition-colors"
-                    >
-                      <Pencil className="h-5 w-5" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleDeletePlaylist(playlist.id)}
-                      className="text-[#F2FCE2] hover:text-red-500 transition-colors"
-                    >
-                      <Trash2 className="h-5 w-5" />
-                    </Button>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handlePlayPlaylist(playlist)}
+                            className="text-[#F2FCE2] hover:text-[#1EAEDB] transition-colors duration-200"
+                            disabled={playingPlaylist === playlist.id}
+                          >
+                            {playingPlaylist === playlist.id ? (
+                              <Loader className="h-5 w-5 animate-spin" />
+                            ) : (
+                              <Play className="h-5 w-5" />
+                            )}
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Play playlist</p>
+                        </TooltipContent>
+                      </Tooltip>
+
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleStartRename(playlist)}
+                            className="text-[#F2FCE2] hover:text-[#1EAEDB] transition-colors duration-200"
+                          >
+                            <Pencil className="h-5 w-5" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Rename playlist</p>
+                        </TooltipContent>
+                      </Tooltip>
+
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleDeletePlaylist(playlist.id)}
+                            className="text-[#F2FCE2] hover:text-red-500 transition-colors duration-200"
+                          >
+                            <Trash2 className="h-5 w-5" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Delete playlist</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                   </div>
                 </div>
                 {expandedPlaylist === playlist.id && (
-                  <div className="ml-4 space-y-1">
+                  <div className="ml-4 space-y-1 animate-accordion-down">
                     {playlist.songs.map((songId, index) => {
                       const song = sampleSongs.find(s => s.id === songId);
                       if (!song) return null;
                       return (
                         <div
                           key={songId}
-                          className="flex items-center justify-between p-2 rounded bg-black/10"
+                          className={`flex items-center justify-between p-2 rounded bg-black/10 transition-all duration-200 ${
+                            draggingIndex === index ? 'scale-105 shadow-lg bg-[#1EAEDB]/20' : ''
+                          }`}
                           draggable
                           onDragStart={(e) => {
                             e.dataTransfer.setData('text/plain', index.toString());
+                            setDraggingIndex(index);
                           }}
+                          onDragEnd={() => setDraggingIndex(null)}
                           onDragOver={(e) => {
                             e.preventDefault();
                           }}
@@ -255,6 +300,7 @@ export const Playlists = () => {
                             e.preventDefault();
                             const dragIndex = parseInt(e.dataTransfer.getData('text/plain'));
                             handleReorderSongs(playlist.id, dragIndex, index);
+                            setDraggingIndex(null);
                           }}
                         >
                           <div className="flex items-center gap-2">
@@ -265,7 +311,7 @@ export const Playlists = () => {
                             variant="ghost"
                             size="icon"
                             onClick={() => handleRemoveSong(playlist.id, songId)}
-                            className="text-[#F2FCE2]/70 hover:text-[#1EAEDB]"
+                            className="text-[#F2FCE2]/70 hover:text-[#1EAEDB] transition-colors duration-200"
                           >
                             <X className="h-4 w-4" />
                           </Button>
