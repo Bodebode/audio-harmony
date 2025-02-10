@@ -51,20 +51,20 @@ const sampleSongs = [
 const Index = () => {
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-gradient-to-br from-black via-gray-900 to-blue-900">
+      <div className="min-h-screen flex w-full bg-gradient-to-br from-[#0FA0CE] via-[#222222] to-[#1EAEDB]">
         {/* Sidebar */}
         <Sidebar className="border-r border-white/10">
           <SidebarContent>
             <SidebarGroup>
               <div className="p-4">
-                <h1 className="text-2xl font-bold text-white">Bode Nathaniel</h1>
+                <h1 className="text-2xl font-bold text-gradient">Bode Nathaniel</h1>
               </div>
               <SidebarGroupContent>
                 <SidebarMenu>
                   {sidebarItems.map((item) => (
                     <SidebarMenuItem key={item.title}>
                       <SidebarMenuButton asChild>
-                        <a href={item.url} className="flex items-center gap-2 text-gray-300 hover:text-white">
+                        <a href={item.url} className="flex items-center gap-2 text-gray-300 hover:text-[#FEF7CD]">
                           <item.icon className="h-5 w-5" />
                           <span>{item.title}</span>
                         </a>
@@ -85,14 +85,23 @@ const Index = () => {
                 <Menu className="h-6 w-6" />
               </SidebarTrigger>
             </Button>
-            <div className="flex gap-4">
-              <Button variant="ghost" className="text-white hover:text-blue-400">
+            <div className="flex gap-4 flex-wrap">
+              <Button variant="ghost" className="text-white hover:text-[#1EAEDB]">
                 <a href="https://twitter.com/BN_officially" target="_blank" rel="noopener noreferrer">Twitter</a>
               </Button>
-              <Button variant="ghost" className="text-white hover:text-blue-400">
+              <Button variant="ghost" className="text-white hover:text-[#1EAEDB]">
                 <a href="https://instagram.com/bn_majestic" target="_blank" rel="noopener noreferrer">Instagram</a>
               </Button>
-              <Button variant="ghost" className="text-white hover:text-blue-400">
+              <Button variant="ghost" className="text-white hover:text-[#1EAEDB]">
+                <a href="https://www.tiktok.com/@bodenathaniel" target="_blank" rel="noopener noreferrer">TikTok</a>
+              </Button>
+              <Button variant="ghost" className="text-white hover:text-[#1EAEDB]">
+                <a href="https://open.spotify.com/artist/6ybapGF4VVYMYKTKAJPoR7" target="_blank" rel="noopener noreferrer">Spotify</a>
+              </Button>
+              <Button variant="ghost" className="text-white hover:text-[#1EAEDB]">
+                <a href="https://www.youtube.com/c/BodeNathaniel" target="_blank" rel="noopener noreferrer">YouTube</a>
+              </Button>
+              <Button variant="ghost" className="text-white hover:text-[#1EAEDB]">
                 <a href="https://www.bodenathaniel.com" target="_blank" rel="noopener noreferrer">Website</a>
               </Button>
             </div>
@@ -100,20 +109,20 @@ const Index = () => {
 
           {/* Now Playing Section */}
           <section id="now-playing" className="p-6">
-            <Card className="bg-black/40 backdrop-blur-lg border-white/10">
+            <Card className="bg-black/40 backdrop-blur-lg border-[#1EAEDB]/10">
               <CardContent className="p-6">
                 <div className="grid md:grid-cols-2 gap-8">
                   <div className="flex flex-col justify-center">
-                    <div className="w-full aspect-square bg-gray-800 rounded-lg shadow-2xl"></div>
+                    <div className="w-full aspect-square bg-[#222222] rounded-lg shadow-2xl"></div>
                   </div>
                   <div className="flex flex-col justify-between">
                     <div>
-                      <h2 className="text-3xl font-bold text-white mb-2">Now Playing</h2>
-                      <p className="text-gray-400">Song Title</p>
+                      <h2 className="text-3xl font-bold text-[#FEF7CD] mb-2">Now Playing</h2>
+                      <p className="text-[#F2FCE2]">Song Title</p>
                     </div>
                     <div className="space-y-4">
                       <div className="h-40 overflow-y-auto bg-black/20 rounded p-4">
-                        <p className="text-gray-300">Lyrics will appear here...</p>
+                        <p className="text-[#F2FCE2]">Lyrics will appear here...</p>
                       </div>
                       <div className="flex justify-center gap-4">
                         {/* Audio controls will go here */}
@@ -127,13 +136,13 @@ const Index = () => {
 
           {/* Bio Section */}
           <section id="about" className="p-6">
-            <Card className="bg-black/40 backdrop-blur-lg border-white/10">
+            <Card className="bg-black/40 backdrop-blur-lg border-[#1EAEDB]/10">
               <CardContent className="p-6">
-                <h2 className="text-2xl font-bold text-white mb-4">About Bode Nathaniel</h2>
-                <p className="text-gray-300 leading-relaxed">
+                <h2 className="text-2xl font-bold text-[#FEF7CD] mb-4">About Bode Nathaniel</h2>
+                <p className="text-[#F2FCE2] leading-relaxed">
                   British Nigerian musician Bode Nathaniel is well-known in the African music community. He is a gifted musician who has carved out a niche for himself as a fascinating performer and talented songwriter with his distinctive blend of African rhythms and Afrobeat influences.
                 </p>
-                <p className="text-gray-300 leading-relaxed mt-4">
+                <p className="text-[#F2FCE2] leading-relaxed mt-4">
                   His music transcends national boundaries, incorporating colorful energy and contagious beats while drawing inspiration from his African background. His works demonstrate his command of the Afrobeat genre as he deftly combines traditional African components with modern sounds.
                 </p>
               </CardContent>
@@ -142,20 +151,20 @@ const Index = () => {
 
           {/* Songs List */}
           <section id="library" className="p-6">
-            <Card className="bg-black/40 backdrop-blur-lg border-white/10">
+            <Card className="bg-black/40 backdrop-blur-lg border-[#1EAEDB]/10">
               <CardContent className="p-6">
-                <h2 className="text-2xl font-bold text-white mb-4">Library</h2>
+                <h2 className="text-2xl font-bold text-[#FEF7CD] mb-4">Library</h2>
                 <div className="space-y-2">
                   {sampleSongs.map((song) => (
                     <div
                       key={song.id}
-                      className="flex items-center justify-between p-3 rounded-lg hover:bg-white/5 transition-colors cursor-pointer"
+                      className="flex items-center justify-between p-3 rounded-lg hover:bg-[#1EAEDB]/5 transition-colors cursor-pointer"
                     >
                       <div className="flex items-center gap-3">
-                        <PlayCircle className="h-5 w-5 text-gray-400" />
-                        <span className="text-gray-300">{song.title}</span>
+                        <PlayCircle className="h-5 w-5 text-[#F2FCE2]" />
+                        <span className="text-[#F2FCE2]">{song.title}</span>
                       </div>
-                      <span className="text-gray-400">{song.duration}</span>
+                      <span className="text-[#F2FCE2]">{song.duration}</span>
                     </div>
                   ))}
                 </div>
