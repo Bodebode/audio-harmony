@@ -80,11 +80,11 @@ const Index = () => {
         {/* Main Content */}
         <div className="flex-1 overflow-auto">
           <header className="p-6 flex justify-between items-center">
-            <SidebarTrigger asChild>
-              <Button variant="ghost" size="icon" className="text-white">
+            <Button variant="ghost" size="icon" className="text-white" asChild>
+              <SidebarTrigger>
                 <Menu className="h-6 w-6" />
-              </Button>
-            </SidebarTrigger>
+              </SidebarTrigger>
+            </Button>
             <div className="flex gap-4">
               <Button variant="ghost" className="text-white hover:text-blue-400">
                 <a href="https://twitter.com/BN_officially" target="_blank" rel="noopener noreferrer">Twitter</a>
