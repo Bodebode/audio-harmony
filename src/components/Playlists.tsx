@@ -1,5 +1,5 @@
 
-import { Plus, X, Play } from "lucide-react";
+import { Plus, X, Play, GripVertical, Pencil, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -29,6 +29,8 @@ export const Playlists = () => {
   const [playlists, setPlaylists] = useState<Playlist[]>([]);
   const [newPlaylistName, setNewPlaylistName] = useState("");
   const [expandedPlaylist, setExpandedPlaylist] = useState<number | null>(null);
+  const [editingPlaylist, setEditingPlaylist] = useState<number | null>(null);
+  const [editName, setEditName] = useState("");
   const { toast } = useToast();
 
   const handleCreatePlaylist = () => {
@@ -55,6 +57,42 @@ export const Playlists = () => {
     });
   };
 
+  const handleDeletePlaylist = (playlistId: number) => {
+    setPlaylists(playlists.filter(playlist => playlist.id !== playlistId));
+    toast({
+      title: "Success",
+      description: "Playlist deleted successfully",
+    });
+  };
+
+  const handleStartRename = (playlist: Playlist) => {
+    setEditingPlaylist(playlist.id);
+    setEditName(playlist.name);
+  };
+
+  const handleSaveRename = (playlistId: number) => {
+    if (!editName.trim()) {
+      toast({
+        title: "Error",
+        description: "Playlist name cannot be empty",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setPlaylists(playlists.map(playlist => 
+      playlist.id === playlistId 
+        ? { ...playlist, name: editName.trim() }
+        : playlist
+    ));
+    setEditingPlaylist(null);
+    setEditName("");
+    toast({
+      title: "Success",
+      description: "Playlist renamed successfully",
+    });
+  };
+
   const handleRemoveSong = (playlistId: number, songId: number) => {
     setPlaylists(currentPlaylists =>
       currentPlaylists.map(playlist => {
@@ -71,6 +109,20 @@ export const Playlists = () => {
       title: "Success",
       description: "Song removed from playlist",
     });
+  };
+
+  const handleReorderSongs = (playlistId: number, dragIndex: number, dropIndex: number) => {
+    setPlaylists(currentPlaylists =>
+      currentPlaylists.map(playlist => {
+        if (playlist.id === playlistId) {
+          const newSongs = [...playlist.songs];
+          const [draggedSong] = newSongs.splice(dragIndex, 1);
+          newSongs.splice(dropIndex, 0, draggedSong);
+          return { ...playlist, songs: newSongs };
+        }
+        return playlist;
+      })
+    );
   };
 
   const togglePlaylist = (playlistId: number) => {
@@ -122,39 +174,97 @@ export const Playlists = () => {
             {playlists.map((playlist) => (
               <div key={playlist.id} className="space-y-2">
                 <div className="flex items-center justify-between p-3 rounded-lg bg-black/20 hover:bg-[#1EAEDB]/5 transition-colors">
-                  <div className="flex items-center gap-3 flex-1 cursor-pointer" onClick={() => togglePlaylist(playlist.id)}>
-                    <span className="text-[#F2FCE2]">{playlist.name}</span>
-                    <span className="text-[#F2FCE2]/70 text-sm">
-                      {playlist.songs.length} songs
-                    </span>
+                  <div className="flex items-center gap-3 flex-1">
+                    {editingPlaylist === playlist.id ? (
+                      <div className="flex gap-2 flex-1">
+                        <Input
+                          value={editName}
+                          onChange={(e) => setEditName(e.target.value)}
+                          className="bg-black/20 border-[#1EAEDB]/20 text-[#F2FCE2]"
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              handleSaveRename(playlist.id);
+                            }
+                          }}
+                        />
+                        <Button
+                          onClick={() => handleSaveRename(playlist.id)}
+                          className="bg-[#1EAEDB] hover:bg-[#1EAEDB]/80"
+                        >
+                          Save
+                        </Button>
+                      </div>
+                    ) : (
+                      <>
+                        <span 
+                          className="text-[#F2FCE2] cursor-pointer"
+                          onClick={() => togglePlaylist(playlist.id)}
+                        >
+                          {playlist.name}
+                        </span>
+                        <span className="text-[#F2FCE2]/70 text-sm">
+                          {playlist.songs.length} songs
+                        </span>
+                      </>
+                    )}
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handlePlayPlaylist(playlist)}
-                    className="text-[#F2FCE2] hover:text-[#1EAEDB] transition-colors"
-                  >
-                    <Play className="h-5 w-5" />
-                  </Button>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handlePlayPlaylist(playlist)}
+                      className="text-[#F2FCE2] hover:text-[#1EAEDB] transition-colors"
+                    >
+                      <Play className="h-5 w-5" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleStartRename(playlist)}
+                      className="text-[#F2FCE2] hover:text-[#1EAEDB] transition-colors"
+                    >
+                      <Pencil className="h-5 w-5" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleDeletePlaylist(playlist.id)}
+                      className="text-[#F2FCE2] hover:text-red-500 transition-colors"
+                    >
+                      <Trash2 className="h-5 w-5" />
+                    </Button>
+                  </div>
                 </div>
                 {expandedPlaylist === playlist.id && (
                   <div className="ml-4 space-y-1">
-                    {playlist.songs.map(songId => {
+                    {playlist.songs.map((songId, index) => {
                       const song = sampleSongs.find(s => s.id === songId);
                       if (!song) return null;
                       return (
                         <div
                           key={songId}
                           className="flex items-center justify-between p-2 rounded bg-black/10"
+                          draggable
+                          onDragStart={(e) => {
+                            e.dataTransfer.setData('text/plain', index.toString());
+                          }}
+                          onDragOver={(e) => {
+                            e.preventDefault();
+                          }}
+                          onDrop={(e) => {
+                            e.preventDefault();
+                            const dragIndex = parseInt(e.dataTransfer.getData('text/plain'));
+                            handleReorderSongs(playlist.id, dragIndex, index);
+                          }}
                         >
-                          <span className="text-[#F2FCE2]">{song.title}</span>
+                          <div className="flex items-center gap-2">
+                            <GripVertical className="h-4 w-4 text-[#F2FCE2]/50 cursor-move" />
+                            <span className="text-[#F2FCE2]">{song.title}</span>
+                          </div>
                           <Button
                             variant="ghost"
                             size="icon"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleRemoveSong(playlist.id, songId);
-                            }}
+                            onClick={() => handleRemoveSong(playlist.id, songId)}
                             className="text-[#F2FCE2]/70 hover:text-[#1EAEDB]"
                           >
                             <X className="h-4 w-4" />
