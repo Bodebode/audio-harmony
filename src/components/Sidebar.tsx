@@ -1,5 +1,5 @@
 
-import { PlayCircle, User, Mail, Library, ListMusic } from "lucide-react";
+import { PlayCircle, User, Mail, Library, ListMusic, Heart } from "lucide-react";
 import { 
   Sidebar as SidebarComponent, 
   SidebarContent, 
@@ -25,6 +25,11 @@ const sidebarItems = [
     title: "Library",
     icon: Library,
     url: "#library"
+  },
+  {
+    title: "Liked Songs",
+    icon: Heart,
+    url: "#liked-songs"
   },
   {
     title: "About Artist",
