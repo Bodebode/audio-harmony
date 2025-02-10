@@ -18,22 +18,28 @@ export const MusicPlayer = () => {
         <CardContent className="p-6">
           <div className="grid md:grid-cols-2 gap-8">
             <div className="flex flex-col justify-center">
-              <div className="w-full aspect-square bg-[#222222] rounded-lg shadow-2xl overflow-hidden">
+              <div className="w-full aspect-square bg-[#222222] rounded-lg shadow-2xl overflow-hidden group relative">
                 <img 
-                  src="/placeholder.svg" 
-                  alt="Album Art"
-                  className="w-full h-full object-cover"
+                  src="/lovable-uploads/74cb0a2d-58c7-4be3-a188-27a043b76a3d.png"
+                  alt="Album Art - Bode Nathaniel"
+                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                 />
+                <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               </div>
             </div>
             <div className="flex flex-col justify-between">
               <div>
                 <h2 className="text-3xl font-bold text-[#FEF7CD] mb-2">Now Playing</h2>
-                <p className="text-[#F2FCE2] text-xl">Song Title</p>
+                <p className="text-[#F2FCE2] text-xl mb-1">Afrobeat Fusion</p>
+                <p className="text-[#F2FCE2]/80 text-lg">Bode Nathaniel</p>
               </div>
               <div className="space-y-4">
-                <div className="h-40 overflow-y-auto bg-black/20 rounded p-4">
-                  <p className="text-[#F2FCE2]">Lyrics will appear here...</p>
+                <div className="h-40 overflow-y-auto bg-black/20 rounded p-4 custom-scrollbar">
+                  <p className="text-[#F2FCE2] whitespace-pre-line">
+                    Experience the unique blend of African rhythms
+                    and contemporary beats in this captivating
+                    Afrobeat fusion track.
+                  </p>
                 </div>
                 <div className="space-y-4">
                   <div className="space-y-2">
