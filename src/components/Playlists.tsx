@@ -1,5 +1,5 @@
 
-import { Plus, X } from "lucide-react";
+import { Plus, X, Play } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -77,6 +77,25 @@ export const Playlists = () => {
     setExpandedPlaylist(current => current === playlistId ? null : playlistId);
   };
 
+  const handlePlayPlaylist = (playlist: Playlist) => {
+    if (playlist.songs.length === 0) {
+      toast({
+        title: "Error",
+        description: "This playlist is empty",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if ((window as any).musicPlayerControls) {
+      (window as any).musicPlayerControls.playPlaylist(playlist.songs);
+      toast({
+        title: "Success",
+        description: `Playing playlist: ${playlist.name}`,
+      });
+    }
+  };
+
   return (
     <section id="playlists" className="p-6">
       <Card className="bg-black/40 backdrop-blur-lg border-[#1EAEDB]/10">
@@ -102,14 +121,21 @@ export const Playlists = () => {
           <div className="space-y-2">
             {playlists.map((playlist) => (
               <div key={playlist.id} className="space-y-2">
-                <div
-                  onClick={() => togglePlaylist(playlist.id)}
-                  className="flex items-center justify-between p-3 rounded-lg bg-black/20 hover:bg-[#1EAEDB]/5 transition-colors cursor-pointer"
-                >
-                  <span className="text-[#F2FCE2]">{playlist.name}</span>
-                  <span className="text-[#F2FCE2]/70 text-sm">
-                    {playlist.songs.length} songs
-                  </span>
+                <div className="flex items-center justify-between p-3 rounded-lg bg-black/20 hover:bg-[#1EAEDB]/5 transition-colors">
+                  <div className="flex items-center gap-3 flex-1 cursor-pointer" onClick={() => togglePlaylist(playlist.id)}>
+                    <span className="text-[#F2FCE2]">{playlist.name}</span>
+                    <span className="text-[#F2FCE2]/70 text-sm">
+                      {playlist.songs.length} songs
+                    </span>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handlePlayPlaylist(playlist)}
+                    className="text-[#F2FCE2] hover:text-[#1EAEDB] transition-colors"
+                  >
+                    <Play className="h-5 w-5" />
+                  </Button>
                 </div>
                 {expandedPlaylist === playlist.id && (
                   <div className="ml-4 space-y-1">

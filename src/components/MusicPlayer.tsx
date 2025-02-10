@@ -14,7 +14,6 @@ const songs = [
     description: "Experience the unique blend of African rhythms\nand contemporary beats in this captivating\nAfrobeat fusion track.",
     duration: "3:45"
   },
-  // Add more songs here when user uploads more artwork
 ];
 
 export const MusicPlayer = () => {
@@ -22,17 +21,52 @@ export const MusicPlayer = () => {
   const [volume, setVolume] = useState([75]);
   const [progress, setProgress] = useState([0]);
   const [currentSongIndex, setCurrentSongIndex] = useState(0);
+  const [currentPlaylist, setCurrentPlaylist] = useState<number[] | null>(null);
 
   const currentSong = songs[currentSongIndex];
 
   const togglePlay = () => setIsPlaying(!isPlaying);
 
   const handlePrevious = () => {
-    setCurrentSongIndex((prev) => (prev === 0 ? songs.length - 1 : prev - 1));
+    if (!currentPlaylist) {
+      setCurrentSongIndex((prev) => (prev === 0 ? songs.length - 1 : prev - 1));
+      return;
+    }
+    
+    const currentIndex = currentPlaylist.indexOf(currentSong.id);
+    if (currentIndex > 0) {
+      const prevSongId = currentPlaylist[currentIndex - 1];
+      const prevSongIndex = songs.findIndex(song => song.id === prevSongId);
+      setCurrentSongIndex(prevSongIndex !== -1 ? prevSongIndex : 0);
+    }
   };
 
   const handleNext = () => {
-    setCurrentSongIndex((prev) => (prev === songs.length - 1 ? 0 : prev + 1));
+    if (!currentPlaylist) {
+      setCurrentSongIndex((prev) => (prev === songs.length - 1 ? 0 : prev + 1));
+      return;
+    }
+    
+    const currentIndex = currentPlaylist.indexOf(currentSong.id);
+    if (currentIndex < currentPlaylist.length - 1) {
+      const nextSongId = currentPlaylist[currentIndex + 1];
+      const nextSongIndex = songs.findIndex(song => song.id === nextSongId);
+      setCurrentSongIndex(nextSongIndex !== -1 ? nextSongIndex : 0);
+    }
+  };
+
+  // Export these methods to be used by other components
+  (window as any).musicPlayerControls = {
+    playPlaylist: (songIds: number[]) => {
+      if (songIds.length === 0) return;
+      const firstSongId = songIds[0];
+      const firstSongIndex = songs.findIndex(song => song.id === firstSongId);
+      if (firstSongIndex !== -1) {
+        setCurrentSongIndex(firstSongIndex);
+        setCurrentPlaylist(songIds);
+        setIsPlaying(true);
+      }
+    }
   };
 
   return (
