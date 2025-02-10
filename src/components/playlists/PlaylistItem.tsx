@@ -1,7 +1,8 @@
 
-import { Play, Pencil, Trash2, Loader, FileText, Share, Tag, Image } from "lucide-react";
+import { Play, Pencil, Trash2, Loader, Heart, MessageSquare, Users, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Tooltip,
   TooltipContent,
@@ -9,12 +10,23 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { PlaylistSongs } from "./PlaylistSongs";
-import { Textarea } from "@/components/ui/textarea";
 
 type Song = {
   id: number;
   title: string;
   duration: string;
+};
+
+type Comment = {
+  id: number;
+  userId: string;
+  content: string;
+  timestamp: Date;
+};
+
+type Collaborator = {
+  id: string;
+  role: 'editor' | 'viewer';
 };
 
 type Playlist = {
@@ -25,6 +37,10 @@ type Playlist = {
   tags: string[];
   songs: number[];
   shareUrl?: string;
+  likes: string[];
+  comments: Comment[];
+  collaborators: Collaborator[];
+  createdBy: string;
 };
 
 type PlaylistItemProps = {
@@ -35,6 +51,8 @@ type PlaylistItemProps = {
   playingPlaylist: number | null;
   draggingIndex: number | null;
   sampleSongs: Song[];
+  newComment: string;
+  setNewComment: (comment: string) => void;
   handleStartRename: (playlist: Playlist) => void;
   handleSaveRename: (playlistId: number) => void;
   setEditName: (name: string) => void;
@@ -44,6 +62,9 @@ type PlaylistItemProps = {
   handleRemoveSong: (playlistId: number, songId: number) => void;
   handleReorderSongs: (playlistId: number, dragIndex: number, dropIndex: number) => void;
   setDraggingIndex: (index: number | null) => void;
+  handleLikePlaylist: (playlistId: number) => void;
+  handleAddComment: (playlistId: number) => void;
+  handleShareOnSocial: (playlist: Playlist) => void;
 };
 
 export const PlaylistItem = ({
@@ -54,6 +75,8 @@ export const PlaylistItem = ({
   playingPlaylist,
   draggingIndex,
   sampleSongs,
+  newComment,
+  setNewComment,
   handleStartRename,
   handleSaveRename,
   setEditName,
@@ -63,9 +86,14 @@ export const PlaylistItem = ({
   handleRemoveSong,
   handleReorderSongs,
   setDraggingIndex,
+  handleLikePlaylist,
+  handleAddComment,
+  handleShareOnSocial,
 }: PlaylistItemProps) => {
+  const isLiked = playlist.likes.includes('current-user'); // In a real app, check against actual user ID
+
   return (
-    <div key={playlist.id} className="space-y-2 animate-fade-in">
+    <div className="space-y-2 animate-fade-in">
       <div className="flex items-center justify-between p-3 rounded-lg bg-black/20 hover:bg-[#1EAEDB]/5 transition-all duration-200">
         <div className="flex items-center gap-3 flex-1">
           {playlist.coverImage && (
@@ -127,6 +155,56 @@ export const PlaylistItem = ({
                 <Button
                   variant="ghost"
                   size="icon"
+                  onClick={() => handleLikePlaylist(playlist.id)}
+                  className={`text-[#F2FCE2] transition-colors duration-200 ${
+                    isLiked ? 'text-red-500 hover:text-red-600' : 'hover:text-[#1EAEDB]'
+                  }`}
+                >
+                  <Heart className="h-5 w-5" fill={isLiked ? 'currentColor' : 'none'} />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{isLiked ? 'Unlike' : 'Like'} playlist</p>
+              </TooltipContent>
+            </Tooltip>
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => togglePlaylist(playlist.id)}
+                  className="text-[#F2FCE2] hover:text-[#1EAEDB] transition-colors duration-200"
+                >
+                  <MessageSquare className="h-5 w-5" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>View comments</p>
+              </TooltipContent>
+            </Tooltip>
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => handleShareOnSocial(playlist)}
+                  className="text-[#F2FCE2] hover:text-[#1EAEDB] transition-colors duration-200"
+                >
+                  <Share2 className="h-5 w-5" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Share playlist</p>
+              </TooltipContent>
+            </Tooltip>
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
                   onClick={() => handlePlayPlaylist(playlist)}
                   className="text-[#F2FCE2] hover:text-[#1EAEDB] transition-colors duration-200"
                   disabled={playingPlaylist === playlist.id}
@@ -159,26 +237,6 @@ export const PlaylistItem = ({
               </TooltipContent>
             </Tooltip>
 
-            {playlist.shareUrl && (
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => {
-                      navigator.clipboard.writeText(playlist.shareUrl || '');
-                    }}
-                    className="text-[#F2FCE2] hover:text-[#1EAEDB] transition-colors duration-200"
-                  >
-                    <Share className="h-5 w-5" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Copy share link</p>
-                </TooltipContent>
-              </Tooltip>
-            )}
-
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
@@ -198,17 +256,58 @@ export const PlaylistItem = ({
         </div>
       </div>
       {expandedPlaylist === playlist.id && (
-        <PlaylistSongs
-          songs={playlist.songs}
-          sampleSongs={sampleSongs}
-          draggingIndex={draggingIndex}
-          playlistId={playlist.id}
-          handleRemoveSong={handleRemoveSong}
-          handleReorderSongs={handleReorderSongs}
-          setDraggingIndex={setDraggingIndex}
-        />
+        <div className="space-y-4">
+          <PlaylistSongs
+            songs={playlist.songs}
+            sampleSongs={sampleSongs}
+            draggingIndex={draggingIndex}
+            playlistId={playlist.id}
+            handleRemoveSong={handleRemoveSong}
+            handleReorderSongs={handleReorderSongs}
+            setDraggingIndex={setDraggingIndex}
+          />
+          
+          <div className="mt-4 space-y-4">
+            <h3 className="text-[#F2FCE2] font-semibold">Comments</h3>
+            <div className="space-y-2">
+              {playlist.comments.map((comment) => (
+                <div 
+                  key={comment.id}
+                  className="bg-black/10 p-3 rounded-lg"
+                >
+                  <div className="flex justify-between items-start">
+                    <span className="text-[#F2FCE2]/90 font-medium">User {comment.userId}</span>
+                    <span className="text-[#F2FCE2]/50 text-sm">
+                      {new Date(comment.timestamp).toLocaleDateString()}
+                    </span>
+                  </div>
+                  <p className="text-[#F2FCE2]/80 mt-1">{comment.content}</p>
+                </div>
+              ))}
+            </div>
+            <div className="flex gap-2">
+              <Input
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value)}
+                placeholder="Add a comment..."
+                className="flex-1 bg-black/20 border-[#1EAEDB]/20 text-[#F2FCE2] placeholder:text-[#F2FCE2]/50"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    handleAddComment(playlist.id);
+                  }
+                }}
+              />
+              <Button
+                onClick={() => handleAddComment(playlist.id)}
+                className="bg-[#1EAEDB] hover:bg-[#1EAEDB]/80 transition-colors duration-200"
+              >
+                Comment
+              </Button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
 };
-

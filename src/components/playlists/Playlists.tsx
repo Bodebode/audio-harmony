@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
@@ -6,6 +5,20 @@ import { PlaylistHeader } from "./PlaylistHeader";
 import { PlaylistItem } from "./PlaylistItem";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
+import { Heart, MessageSquare, Users, Share2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+
+type Comment = {
+  id: number;
+  userId: string;
+  content: string;
+  timestamp: Date;
+};
+
+type Collaborator = {
+  id: string;
+  role: 'editor' | 'viewer';
+};
 
 type Playlist = {
   id: number;
@@ -15,6 +28,10 @@ type Playlist = {
   tags: string[];
   songs: number[];
   shareUrl?: string;
+  likes: string[];
+  comments: Comment[];
+  collaborators: Collaborator[];
+  createdBy: string;
 };
 
 const sampleSongs = [
@@ -40,6 +57,7 @@ export const Playlists = () => {
   const [editName, setEditName] = useState("");
   const [playingPlaylist, setPlayingPlaylist] = useState<number | null>(null);
   const [draggingIndex, setDraggingIndex] = useState<number | null>(null);
+  const [newComment, setNewComment] = useState("");
   const { toast } = useToast();
 
   const handleCreatePlaylist = () => {
@@ -59,6 +77,10 @@ export const Playlists = () => {
       tags: newPlaylistTags.split(',').map(tag => tag.trim()).filter(tag => tag),
       songs: [],
       shareUrl: `${window.location.origin}/playlist/${Date.now()}`,
+      likes: [],
+      comments: [],
+      collaborators: [],
+      createdBy: 'current-user', // In a real app, this would be the actual user ID
     };
 
     setPlaylists([...playlists, newPlaylist]);
@@ -69,6 +91,96 @@ export const Playlists = () => {
       title: "Success",
       description: "Playlist created successfully",
     });
+  };
+
+  const handleLikePlaylist = (playlistId: number) => {
+    setPlaylists(currentPlaylists =>
+      currentPlaylists.map(playlist => {
+        if (playlist.id === playlistId) {
+          const userId = 'current-user'; // In a real app, this would be the actual user ID
+          const hasLiked = playlist.likes.includes(userId);
+          
+          return {
+            ...playlist,
+            likes: hasLiked
+              ? playlist.likes.filter(id => id !== userId)
+              : [...playlist.likes, userId]
+          };
+        }
+        return playlist;
+      })
+    );
+
+    toast({
+      title: "Success",
+      description: "Playlist like updated",
+    });
+  };
+
+  const handleAddComment = (playlistId: number) => {
+    if (!newComment.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter a comment",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setPlaylists(currentPlaylists =>
+      currentPlaylists.map(playlist => {
+        if (playlist.id === playlistId) {
+          const newCommentObj: Comment = {
+            id: Date.now(),
+            userId: 'current-user', // In a real app, this would be the actual user ID
+            content: newComment.trim(),
+            timestamp: new Date(),
+          };
+          
+          return {
+            ...playlist,
+            comments: [...playlist.comments, newCommentObj]
+          };
+        }
+        return playlist;
+      })
+    );
+
+    setNewComment("");
+    toast({
+      title: "Success",
+      description: "Comment added successfully",
+    });
+  };
+
+  const handleShareOnSocial = async (playlist: Playlist) => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: playlist.name,
+          text: `Check out this playlist: ${playlist.name}`,
+          url: playlist.shareUrl,
+        });
+        toast({
+          title: "Success",
+          description: "Playlist shared successfully",
+        });
+      } catch (error) {
+        console.error('Error sharing:', error);
+        toast({
+          title: "Error",
+          description: "Failed to share playlist",
+          variant: "destructive",
+        });
+      }
+    } else {
+      // Fallback for browsers that don't support Web Share API
+      navigator.clipboard.writeText(playlist.shareUrl || window.location.href);
+      toast({
+        title: "Success",
+        description: "Share link copied to clipboard",
+      });
+    }
   };
 
   const handleDeletePlaylist = (playlistId: number) => {
@@ -205,6 +317,8 @@ export const Playlists = () => {
                 playingPlaylist={playingPlaylist}
                 draggingIndex={draggingIndex}
                 sampleSongs={sampleSongs}
+                newComment={newComment}
+                setNewComment={setNewComment}
                 handleStartRename={handleStartRename}
                 handleSaveRename={handleSaveRename}
                 setEditName={setEditName}
@@ -214,6 +328,9 @@ export const Playlists = () => {
                 handleRemoveSong={handleRemoveSong}
                 handleReorderSongs={handleReorderSongs}
                 setDraggingIndex={setDraggingIndex}
+                handleLikePlaylist={handleLikePlaylist}
+                handleAddComment={handleAddComment}
+                handleShareOnSocial={handleShareOnSocial}
               />
             ))}
             {playlists.length === 0 && (
