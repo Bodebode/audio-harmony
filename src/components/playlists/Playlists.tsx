@@ -34,6 +34,13 @@ type Playlist = {
   createdBy: string;
 };
 
+type Song = {
+  id: number;
+  title: string;
+  duration: string;
+  likes: string[];
+};
+
 const sampleSongs = [
   { id: 1, title: "Song 1", duration: "3:45" },
   { id: 2, title: "Song 2", duration: "4:20" },
