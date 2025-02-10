@@ -2,7 +2,6 @@
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useToast } from "@/components/ui/use-toast";
 
 type PlaylistHeaderProps = {
   newPlaylistName: string;
@@ -16,7 +15,7 @@ export const PlaylistHeader = ({
   handleCreatePlaylist,
 }: PlaylistHeaderProps) => {
   return (
-    <div className="flex gap-3 mb-6">
+    <div className="flex gap-3">
       <Input
         value={newPlaylistName}
         onChange={(e) => setNewPlaylistName(e.target.value)}
@@ -33,3 +32,4 @@ export const PlaylistHeader = ({
     </div>
   );
 };
+

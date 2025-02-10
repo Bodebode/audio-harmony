@@ -1,14 +1,18 @@
-
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
 import { PlaylistHeader } from "./PlaylistHeader";
 import { PlaylistItem } from "./PlaylistItem";
+import { Textarea } from "@/components/ui/textarea";
 
 type Playlist = {
   id: number;
   name: string;
+  description: string;
+  coverImage?: string;
+  tags: string[];
   songs: number[];
+  shareUrl?: string;
 };
 
 const sampleSongs = [
@@ -27,6 +31,8 @@ const sampleSongs = [
 export const Playlists = () => {
   const [playlists, setPlaylists] = useState<Playlist[]>([]);
   const [newPlaylistName, setNewPlaylistName] = useState("");
+  const [newPlaylistDescription, setNewPlaylistDescription] = useState("");
+  const [newPlaylistTags, setNewPlaylistTags] = useState("");
   const [expandedPlaylist, setExpandedPlaylist] = useState<number | null>(null);
   const [editingPlaylist, setEditingPlaylist] = useState<number | null>(null);
   const [editName, setEditName] = useState("");
@@ -47,11 +53,16 @@ export const Playlists = () => {
     const newPlaylist: Playlist = {
       id: Date.now(),
       name: newPlaylistName.trim(),
+      description: newPlaylistDescription.trim(),
+      tags: newPlaylistTags.split(',').map(tag => tag.trim()).filter(tag => tag),
       songs: [],
+      shareUrl: `${window.location.origin}/playlist/${Date.now()}`,
     };
 
     setPlaylists([...playlists, newPlaylist]);
     setNewPlaylistName("");
+    setNewPlaylistDescription("");
+    setNewPlaylistTags("");
     toast({
       title: "Success",
       description: "Playlist created successfully",
@@ -159,11 +170,27 @@ export const Playlists = () => {
         <CardContent className="p-6">
           <h2 className="text-2xl font-bold text-[#FEF7CD] mb-4">Playlists</h2>
           
-          <PlaylistHeader
-            newPlaylistName={newPlaylistName}
-            setNewPlaylistName={setNewPlaylistName}
-            handleCreatePlaylist={handleCreatePlaylist}
-          />
+          <div className="space-y-4 mb-6">
+            <PlaylistHeader
+              newPlaylistName={newPlaylistName}
+              setNewPlaylistName={setNewPlaylistName}
+              handleCreatePlaylist={handleCreatePlaylist}
+            />
+            
+            <Textarea
+              value={newPlaylistDescription}
+              onChange={(e) => setNewPlaylistDescription(e.target.value)}
+              placeholder="Enter playlist description (optional)"
+              className="bg-black/20 border-[#1EAEDB]/20 text-[#F2FCE2] placeholder:text-[#F2FCE2]/50"
+            />
+            
+            <Input
+              value={newPlaylistTags}
+              onChange={(e) => setNewPlaylistTags(e.target.value)}
+              placeholder="Enter tags separated by commas (optional)"
+              className="bg-black/20 border-[#1EAEDB]/20 text-[#F2FCE2] placeholder:text-[#F2FCE2]/50"
+            />
+          </div>
 
           <div className="space-y-2">
             {playlists.map((playlist) => (

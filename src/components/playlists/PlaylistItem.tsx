@@ -1,5 +1,5 @@
 
-import { Play, Pencil, Trash2, Loader } from "lucide-react";
+import { Play, Pencil, Trash2, Loader, FileText, Share, Tag, Image } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -9,6 +9,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { PlaylistSongs } from "./PlaylistSongs";
+import { Textarea } from "@/components/ui/textarea";
 
 type Song = {
   id: number;
@@ -19,7 +20,11 @@ type Song = {
 type Playlist = {
   id: number;
   name: string;
+  description: string;
+  coverImage?: string;
+  tags: string[];
   songs: number[];
+  shareUrl?: string;
 };
 
 type PlaylistItemProps = {
@@ -63,38 +68,57 @@ export const PlaylistItem = ({
     <div key={playlist.id} className="space-y-2 animate-fade-in">
       <div className="flex items-center justify-between p-3 rounded-lg bg-black/20 hover:bg-[#1EAEDB]/5 transition-all duration-200">
         <div className="flex items-center gap-3 flex-1">
-          {editingPlaylist === playlist.id ? (
-            <div className="flex gap-2 flex-1">
-              <Input
-                value={editName}
-                onChange={(e) => setEditName(e.target.value)}
-                className="bg-black/20 border-[#1EAEDB]/20 text-[#F2FCE2]"
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    handleSaveRename(playlist.id);
-                  }
-                }}
-              />
-              <Button
-                onClick={() => handleSaveRename(playlist.id)}
-                className="bg-[#1EAEDB] hover:bg-[#1EAEDB]/80 transition-colors duration-200"
-              >
-                Save
-              </Button>
-            </div>
-          ) : (
-            <>
-              <span 
-                className="text-[#F2FCE2] cursor-pointer hover:text-[#1EAEDB] transition-colors duration-200"
-                onClick={() => togglePlaylist(playlist.id)}
-              >
-                {playlist.name}
-              </span>
-              <span className="text-[#F2FCE2]/70 text-sm">
-                {playlist.songs.length} songs
-              </span>
-            </>
+          {playlist.coverImage && (
+            <img 
+              src={playlist.coverImage} 
+              alt={playlist.name} 
+              className="w-12 h-12 rounded object-cover"
+            />
           )}
+          <div className="flex-1">
+            {editingPlaylist === playlist.id ? (
+              <div className="flex flex-col gap-2 flex-1">
+                <Input
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                  className="bg-black/20 border-[#1EAEDB]/20 text-[#F2FCE2]"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      handleSaveRename(playlist.id);
+                    }
+                  }}
+                />
+                <Button
+                  onClick={() => handleSaveRename(playlist.id)}
+                  className="bg-[#1EAEDB] hover:bg-[#1EAEDB]/80 transition-colors duration-200"
+                >
+                  Save
+                </Button>
+              </div>
+            ) : (
+              <>
+                <div 
+                  className="text-[#F2FCE2] cursor-pointer hover:text-[#1EAEDB] transition-colors duration-200"
+                  onClick={() => togglePlaylist(playlist.id)}
+                >
+                  {playlist.name}
+                </div>
+                {playlist.description && (
+                  <p className="text-[#F2FCE2]/70 text-sm mt-1">{playlist.description}</p>
+                )}
+                <div className="flex gap-2 mt-1">
+                  {playlist.tags.map((tag, index) => (
+                    <span 
+                      key={index}
+                      className="text-xs bg-[#1EAEDB]/20 text-[#F2FCE2]/90 px-2 py-0.5 rounded-full"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
         </div>
         <div className="flex items-center gap-2">
           <TooltipProvider>
@@ -131,9 +155,29 @@ export const PlaylistItem = ({
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
-                <p>Rename playlist</p>
+                <p>Edit playlist</p>
               </TooltipContent>
             </Tooltip>
+
+            {playlist.shareUrl && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => {
+                      navigator.clipboard.writeText(playlist.shareUrl || '');
+                    }}
+                    className="text-[#F2FCE2] hover:text-[#1EAEDB] transition-colors duration-200"
+                  >
+                    <Share className="h-5 w-5" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Copy share link</p>
+                </TooltipContent>
+              </Tooltip>
+            )}
 
             <Tooltip>
               <TooltipTrigger asChild>
@@ -167,3 +211,4 @@ export const PlaylistItem = ({
     </div>
   );
 };
+
