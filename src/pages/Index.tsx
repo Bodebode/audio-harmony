@@ -57,14 +57,14 @@ const Index = () => {
           <SidebarContent>
             <SidebarGroup>
               <div className="p-4">
-                <h1 className="text-2xl font-bold text-gradient">Bode Nathaniel</h1>
+                <h1 className="text-2xl font-bold text-[#1EAEDB]">Bode Nathaniel</h1>
               </div>
               <SidebarGroupContent>
                 <SidebarMenu>
                   {sidebarItems.map((item) => (
                     <SidebarMenuItem key={item.title}>
-                      <SidebarMenuButton asChild>
-                        <a href={item.url} className="flex items-center gap-2 text-gray-300 hover:text-[#FEF7CD]">
+                      <SidebarMenuButton>
+                        <a href={item.url} className="flex items-center gap-2 text-[#222222] hover:text-[#1EAEDB] font-medium">
                           <item.icon className="h-5 w-5" />
                           <span>{item.title}</span>
                         </a>
