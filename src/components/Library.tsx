@@ -1,6 +1,15 @@
 
-import { PlayCircle } from "lucide-react";
+import { PlayCircle, Plus } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useToast } from "@/components/ui/use-toast";
+import { useState } from "react";
 
 const sampleSongs = [
   { id: 1, title: "Song 1", duration: "3:45" },
@@ -16,6 +25,35 @@ const sampleSongs = [
 ];
 
 export const Library = () => {
+  const { toast } = useToast();
+  const [playlists, setPlaylists] = useState<{ id: number; name: string; songs: number[]; }[]>([]);
+
+  const handleAddToPlaylist = (playlistId: number, songId: number) => {
+    setPlaylists(currentPlaylists => 
+      currentPlaylists.map(playlist => {
+        if (playlist.id === playlistId) {
+          if (playlist.songs.includes(songId)) {
+            toast({
+              title: "Already in playlist",
+              description: "This song is already in the selected playlist",
+              variant: "destructive",
+            });
+            return playlist;
+          }
+          toast({
+            title: "Success",
+            description: "Song added to playlist successfully",
+          });
+          return {
+            ...playlist,
+            songs: [...playlist.songs, songId],
+          };
+        }
+        return playlist;
+      })
+    );
+  };
+
   return (
     <section id="library" className="p-6">
       <Card className="bg-black/40 backdrop-blur-lg border-[#1EAEDB]/10">
@@ -31,7 +69,35 @@ export const Library = () => {
                   <PlayCircle className="h-5 w-5 text-[#F2FCE2]" />
                   <span className="text-[#F2FCE2]">{song.title}</span>
                 </div>
-                <span className="text-[#F2FCE2]">{song.duration}</span>
+                <div className="flex items-center gap-3">
+                  <span className="text-[#F2FCE2]">{song.duration}</span>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-[#F2FCE2] hover:text-[#1EAEDB] transition-colors"
+                      >
+                        <Plus className="h-5 w-5" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                      {playlists.map((playlist) => (
+                        <DropdownMenuItem
+                          key={playlist.id}
+                          onClick={() => handleAddToPlaylist(playlist.id, song.id)}
+                        >
+                          Add to {playlist.name}
+                        </DropdownMenuItem>
+                      ))}
+                      {playlists.length === 0 && (
+                        <DropdownMenuItem disabled>
+                          No playlists available
+                        </DropdownMenuItem>
+                      )}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
               </div>
             ))}
           </div>
