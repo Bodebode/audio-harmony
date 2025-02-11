@@ -11,6 +11,16 @@ export type Collaborator = {
   role: 'editor' | 'viewer';
 };
 
+export type UserProfile = {
+  id: string;
+  username: string;
+  fullName: string;
+  avatarUrl?: string;
+  bio?: string;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
 export type Playlist = {
   id: number;
   name: string;
