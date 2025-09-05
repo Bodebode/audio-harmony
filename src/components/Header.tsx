@@ -13,19 +13,7 @@ export const Header = () => {
       </Button>
       <div className="flex gap-4 flex-wrap">
         <Button variant="ghost" className="text-white hover:text-[#1EAEDB]">
-          <a href="https://twitter.com/BN_officially" target="_blank" rel="noopener noreferrer">Twitter</a>
-        </Button>
-        <Button variant="ghost" className="text-white hover:text-[#1EAEDB]">
-          <a href="https://instagram.com/bn_majestic" target="_blank" rel="noopener noreferrer">Instagram</a>
-        </Button>
-        <Button variant="ghost" className="text-white hover:text-[#1EAEDB]">
-          <a href="https://www.tiktok.com/@bodenathaniel" target="_blank" rel="noopener noreferrer">TikTok</a>
-        </Button>
-        <Button variant="ghost" className="text-white hover:text-[#1EAEDB]">
           <a href="https://open.spotify.com/artist/6ybapGF4VVYMYKTKAJPoR7" target="_blank" rel="noopener noreferrer">Spotify</a>
-        </Button>
-        <Button variant="ghost" className="text-white hover:text-[#1EAEDB]">
-          <a href="https://www.youtube.com/c/BodeNathaniel" target="_blank" rel="noopener noreferrer">YouTube</a>
         </Button>
         <Button variant="ghost" className="text-white hover:text-[#1EAEDB]">
           <a href="https://www.bodenathaniel.com" target="_blank" rel="noopener noreferrer">Website</a>
