@@ -8,10 +8,10 @@ export const About = () => {
         <CardContent className="p-6">
           <h2 className="text-2xl font-bold text-[#FEF7CD] mb-4">About Bode Nathaniel</h2>
           <p className="text-[#F2FCE2] leading-relaxed">
-            British Nigerian musician Bode Nathaniel is well-known in the African music community. He is a gifted musician who has carved out a niche for himself as a fascinating performer and talented songwriter with his distinctive blend of African rhythms and Afrobeat influences.
+            Bode Nathaniel is a talented musician whose style cuts across pop, Afro-pop, and other contemporary genres. The British-Nigerian artist has carved out a niche as a captivating performer and songwriter, blending African rhythms with Afrobeats influences to create music that resonates across cultures.
           </p>
           <p className="text-[#F2FCE2] leading-relaxed mt-4">
-            His music transcends national boundaries, incorporating colorful energy and contagious beats while drawing inspiration from his African background. His works demonstrate his command of the Afrobeat genre as he deftly combines traditional African components with modern sounds.
+            With a rapidly growing fanbase, Bode Nathaniel continues to craft inspiring and uplifting tracks that explore themes of gratitude, life, love, and cultural pride.
           </p>
         </CardContent>
       </Card>
