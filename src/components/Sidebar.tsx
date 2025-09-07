@@ -45,8 +45,8 @@ const sidebarItems = [
 
 export const AppSidebar = () => {
   return (
-    <SidebarComponent className="border-r border-white/10">
-      <SidebarContent>
+    <SidebarComponent className="border-r border-white/10 bg-black/60 backdrop-blur-lg">
+      <SidebarContent className="bg-transparent">
         <SidebarGroup>
           <div className="p-4">
             <h1 className="text-2xl font-bold text-[#1EAEDB]">Bode Nathaniel</h1>
@@ -55,11 +55,11 @@ export const AppSidebar = () => {
             <SidebarMenu>
               {sidebarItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton>
-                     <a 
-                       href={item.url} 
-                       className="flex items-center gap-2 text-[#222222] hover:text-[#1EAEDB] font-medium transition-colors duration-200"
-                     >
+                  <SidebarMenuButton className="hover:bg-white/10 transition-colors duration-200">
+                    <a 
+                      href={item.url} 
+                      className="flex items-center gap-2 text-white hover:text-[#1EAEDB] font-medium transition-colors duration-200"
+                    >
                       <item.icon className="h-5 w-5" />
                       <span>{item.title}</span>
                     </a>
