@@ -1,4 +1,3 @@
-
 import { PlayCircle, Plus } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -27,6 +26,7 @@ const sampleSongs = [
 export const Library = () => {
   const { toast } = useToast();
   const [playlists, setPlaylists] = useState<{ id: number; name: string; songs: number[]; }[]>([]);
+  const [playingSongId, setPlayingSongId] = useState<number | null>(null);
 
   const handleAddToPlaylist = (playlistId: number, songId: number) => {
     setPlaylists(currentPlaylists => 
@@ -54,6 +54,14 @@ export const Library = () => {
     );
   };
 
+  const handlePlaySong = (songId: number) => {
+    setPlayingSongId(songId);
+    toast({
+      title: "Now Playing",
+      description: `Playing ${sampleSongs.find(s => s.id === songId)?.title}`,
+    });
+  };
+
   return (
     <section id="library" className="p-6">
       <Card className="bg-black/40 backdrop-blur-lg border-[#1EAEDB]/10">
@@ -63,22 +71,39 @@ export const Library = () => {
             {sampleSongs.map((song) => (
               <div
                 key={song.id}
-                className="flex items-center justify-between p-3 rounded-lg hover:bg-[#1EAEDB]/5 transition-colors cursor-pointer"
+                className="group flex items-center justify-between p-3 rounded-lg hover:bg-[#1EAEDB]/10 transition-all duration-200 cursor-pointer border border-transparent hover:border-[#1EAEDB]/20 hover:shadow-lg hover:shadow-[#1EAEDB]/10"
               >
                 <div className="flex items-center gap-3">
-                  <PlayCircle className="h-5 w-5 text-[#F2FCE2]" />
-                  <span className="text-[#F2FCE2]">{song.title}</span>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className={`h-8 w-8 rounded-full transition-all duration-200 ${
+                      playingSongId === song.id 
+                        ? 'text-[#1EAEDB] bg-[#1EAEDB]/20 animate-pulse' 
+                        : 'text-[#F2FCE2] hover:text-[#1EAEDB] hover:bg-[#1EAEDB]/10 opacity-0 group-hover:opacity-100'
+                    }`}
+                    onClick={() => handlePlaySong(song.id)}
+                  >
+                    <PlayCircle className="h-4 w-4" />
+                  </Button>
+                  <span className={`transition-colors ${
+                    playingSongId === song.id ? 'text-[#1EAEDB]' : 'text-[#F2FCE2] group-hover:text-[#FEF7CD]'
+                  }`}>
+                    {song.title}
+                  </span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="text-[#F2FCE2]">{song.duration}</span>
+                  <span className="text-[#F2FCE2]/60 group-hover:text-[#F2FCE2]/80 transition-colors">
+                    {song.duration}
+                  </span>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="text-[#F2FCE2] hover:text-[#1EAEDB] transition-colors"
+                        className="h-8 w-8 text-[#F2FCE2] hover:text-[#1EAEDB] hover:bg-[#1EAEDB]/10 transition-all duration-200 opacity-0 group-hover:opacity-100"
                       >
-                        <Plus className="h-5 w-5" />
+                        <Plus className="h-4 w-4" />
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>
