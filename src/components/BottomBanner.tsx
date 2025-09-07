@@ -5,7 +5,7 @@ export const BottomBanner = () => {
     <div className="fixed bottom-0 left-0 right-0 z-50 bg-gradient-to-r from-purple-600 to-purple-500 px-4 py-3 flex items-center justify-between shadow-lg">
       <div className="text-white">
         <p className="font-semibold text-sm md:text-base">
-          Preview only, sign up to get unlimited songs, No Credit Card needed.
+          Preview only, sign up to get unlimited songs, no payments required.
         </p>
       </div>
       <Button 
