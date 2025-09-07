@@ -68,10 +68,11 @@ export const Library = () => {
         <CardContent className="p-6">
           <h2 className="text-2xl font-bold text-[#FEF7CD] mb-4">Library</h2>
           <div className="space-y-2">
-            {sampleSongs.map((song) => (
+            {sampleSongs.map((song, index) => (
               <div
                 key={song.id}
-                className="group flex items-center justify-between p-3 rounded-lg hover:bg-[#1EAEDB]/10 transition-all duration-200 cursor-pointer border border-transparent hover:border-[#1EAEDB]/20 hover:shadow-lg hover:shadow-[#1EAEDB]/10"
+                className="group flex items-center justify-between p-3 rounded-lg hover:bg-[#1EAEDB]/10 transition-all duration-300 cursor-pointer border border-transparent hover:border-[#1EAEDB]/20 hover:shadow-lg hover:shadow-[#1EAEDB]/10 hover:scale-[1.02] transform animate-fade-in"
+                style={{ animationDelay: `${index * 30}ms` }}
               >
                 <div className="flex items-center gap-3">
                   <Button

@@ -136,7 +136,7 @@ export const MusicPlayer = () => {
 
   return (
     <section id="now-playing" className="p-6">
-      <Card className="bg-black/40 backdrop-blur-lg border-[#1EAEDB]/10">
+      <Card className="bg-black/40 backdrop-blur-lg border-[#1EAEDB]/10 animate-fade-in hover:border-[#1EAEDB]/20 transition-all duration-300">
         <CardContent className="p-6">
           <div className="grid md:grid-cols-2 gap-8">
             <div className="flex flex-col justify-center">
@@ -179,7 +179,7 @@ export const MusicPlayer = () => {
                     <Button
                       variant="ghost"
                       size="icon"
-                      className={`text-[#F2FCE2] transition-colors ${isShuffleOn ? 'text-[#1EAEDB]' : 'hover:text-[#1EAEDB]'}`}
+                      className={`text-[#F2FCE2] transition-all duration-200 hover:scale-110 ${isShuffleOn ? 'text-[#1EAEDB] animate-pulse' : 'hover:text-[#1EAEDB]'}`}
                       onClick={toggleShuffle}
                     >
                       <Shuffle className="h-5 w-5" />
@@ -187,7 +187,7 @@ export const MusicPlayer = () => {
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="text-[#F2FCE2] hover:text-[#1EAEDB] transition-colors"
+                      className="text-[#F2FCE2] hover:text-[#1EAEDB] transition-all duration-200 hover:scale-110 active:scale-95"
                       onClick={handlePrevious}
                     >
                       <SkipBack className="h-6 w-6" />
@@ -195,7 +195,7 @@ export const MusicPlayer = () => {
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="text-[#F2FCE2] hover:text-[#1EAEDB] transition-colors"
+                      className="text-[#F2FCE2] hover:text-[#1EAEDB] transition-all duration-200 hover:scale-125 active:scale-110 hover:shadow-lg hover:shadow-[#1EAEDB]/20"
                       onClick={togglePlay}
                     >
                       {isPlaying ? 
@@ -206,7 +206,7 @@ export const MusicPlayer = () => {
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="text-[#F2FCE2] hover:text-[#1EAEDB] transition-colors"
+                      className="text-[#F2FCE2] hover:text-[#1EAEDB] transition-all duration-200 hover:scale-110 active:scale-95"
                       onClick={handleNext}
                     >
                       <SkipForward className="h-6 w-6" />
@@ -214,8 +214,8 @@ export const MusicPlayer = () => {
                     <Button
                       variant="ghost"
                       size="icon"
-                      className={`text-[#F2FCE2] transition-colors ${
-                        repeatMode !== "none" ? 'text-[#1EAEDB]' : 'hover:text-[#1EAEDB]'
+                      className={`text-[#F2FCE2] transition-all duration-200 hover:scale-110 ${
+                        repeatMode !== "none" ? 'text-[#1EAEDB] animate-pulse' : 'hover:text-[#1EAEDB]'
                       }`}
                       onClick={cycleRepeatMode}
                     >
@@ -230,7 +230,7 @@ export const MusicPlayer = () => {
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="text-[#F2FCE2] hover:text-[#1EAEDB] transition-colors"
+                      className="text-[#F2FCE2] hover:text-[#1EAEDB] transition-all duration-200 hover:scale-110"
                     >
                       {volume[0] > 50 ? (
                         <Volume2 className="h-5 w-5" />
@@ -252,7 +252,7 @@ export const MusicPlayer = () => {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="text-[#F2FCE2] hover:text-[#1EAEDB] transition-colors ml-2"
+                          className="text-[#F2FCE2] hover:text-[#1EAEDB] transition-all duration-200 hover:scale-110 ml-2"
                         >
                           <ListMusic className="h-5 w-5" />
                         </Button>

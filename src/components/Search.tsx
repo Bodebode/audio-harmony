@@ -71,27 +71,28 @@ export const Search = () => {
       <Card className="bg-black/40 backdrop-blur-lg border-[#1EAEDB]/10">
         <CardContent className="p-6">
           <div className="space-y-6">
-            <div className="relative">
-              <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-[#F2FCE2]/50" />
+            <div className="relative group">
+              <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-[#F2FCE2]/50 transition-colors duration-200 group-focus-within:text-[#1EAEDB]" />
               <Input
                 placeholder="Search songs, artists, playlists..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 bg-black/20 border-[#1EAEDB]/20 text-[#F2FCE2] placeholder:text-[#F2FCE2]/50 focus:border-[#1EAEDB]/50 focus:ring-[#1EAEDB]/20"
+                className="pl-10 bg-black/20 border-[#1EAEDB]/20 text-[#F2FCE2] placeholder:text-[#F2FCE2]/50 focus:border-[#1EAEDB]/50 focus:ring-[#1EAEDB]/20 transition-all duration-300 focus:bg-black/30 focus:shadow-lg focus:shadow-[#1EAEDB]/10"
               />
             </div>
 
             {searchQuery && (
-              <div className="space-y-6">
+              <div className="space-y-6 animate-fade-in">
                 {/* Songs Results */}
                 {filteredSongs.length > 0 && (
-                  <div>
-                    <h3 className="text-lg font-semibold text-[#FEF7CD] mb-3">Songs</h3>
+                  <div className="animate-scale-in">
+                    <h3 className="text-lg font-semibold text-[#FEF7CD] mb-3 animate-fade-in">Songs</h3>
                     <div className="space-y-2">
-                      {filteredSongs.map((song) => (
+                      {filteredSongs.map((song, index) => (
                         <div
                           key={song.id}
-                          className="group flex items-center justify-between p-3 rounded-lg hover:bg-[#1EAEDB]/10 transition-all duration-200 cursor-pointer border border-transparent hover:border-[#1EAEDB]/20 hover:shadow-lg hover:shadow-[#1EAEDB]/10"
+                          className="group flex items-center justify-between p-3 rounded-lg hover:bg-[#1EAEDB]/10 transition-all duration-300 cursor-pointer border border-transparent hover:border-[#1EAEDB]/20 hover:shadow-lg hover:shadow-[#1EAEDB]/10 hover:scale-[1.02] transform animate-fade-in"
+                          style={{ animationDelay: `${index * 50}ms` }}
                         >
                           <div className="flex items-center gap-3">
                             <Button
@@ -152,13 +153,14 @@ export const Search = () => {
 
                 {/* Playlists Results */}
                 {filteredPlaylists.length > 0 && (
-                  <div>
-                    <h3 className="text-lg font-semibold text-[#FEF7CD] mb-3">Playlists</h3>
+                  <div className="animate-scale-in" style={{ animationDelay: '100ms' }}>
+                    <h3 className="text-lg font-semibold text-[#FEF7CD] mb-3 animate-fade-in">Playlists</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {filteredPlaylists.map((playlist) => (
+                      {filteredPlaylists.map((playlist, index) => (
                         <div
                           key={playlist.id}
-                          className="group p-4 rounded-lg bg-black/20 hover:bg-[#1EAEDB]/10 transition-all duration-200 cursor-pointer border border-transparent hover:border-[#1EAEDB]/20 hover:shadow-lg hover:shadow-[#1EAEDB]/10 hover:scale-105"
+                          className="group p-4 rounded-lg bg-black/20 hover:bg-[#1EAEDB]/10 transition-all duration-300 cursor-pointer border border-transparent hover:border-[#1EAEDB]/20 hover:shadow-lg hover:shadow-[#1EAEDB]/10 hover:scale-105 transform animate-fade-in"
+                          style={{ animationDelay: `${(index + filteredSongs.length) * 50}ms` }}
                         >
                           <div className="flex items-center justify-between">
                             <div>
@@ -185,20 +187,14 @@ export const Search = () => {
 
                 {/* No Results */}
                 {filteredSongs.length === 0 && filteredPlaylists.length === 0 && (
-                  <div className="text-center py-8">
-                    <p className="text-[#F2FCE2]/60">No results found for "{searchQuery}"</p>
+                  <div className="text-center py-8 animate-fade-in">
+                    <p className="text-[#F2FCE2]/60 animate-pulse">No results found for "{searchQuery}"</p>
                     <p className="text-sm text-[#F2FCE2]/40 mt-1">Try a different search term</p>
                   </div>
                 )}
               </div>
             )}
 
-            {!searchQuery && (
-              <div className="text-center py-8">
-                <SearchIcon className="h-12 w-12 text-[#F2FCE2]/30 mx-auto mb-4" />
-                <p className="text-[#F2FCE2]/60">Start typing to search for songs, artists, or playlists</p>
-              </div>
-            )}
           </div>
         </CardContent>
       </Card>

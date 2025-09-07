@@ -94,7 +94,7 @@ export const PlaylistItem = ({
 
   return (
     <div className="space-y-2 animate-fade-in">
-      <div className="flex items-center justify-between p-3 rounded-lg bg-black/20 hover:bg-[#1EAEDB]/10 transition-all duration-200 border border-transparent hover:border-[#1EAEDB]/20 hover:shadow-lg hover:shadow-[#1EAEDB]/10 group">
+      <div className="flex items-center justify-between p-3 rounded-lg bg-black/20 hover:bg-[#1EAEDB]/10 transition-all duration-300 border border-transparent hover:border-[#1EAEDB]/20 hover:shadow-lg hover:shadow-[#1EAEDB]/10 group hover:scale-[1.02] transform">
         <div className="flex items-center gap-3 flex-1">
           {playlist.coverImage && (
             <img 
@@ -118,7 +118,7 @@ export const PlaylistItem = ({
                 />
                 <Button
                   onClick={() => handleSaveRename(playlist.id)}
-                  className="bg-[#1EAEDB] hover:bg-[#1EAEDB]/80 transition-colors duration-200"
+                  className="bg-[#1EAEDB] hover:bg-[#1EAEDB]/80 transition-all duration-200 hover:scale-105 active:scale-95"
                 >
                   Save
                 </Button>
@@ -126,7 +126,7 @@ export const PlaylistItem = ({
             ) : (
               <>
                 <div 
-                  className="text-[#F2FCE2] cursor-pointer hover:text-[#FEF7CD] transition-colors duration-200 group-hover:text-[#FEF7CD]"
+                  className="text-[#F2FCE2] cursor-pointer hover:text-[#FEF7CD] transition-all duration-200 group-hover:text-[#FEF7CD] hover:scale-105"
                   onClick={() => togglePlaylist(playlist.id)}
                 >
                   {playlist.name}
