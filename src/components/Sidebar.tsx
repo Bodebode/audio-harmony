@@ -40,18 +40,6 @@ const sidebarItems = [
     title: "Contact",
     icon: Mail,
     url: "#contact"
-  },
-  {
-    title: "Spotify",
-    icon: ExternalLink,
-    url: "https://open.spotify.com/artist/6ybapGF4VVYMYKTKAJPoR7",
-    external: true
-  },
-  {
-    title: "Website",
-    icon: ExternalLink,
-    url: "https://www.bodenathaniel.com",
-    external: true
   }
 ];
 
@@ -68,11 +56,10 @@ export const AppSidebar = () => {
               {sidebarItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton>
-                    <a 
-                      href={item.url} 
-                      className="flex items-center gap-2 text-[#222222] hover:text-[#1EAEDB] font-medium transition-colors duration-200"
-                      {...(item.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-                    >
+                     <a 
+                       href={item.url} 
+                       className="flex items-center gap-2 text-[#222222] hover:text-[#1EAEDB] font-medium transition-colors duration-200"
+                     >
                       <item.icon className="h-5 w-5" />
                       <span>{item.title}</span>
                     </a>
