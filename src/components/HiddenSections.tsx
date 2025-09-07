@@ -2,4 +2,3 @@
 // These components are preserved but not currently used in the main interface
 
 export { About } from "./About";
-export { ContactForm } from "./ContactForm";

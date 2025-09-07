@@ -44,7 +44,7 @@ export const MainContent = () => {
   return (
     <div className="flex-1 flex">
       {/* Main Content Area */}
-      <div className="flex-1 bg-gradient-to-b from-background/80 to-background overflow-hidden">
+      <div className="flex-1 bg-gradient-to-b from-slate-50 to-white dark:from-background/80 dark:to-background overflow-hidden">
         {/* Top Bar */}
         <div className="flex items-center justify-between p-4 bg-background/50 backdrop-blur-sm border-b border-border">
           <div className="flex items-center gap-4">
