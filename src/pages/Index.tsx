@@ -5,7 +5,6 @@ import { Header } from "@/components/Header";
 import { MusicPlayer } from "@/components/MusicPlayer";
 import { Library } from "@/components/Library";
 import { Playlists } from "@/components/Playlists";
-import { Search } from "@/components/Search";
 import { BottomBanner } from "@/components/BottomBanner";
 
 const Index = () => {
@@ -15,7 +14,6 @@ const Index = () => {
         <AppSidebar />
         <div className="flex-1 overflow-auto pb-16">
           <Header />
-          <Search />
           <MusicPlayer />
           <Playlists />
           <Library />
