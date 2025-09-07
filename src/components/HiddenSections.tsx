@@ -1,10 +1,28 @@
-
-import { Button } from "@/components/ui/button";
+// Hidden sections that can be re-implemented in the future
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
 import { useState } from "react";
+
+export const About = () => {
+  return (
+    <section id="about" className="p-6">
+      <Card className="bg-background/50 backdrop-blur-sm border-border/50">
+        <CardContent className="p-6">
+          <h2 className="text-2xl font-bold text-foreground mb-4">About Bode Nathaniel</h2>
+          <p className="text-muted-foreground leading-relaxed">
+            Bode Nathaniel is a talented musician whose style cuts across pop, Afro-pop, and other contemporary genres. The British-Nigerian artist has carved out a niche as a captivating performer and songwriter, blending African rhythms with Afrobeats influences to create music that resonates across cultures.
+          </p>
+          <p className="text-muted-foreground leading-relaxed mt-4">
+            With a rapidly growing fanbase, Bode Nathaniel continues to craft inspiring and uplifting tracks that explore themes of gratitude, life, love, and cultural pride.
+          </p>
+        </CardContent>
+      </Card>
+    </section>
+  );
+};
 
 export const ContactForm = () => {
   const [formData, setFormData] = useState({
@@ -34,50 +52,50 @@ export const ContactForm = () => {
 
   return (
     <section id="contact" className="p-6">
-      <Card className="bg-black/40 backdrop-blur-lg border-[#1EAEDB]/10">
+      <Card className="bg-background/50 backdrop-blur-sm border-border/50">
         <CardContent className="p-6">
-          <h2 className="text-2xl font-bold text-[#FEF7CD] mb-4">Contact</h2>
+          <h2 className="text-2xl font-bold text-foreground mb-4">Contact</h2>
           <form onSubmit={handleFormSubmit} className="space-y-4">
             <div>
-              <label htmlFor="name" className="block text-[#F2FCE2] mb-2">Name</label>
+              <label htmlFor="name" className="block text-foreground mb-2">Name</label>
               <Input
                 id="name"
                 name="name"
                 value={formData.name}
                 onChange={handleInputChange}
-                className="bg-black/20 border-[#1EAEDB]/30 text-[#F2FCE2]"
+                className="bg-background/20 border-border/50"
                 placeholder="Your name"
                 required
               />
             </div>
             <div>
-              <label htmlFor="email" className="block text-[#F2FCE2] mb-2">Email</label>
+              <label htmlFor="email" className="block text-foreground mb-2">Email</label>
               <Input
                 id="email"
                 name="email"
                 type="email"
                 value={formData.email}
                 onChange={handleInputChange}
-                className="bg-black/20 border-[#1EAEDB]/30 text-[#F2FCE2]"
+                className="bg-background/20 border-border/50"
                 placeholder="your.email@example.com"
                 required
               />
             </div>
             <div>
-              <label htmlFor="message" className="block text-[#F2FCE2] mb-2">Message</label>
+              <label htmlFor="message" className="block text-foreground mb-2">Message</label>
               <Textarea
                 id="message"
                 name="message"
                 value={formData.message}
                 onChange={handleInputChange}
-                className="bg-black/20 border-[#1EAEDB]/30 text-[#F2FCE2] min-h-[150px]"
+                className="bg-background/20 border-border/50 min-h-[150px]"
                 placeholder="Write your message here..."
                 required
               />
             </div>
             <Button 
               type="submit"
-              className="w-full bg-[#1EAEDB] hover:bg-[#0FA0CE] text-white transition-colors"
+              className="w-full"
             >
               Send Message
             </Button>

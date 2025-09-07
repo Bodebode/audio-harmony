@@ -1,5 +1,5 @@
 
-import { PlayCircle, User, Mail, Library, ListMusic, Heart } from "lucide-react";
+import { PlayCircle, Search, Library, ListMusic, Heart, Home } from "lucide-react";
 import { 
   Sidebar as SidebarComponent, 
   SidebarContent, 
@@ -12,14 +12,14 @@ import {
 
 const sidebarItems = [
   {
-    title: "Now Playing",
-    icon: PlayCircle,
-    url: "#now-playing"
+    title: "Home",
+    icon: Home,
+    url: "#home"
   },
   {
-    title: "Playlists",
-    icon: ListMusic,
-    url: "#playlists"
+    title: "Search",
+    icon: Search,
+    url: "#search"
   },
   {
     title: "Library",
@@ -27,36 +27,36 @@ const sidebarItems = [
     url: "#library"
   },
   {
+    title: "Playlists",
+    icon: ListMusic,
+    url: "#playlists"
+  },
+  {
     title: "Liked Songs",
     icon: Heart,
     url: "#liked-songs"
   },
   {
-    title: "About Artist",
-    icon: User,
-    url: "#about"
-  },
-  {
-    title: "Contact",
-    icon: Mail,
-    url: "#contact"
+    title: "Now Playing",
+    icon: PlayCircle,
+    url: "#now-playing"
   }
 ];
 
 export const AppSidebar = () => {
   return (
-    <SidebarComponent className="border-r border-white/10">
+    <SidebarComponent className="border-r border-border/50 bg-background/95 backdrop-blur-lg">
       <SidebarContent>
         <SidebarGroup>
           <div className="p-4">
-            <h1 className="text-2xl font-bold text-[#1EAEDB]">Bode Nathaniel</h1>
+            <h1 className="text-2xl font-bold text-primary">Bode Nathaniel</h1>
           </div>
           <SidebarGroupContent>
             <SidebarMenu>
               {sidebarItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton>
-                    <a href={item.url} className="flex items-center gap-2 text-[#222222] hover:text-[#1EAEDB] font-medium">
+                    <a href={item.url} className="flex items-center gap-2 text-foreground/80 hover:text-primary font-medium transition-colors duration-200">
                       <item.icon className="h-5 w-5" />
                       <span>{item.title}</span>
                     </a>

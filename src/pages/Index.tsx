@@ -2,25 +2,19 @@
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/Sidebar";
 import { Header } from "@/components/Header";
-import { MusicPlayer } from "@/components/MusicPlayer";
-import { Library } from "@/components/Library";
-import { About } from "@/components/About";
-import { ContactForm } from "@/components/ContactForm";
-import { Playlists } from "@/components/Playlists";
+import { MainContent } from "@/components/MainContent";
+import { QueueSidebar } from "@/components/QueueSidebar";
 
 const Index = () => {
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-gradient-to-br from-[#0FA0CE] via-[#222222] to-[#1EAEDB]">
+      <div className="min-h-screen flex w-full bg-background">
         <AppSidebar />
-        <div className="flex-1 overflow-auto">
+        <div className="flex-1 flex flex-col">
           <Header />
-          <MusicPlayer />
-          <Playlists />
-          <About />
-          <Library />
-          <ContactForm />
+          <MainContent />
         </div>
+        <QueueSidebar />
       </div>
     </SidebarProvider>
   );
