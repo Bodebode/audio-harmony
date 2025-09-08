@@ -66,7 +66,7 @@ export const Library = () => {
     <section id="library" className="p-6">
       <Card className="bg-black/40 backdrop-blur-lg border-[#1EAEDB]/10">
         <CardContent className="p-6">
-          <h2 className="text-2xl font-bold text-[#FEF7CD] mb-4">Library</h2>
+          <h2 className="text-2xl font-bold text-[#FEF7CD] mb-4">Alkebulan</h2>
           <div className="space-y-2">
             {sampleSongs.map((song, index) => (
               <div
