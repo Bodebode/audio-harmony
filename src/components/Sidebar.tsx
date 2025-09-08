@@ -1,5 +1,6 @@
 
 import { PlayCircle, User, Mail, Library, ListMusic, Heart, ExternalLink } from "lucide-react";
+import { Link } from "react-router-dom";
 import { 
   Sidebar as SidebarComponent, 
   SidebarContent, 
@@ -34,7 +35,8 @@ const sidebarItems = [
   {
     title: "About Artist",
     icon: User,
-    url: "#about"
+    url: "/about-artist",
+    isRoute: true
   },
   {
     title: "Contact",
@@ -56,13 +58,23 @@ export const AppSidebar = () => {
               {sidebarItems.map((item, index) => (
                 <SidebarMenuItem key={item.title} className="animate-fade-in" style={{ animationDelay: `${index * 0.1}s` }}>
                   <SidebarMenuButton className="hover:bg-[#1EAEDB]/20 hover-scale transition-all duration-300 group">
-                    <a 
-                      href={item.url} 
-                      className="flex items-center gap-2 text-white hover:text-[#1EAEDB] font-medium transition-all duration-300"
-                    >
-                      <item.icon className="h-5 w-5 group-hover:scale-110 transition-transform duration-200" />
-                      <span className="group-hover:translate-x-1 transition-transform duration-200">{item.title}</span>
-                    </a>
+                    {item.isRoute ? (
+                      <Link 
+                        to={item.url} 
+                        className="flex items-center gap-2 text-white hover:text-[#1EAEDB] font-medium transition-all duration-300"
+                      >
+                        <item.icon className="h-5 w-5 group-hover:scale-110 transition-transform duration-200" />
+                        <span className="group-hover:translate-x-1 transition-transform duration-200">{item.title}</span>
+                      </Link>
+                    ) : (
+                      <a 
+                        href={item.url} 
+                        className="flex items-center gap-2 text-white hover:text-[#1EAEDB] font-medium transition-all duration-300"
+                      >
+                        <item.icon className="h-5 w-5 group-hover:scale-110 transition-transform duration-200" />
+                        <span className="group-hover:translate-x-1 transition-transform duration-200">{item.title}</span>
+                      </a>
+                    )}
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
