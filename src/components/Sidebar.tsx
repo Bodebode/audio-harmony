@@ -49,7 +49,7 @@ export const AppSidebar = () => {
       <SidebarContent className="bg-black/40">
         <SidebarGroup>
           <div className="p-4">
-            <h1 className="text-2xl font-bold text-[#1EAEDB]">Bode Nathaniel</h1>
+            <h1 className="text-2xl font-bold text-white">Bode Nathaniel</h1>
           </div>
           <SidebarGroupContent>
             <SidebarMenu>
