@@ -85,8 +85,8 @@ export const Library = () => {
 
   return (
     <section id="library" className="p-6">
-      <Card className="glass-morphism border-white/10 shadow-[0_8px_32px_rgba(31,38,135,0.37)]">
-        <CardContent className="p-6 relative overflow-hidden">
+      <Card className="bg-black/40 backdrop-blur-lg border-[#1EAEDB]/10">
+        <CardContent className="p-6">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
               <h2 className="text-2xl font-bold text-[#FEF7CD]">Alkebulan</h2>
@@ -125,7 +125,7 @@ export const Library = () => {
               {sampleSongs.map((song, index) => (
               <div
                 key={song.id}
-                className="group glass-card hover:glass-hover p-3 rounded-xl transition-all duration-300 cursor-pointer hover:shadow-[0_8px_25px_rgba(30,174,219,0.25)] hover:scale-[1.02] transform animate-fade-in backdrop-blur-sm border-white/5 flex items-center justify-between"
+                className="group flex items-center justify-between p-3 rounded-lg hover:bg-[#1EAEDB]/10 transition-all duration-300 cursor-pointer border border-transparent hover:border-[#1EAEDB]/20 hover:shadow-lg hover:shadow-[#1EAEDB]/10 hover:scale-[1.02] transform animate-fade-in"
                 style={{ animationDelay: `${index * 30}ms` }}
               >
                 <div className="flex items-center gap-3">
