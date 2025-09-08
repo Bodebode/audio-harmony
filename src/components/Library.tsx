@@ -128,17 +128,9 @@ export const Library = () => {
     if (!isAlbumPlaying) {
       // Start playing the first song
       setPlayingSongId(sampleSongs[0].id);
-      toast({
-        title: "Playing Album",
-        description: "Started playing Alkebulan album",
-      });
     } else {
       // Pause the album
       setPlayingSongId(null);
-      toast({
-        title: "Paused",
-        description: "Album playback paused",
-      });
     }
   };
 
@@ -265,25 +257,14 @@ export const Library = () => {
                           </DropdownMenuContent>
                         </DropdownMenu>
                       )}
-                      {isMobile && (
+                      {isMobile && playlists.length > 0 && (
                         <Button
                           variant="ghost"
                           size="icon"
                           className="h-8 w-8 text-[#F2FCE2] hover:text-[#1EAEDB] hover:bg-[#1EAEDB]/20 transition-all duration-300 opacity-0 group-hover:opacity-100 backdrop-blur-sm"
                           onClick={(e) => {
                             e.stopPropagation();
-                            if (playlists.length === 0) {
-                              toast({
-                                title: "No playlists",
-                                description: "Create a playlist first to add songs",
-                                variant: "destructive",
-                              });
-                            } else {
-                              toast({
-                                title: "Feature Note",
-                                description: "Tap and hold to add to playlist (coming soon)",
-                              });
-                            }
+                            // TODO: Implement playlist selection for mobile
                           }}
                         >
                           <Plus className="h-4 w-4" />
