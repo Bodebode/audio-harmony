@@ -17,8 +17,8 @@ const Index = () => {
           <Header />
           <MusicPlayer />
           <Library />
-          <Playlists />
           <AboutArtist />
+          <Playlists />
         </div>
       </div>
       <BottomBanner />

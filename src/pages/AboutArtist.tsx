@@ -26,9 +26,11 @@ export default function AboutArtist() {
         <div className="flex justify-center mb-8">
           <div className="relative">
             <div className="w-64 h-64 rounded-full bg-gradient-to-br from-[#1EAEDB] to-[#0FA0CE] p-1">
-              <div className="w-full h-full rounded-full bg-[#F2FCE2] flex items-center justify-center">
-                <span className="text-6xl text-[#222222]">BN</span>
-              </div>
+              <img 
+                src="/lovable-uploads/74cb0a2d-58c7-4be3-a188-27a043b76a3d.png"
+                alt="Bode Nathaniel"
+                className="w-full h-full rounded-full object-cover"
+              />
             </div>
             <div className="absolute -inset-2 bg-gradient-to-r from-[#1EAEDB]/30 to-[#FEF7CD]/30 rounded-full blur-xl opacity-50" />
           </div>

@@ -29,7 +29,7 @@ export const PlaylistHeader = ({
         <Input
           value={newPlaylistName}
           onChange={(e) => setNewPlaylistName(e.target.value)}
-          placeholder="Enter playlist name"
+          placeholder="Create your own playlist"
           className="bg-black/20 border-[#1EAEDB]/20 text-[#F2FCE2] placeholder:text-[#F2FCE2]/50"
         />
         <Button
