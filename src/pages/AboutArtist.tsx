@@ -1,7 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { MiniAudioPlayer } from "@/components/MiniAudioPlayer";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Home } from "lucide-react";
+import { Home } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export default function AboutArtist() {
@@ -10,16 +10,15 @@ export default function AboutArtist() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0FA0CE] via-[#222222] to-[#1EAEDB] p-6">
       <div className="max-w-4xl mx-auto space-y-6">
-        {/* Back/Home Button */}
-        <div className="flex justify-start mb-4">
-          <Button
+        {/* Subtle Home Button */}
+        <div className="flex justify-end mb-4">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="text-white hover:text-[#1EAEDB] hover:bg-white/10 transition-colors duration-200 rounded-full"
             onClick={() => navigate('/')}
-            variant="outline"
-            size="lg"
-            className="glass-card bg-white/10 hover:bg-white/20 text-[#FEF7CD] border-white/20 hover:border-white/30 transition-all duration-300"
           >
-            <ArrowLeft className="mr-2 h-5 w-5" />
-            Back to Home
+            <Home className="h-5 w-5" />
           </Button>
         </div>
 
