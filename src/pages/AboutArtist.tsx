@@ -32,7 +32,7 @@ export default function AboutArtist() {
                 className="w-full h-full rounded-full object-cover"
               />
             </div>
-            <div className="absolute -inset-2 bg-gradient-to-r from-[#1EAEDB]/30 to-[#FEF7CD]/30 rounded-full" />
+            <div className="absolute -inset-2 bg-gradient-to-r from-[#1EAEDB]/30 to-[#FEF7CD]/30 rounded-full blur-xl opacity-50" />
           </div>
         </div>
 
