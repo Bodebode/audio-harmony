@@ -32,7 +32,12 @@ export const usePlaylistCreate = () => {
       createdBy: 'current-user',
     };
 
-    setPlaylists(playlists => [...playlists, newPlaylist]);
+    setPlaylists(playlists => {
+      const updated = [...playlists, newPlaylist];
+      // Sync to localStorage for Library component
+      localStorage.setItem('music-playlists', JSON.stringify(updated));
+      return updated;
+    });
     setNewPlaylistName("");
     setNewPlaylistDescription("");
     setNewPlaylistTags("");

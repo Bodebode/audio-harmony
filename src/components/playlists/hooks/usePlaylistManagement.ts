@@ -9,7 +9,12 @@ export const usePlaylistManagement = () => {
   const { toast } = useToast();
 
   const handleDeletePlaylist = (playlistId: number, setPlaylists: React.Dispatch<React.SetStateAction<Playlist[]>>) => {
-    setPlaylists(playlists => playlists.filter(playlist => playlist.id !== playlistId));
+    setPlaylists(playlists => {
+      const updated = playlists.filter(playlist => playlist.id !== playlistId);
+      // Sync to localStorage for Library component
+      localStorage.setItem('music-playlists', JSON.stringify(updated));
+      return updated;
+    });
     toast({
       title: "Success",
       description: "Playlist deleted successfully",
@@ -31,13 +36,16 @@ export const usePlaylistManagement = () => {
       return;
     }
 
-    setPlaylists(playlists => 
-      playlists.map(playlist => 
+    setPlaylists(playlists => {
+      const updated = playlists.map(playlist => 
         playlist.id === playlistId 
           ? { ...playlist, name: editName.trim() }
           : playlist
-      )
-    );
+      );
+      // Sync to localStorage for Library component
+      localStorage.setItem('music-playlists', JSON.stringify(updated));
+      return updated;
+    });
     setEditingPlaylist(null);
     setEditName("");
     toast({

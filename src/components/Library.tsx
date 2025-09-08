@@ -31,13 +31,62 @@ export const Library = () => {
   const [isExpanded, setIsExpanded] = useState(true);
   const [isAlbumPlaying, setIsAlbumPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
+  const [openDropdown, setOpenDropdown] = useState<number | null>(null);
 
-  // Simulate loading state
+  // Detect mobile devices and simulate loading state
   useEffect(() => {
+    const checkMobile = () => {
+      const userAgent = navigator.userAgent || navigator.vendor || (window as any).opera;
+      const isMobileDevice = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent.toLowerCase());
+      const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+      setIsMobile(isMobileDevice || isTouchDevice);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
     const timer = setTimeout(() => {
       setIsLoading(false);
     }, 1500);
-    return () => clearTimeout(timer);
+    
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('resize', checkMobile);
+    };
+  }, []);
+
+  // Get playlists from localStorage (shared with Playlists component)
+  useEffect(() => {
+    const stored = localStorage.getItem('music-playlists');
+    if (stored) {
+      try {
+        const parsedPlaylists = JSON.parse(stored);
+        setPlaylists(parsedPlaylists);
+      } catch (e) {
+        console.error('Error parsing stored playlists:', e);
+      }
+    }
+
+    const handleStorageChange = () => {
+      const updated = localStorage.getItem('music-playlists');
+      if (updated) {
+        try {
+          const parsedPlaylists = JSON.parse(updated);
+          setPlaylists(parsedPlaylists);
+        } catch (e) {
+          console.error('Error parsing updated playlists:', e);
+        }
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    const interval = setInterval(handleStorageChange, 1000); // Poll for updates
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      clearInterval(interval);
+    };
   }, []);
 
   const handleAddToPlaylist = (playlistId: number, songId: number) => {
@@ -176,33 +225,70 @@ export const Library = () => {
                       <span className="text-[#F2FCE2]/60 group-hover:text-[#F2FCE2]/90 transition-colors duration-300 text-sm font-mono">
                         {song.duration}
                       </span>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 text-[#F2FCE2] hover:text-[#1EAEDB] hover:bg-[#1EAEDB]/20 transition-all duration-300 opacity-0 group-hover:opacity-100 backdrop-blur-sm"
-                          >
-                            <Plus className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent className="backdrop-blur-xl bg-black/80 border-[#1EAEDB]/20">
-                          {playlists.map((playlist) => (
-                            <DropdownMenuItem
-                              key={playlist.id}
-                              onClick={() => handleAddToPlaylist(playlist.id, song.id)}
-                              className="hover:bg-[#1EAEDB]/10 text-[#F2FCE2] hover:text-[#FEF7CD] transition-colors"
+                      {!isMobile && (
+                        <DropdownMenu 
+                          open={openDropdown === song.id}
+                          onOpenChange={(open) => setOpenDropdown(open ? song.id : null)}
+                        >
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 text-[#F2FCE2] hover:text-[#1EAEDB] hover:bg-[#1EAEDB]/20 transition-all duration-300 opacity-0 group-hover:opacity-100 backdrop-blur-sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setOpenDropdown(openDropdown === song.id ? null : song.id);
+                              }}
                             >
-                              Add to {playlist.name}
-                            </DropdownMenuItem>
-                          ))}
-                          {playlists.length === 0 && (
-                            <DropdownMenuItem disabled className="text-[#F2FCE2]/50">
-                              No playlists available
-                            </DropdownMenuItem>
-                          )}
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                              <Plus className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent className="backdrop-blur-xl bg-black/80 border-[#1EAEDB]/20">
+                            {playlists.map((playlist) => (
+                              <DropdownMenuItem
+                                key={playlist.id}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleAddToPlaylist(playlist.id, song.id);
+                                  setOpenDropdown(null);
+                                }}
+                                className="hover:bg-[#1EAEDB]/10 text-[#F2FCE2] hover:text-[#FEF7CD] transition-colors"
+                              >
+                                Add to {playlist.name}
+                              </DropdownMenuItem>
+                            ))}
+                            {playlists.length === 0 && (
+                              <DropdownMenuItem disabled className="text-[#F2FCE2]/50">
+                                Create a playlist first to add songs
+                              </DropdownMenuItem>
+                            )}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      )}
+                      {isMobile && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-[#F2FCE2] hover:text-[#1EAEDB] hover:bg-[#1EAEDB]/20 transition-all duration-300 opacity-0 group-hover:opacity-100 backdrop-blur-sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (playlists.length === 0) {
+                              toast({
+                                title: "No playlists",
+                                description: "Create a playlist first to add songs",
+                                variant: "destructive",
+                              });
+                            } else {
+                              toast({
+                                title: "Feature Note",
+                                description: "Tap and hold to add to playlist (coming soon)",
+                              });
+                            }
+                          }}
+                        >
+                          <Plus className="h-4 w-4" />
+                        </Button>
+                      )}
                     </div>
                   </div>
                 ))
