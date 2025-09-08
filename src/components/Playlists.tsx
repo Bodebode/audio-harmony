@@ -1,5 +1,5 @@
 import { Plus, X, Play, GripVertical, Pencil, Trash2, Loader } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -38,7 +38,22 @@ export const Playlists = () => {
   const [editName, setEditName] = useState("");
   const [playingPlaylist, setPlayingPlaylist] = useState<number | null>(null);
   const [draggingIndex, setDraggingIndex] = useState<number | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
   const { toast } = useToast();
+
+  // Detect mobile devices to disable drag functionality
+  useEffect(() => {
+    const checkMobile = () => {
+      const userAgent = navigator.userAgent || navigator.vendor || (window as any).opera;
+      const isMobileDevice = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent.toLowerCase());
+      const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+      setIsMobile(isMobileDevice || isTouchDevice);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const handleCreatePlaylist = () => {
     if (!newPlaylistName.trim()) {
@@ -286,26 +301,29 @@ export const Playlists = () => {
                           key={songId}
                           className={`flex items-center justify-between p-2 rounded bg-black/10 transition-all duration-200 ${
                             draggingIndex === index ? 'scale-105 shadow-lg bg-[#1EAEDB]/20' : ''
-                          }`}
-                          draggable
-                          onDragStart={(e) => {
-                            e.dataTransfer.setData('text/plain', index.toString());
-                            setDraggingIndex(index);
-                          }}
-                          onDragEnd={() => setDraggingIndex(null)}
-                          onDragOver={(e) => {
-                            e.preventDefault();
-                          }}
-                          onDrop={(e) => {
-                            e.preventDefault();
-                            const dragIndex = parseInt(e.dataTransfer.getData('text/plain'));
-                            handleReorderSongs(playlist.id, dragIndex, index);
-                            setDraggingIndex(null);
-                          }}
+                          } ${isMobile ? 'touch-pan-y' : ''}`}
+                          {...(!isMobile && {
+                            draggable: true,
+                            onDragStart: (e) => {
+                              e.dataTransfer.setData('text/plain', index.toString());
+                              setDraggingIndex(index);
+                            },
+                            onDragEnd: () => setDraggingIndex(null),
+                            onDragOver: (e) => {
+                              e.preventDefault();
+                            },
+                            onDrop: (e) => {
+                              e.preventDefault();
+                              const dragIndex = parseInt(e.dataTransfer.getData('text/plain'));
+                              handleReorderSongs(playlist.id, dragIndex, index);
+                              setDraggingIndex(null);
+                            }
+                          })}
                         >
                           <div className="flex items-center gap-2">
-                            <GripVertical className="h-4 w-4 text-[#F2FCE2]/50 cursor-move" />
+                            {!isMobile && <GripVertical className="h-4 w-4 text-[#F2FCE2]/50 cursor-move" />}
                             <span className="text-[#F2FCE2]">{song.title}</span>
+                            <span className="text-[#F2FCE2]/50 text-sm ml-auto mr-2">{song.duration}</span>
                           </div>
                           <Button
                             variant="ghost"
