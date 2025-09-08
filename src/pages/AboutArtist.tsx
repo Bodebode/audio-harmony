@@ -30,7 +30,7 @@ export default function AboutArtist() {
             <div className="space-y-6 text-[#F2FCE2] text-lg leading-relaxed">
               <p>
                 Bode Nathaniel is a talented musician whose style cuts across Afro-pop, World music and other contemporary genres. 
-                The British-Nigerian artist has carved out a niche as a captivating performer and songwriter, blending 
+                The British-Nigerian artist has carved out a niche as a captivating performer & songwriter, blending 
                 African rhythms with Afrobeats influences to create music that resonates across cultures.
               </p>
               
