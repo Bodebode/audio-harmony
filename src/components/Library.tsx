@@ -1,4 +1,4 @@
-import { PlayCircle, Plus, ChevronDown } from "lucide-react";
+import { PlayCircle, Plus, ChevronDown, Play, Pause } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -28,6 +28,7 @@ export const Library = () => {
   const [playlists, setPlaylists] = useState<{ id: number; name: string; songs: number[]; }[]>([]);
   const [playingSongId, setPlayingSongId] = useState<number | null>(null);
   const [isExpanded, setIsExpanded] = useState(true);
+  const [isAlbumPlaying, setIsAlbumPlaying] = useState(false);
 
   const handleAddToPlaylist = (playlistId: number, songId: number) => {
     setPlaylists(currentPlaylists => 
@@ -63,12 +64,49 @@ export const Library = () => {
     });
   };
 
+  const handleAlbumPlayPause = () => {
+    setIsAlbumPlaying(!isAlbumPlaying);
+    if (!isAlbumPlaying) {
+      // Start playing the first song
+      setPlayingSongId(sampleSongs[0].id);
+      toast({
+        title: "Playing Album",
+        description: "Started playing Alkebulan album",
+      });
+    } else {
+      // Pause the album
+      setPlayingSongId(null);
+      toast({
+        title: "Paused",
+        description: "Album playback paused",
+      });
+    }
+  };
+
   return (
     <section id="library" className="p-6">
       <Card className="bg-black/40 backdrop-blur-lg border-[#1EAEDB]/10">
         <CardContent className="p-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-bold text-[#FEF7CD]">Alkebulan</h2>
+            <div className="flex items-center gap-3">
+              <h2 className="text-2xl font-bold text-[#FEF7CD]">Alkebulan</h2>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleAlbumPlayPause}
+                className={`h-8 w-8 rounded-full transition-all duration-200 ${
+                  isAlbumPlaying 
+                    ? 'text-[#1EAEDB] bg-[#1EAEDB]/20' 
+                    : 'text-[#FEF7CD] hover:text-[#1EAEDB] hover:bg-[#1EAEDB]/10'
+                }`}
+              >
+                {isAlbumPlaying ? (
+                  <Pause className="h-4 w-4" />
+                ) : (
+                  <Play className="h-4 w-4" />
+                )}
+              </Button>
+            </div>
             <Button
               variant="ghost"
               size="icon"
