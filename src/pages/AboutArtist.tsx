@@ -1,10 +1,28 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { MiniAudioPlayer } from "@/components/MiniAudioPlayer";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft, Home } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export default function AboutArtist() {
+  const navigate = useNavigate();
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0FA0CE] via-[#222222] to-[#1EAEDB] p-6">
       <div className="max-w-4xl mx-auto space-y-6">
+        {/* Back/Home Button */}
+        <div className="flex justify-start mb-4">
+          <Button
+            onClick={() => navigate('/')}
+            variant="outline"
+            size="lg"
+            className="glass-card bg-white/10 hover:bg-white/20 text-[#FEF7CD] border-white/20 hover:border-white/30 transition-all duration-300"
+          >
+            <ArrowLeft className="mr-2 h-5 w-5" />
+            Back to Home
+          </Button>
+        </div>
+
         {/* Artist Image */}
         <div className="flex justify-center mb-8">
           <div className="relative">
