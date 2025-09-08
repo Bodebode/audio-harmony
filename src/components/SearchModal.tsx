@@ -60,16 +60,8 @@ export const SearchModal = ({ isOpen, onClose }: SearchModalProps) => {
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-2xl bg-black/95 border-[#1EAEDB]/20 text-white">
         <DialogHeader>
-          <DialogTitle className="text-[#1EAEDB] flex items-center justify-between">
+          <DialogTitle className="text-[#1EAEDB]">
             Search Songs
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              onClick={onClose}
-              className="text-white hover:text-[#1EAEDB]"
-            >
-              <X className="h-4 w-4" />
-            </Button>
           </DialogTitle>
         </DialogHeader>
         
