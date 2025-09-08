@@ -1,4 +1,4 @@
-import { PlayCircle, Plus } from "lucide-react";
+import { PlayCircle, Plus, ChevronDown } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -27,6 +27,7 @@ export const Library = () => {
   const { toast } = useToast();
   const [playlists, setPlaylists] = useState<{ id: number; name: string; songs: number[]; }[]>([]);
   const [playingSongId, setPlayingSongId] = useState<number | null>(null);
+  const [isExpanded, setIsExpanded] = useState(true);
 
   const handleAddToPlaylist = (playlistId: number, songId: number) => {
     setPlaylists(currentPlaylists => 
@@ -66,9 +67,24 @@ export const Library = () => {
     <section id="library" className="p-6">
       <Card className="bg-black/40 backdrop-blur-lg border-[#1EAEDB]/10">
         <CardContent className="p-6">
-          <h2 className="text-2xl font-bold text-[#FEF7CD] mb-4">Alkebulan</h2>
-          <div className="space-y-2">
-            {sampleSongs.map((song, index) => (
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-2xl font-bold text-[#FEF7CD]">Alkebulan</h2>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setIsExpanded(!isExpanded)}
+              className="h-8 w-8 text-[#FEF7CD] hover:text-[#1EAEDB] hover:bg-[#1EAEDB]/10 transition-all duration-200"
+            >
+              <ChevronDown 
+                className={`h-5 w-5 transition-transform duration-200 ${
+                  isExpanded ? 'rotate-180' : 'rotate-0'
+                }`} 
+              />
+            </Button>
+          </div>
+          {isExpanded && (
+            <div className="space-y-2 animate-accordion-down">
+              {sampleSongs.map((song, index) => (
               <div
                 key={song.id}
                 className="group flex items-center justify-between p-3 rounded-lg hover:bg-[#1EAEDB]/10 transition-all duration-300 cursor-pointer border border-transparent hover:border-[#1EAEDB]/20 hover:shadow-lg hover:shadow-[#1EAEDB]/10 hover:scale-[1.02] transform animate-fade-in"
@@ -125,8 +141,9 @@ export const Library = () => {
                   </DropdownMenu>
                 </div>
               </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </CardContent>
       </Card>
     </section>
