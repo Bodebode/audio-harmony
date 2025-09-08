@@ -58,7 +58,7 @@ export const AppSidebar = () => {
                   <SidebarMenuButton className="hover:bg-[#1EAEDB]/20 transition-colors duration-200">
                     <a 
                       href={item.url} 
-                      className="flex items-center gap-2 text-[#F2FCE2] hover:text-[#1EAEDB] font-medium transition-colors duration-200"
+                      className="flex items-center gap-2 text-white hover:text-[#1EAEDB] font-medium transition-colors duration-200"
                     >
                       <item.icon className="h-5 w-5" />
                       <span>{item.title}</span>
