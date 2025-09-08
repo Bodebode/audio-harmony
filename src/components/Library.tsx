@@ -8,7 +8,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useToast } from "@/components/ui/use-toast";
-import { useState } from "react";
+import { SkeletonGrid } from "@/components/ui/skeleton-loader";
+import { useState, useEffect } from "react";
 
 const sampleSongs = [
   { id: 1, title: "Song 1", duration: "3:45" },
@@ -29,6 +30,15 @@ export const Library = () => {
   const [playingSongId, setPlayingSongId] = useState<number | null>(null);
   const [isExpanded, setIsExpanded] = useState(true);
   const [isAlbumPlaying, setIsAlbumPlaying] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Simulate loading state
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleAddToPlaylist = (playlistId: number, songId: number) => {
     setPlaylists(currentPlaylists => 
@@ -85,19 +95,26 @@ export const Library = () => {
 
   return (
     <section id="library" className="p-6">
-      <Card className="bg-black/40 backdrop-blur-lg border-[#1EAEDB]/10">
-        <CardContent className="p-6">
+      <Card className="glass-card gradient-mesh-1 relative overflow-hidden">
+        {/* Gradient overlay animation */}
+        <div className="absolute inset-0 gradient-aurora opacity-50 animate-gentle-pulse pointer-events-none" />
+        
+        <CardContent className="p-6 relative z-10">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
-              <h2 className="text-2xl font-bold text-[#FEF7CD]">Alkebulan</h2>
+              <h2 className="text-2xl font-bold text-[#FEF7CD] relative">
+                Alkebulan
+                <div className="absolute -inset-1 bg-gradient-to-r from-[#1EAEDB]/20 via-transparent to-[#FEF7CD]/10 blur-sm -z-10 opacity-50" />
+              </h2>
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={handleAlbumPlayPause}
-                className={`h-8 w-8 rounded-full transition-all duration-200 ${
+                disabled={isLoading}
+                className={`h-8 w-8 rounded-full transition-all duration-300 backdrop-blur-sm ${
                   isAlbumPlaying 
-                    ? 'text-[#1EAEDB] bg-[#1EAEDB]/20' 
-                    : 'text-[#FEF7CD] hover:text-[#1EAEDB] hover:bg-[#1EAEDB]/10'
+                    ? 'text-[#1EAEDB] bg-[#1EAEDB]/30 shadow-[0_0_20px_rgba(30,174,219,0.3)]' 
+                    : 'text-[#FEF7CD] hover:text-[#1EAEDB] hover:bg-[#1EAEDB]/20 hover:shadow-[0_0_15px_rgba(30,174,219,0.2)]'
                 }`}
               >
                 {isAlbumPlaying ? (
@@ -111,75 +128,85 @@ export const Library = () => {
               variant="ghost"
               size="icon"
               onClick={() => setIsExpanded(!isExpanded)}
-              className="h-8 w-8 text-[#FEF7CD] hover:text-[#1EAEDB] hover:bg-[#1EAEDB]/10 transition-all duration-200"
+              className="h-8 w-8 text-[#FEF7CD] hover:text-[#1EAEDB] hover:bg-[#1EAEDB]/20 transition-all duration-300 backdrop-blur-sm"
             >
               <ChevronDown 
-                className={`h-5 w-5 transition-transform duration-200 ${
+                className={`h-5 w-5 transition-transform duration-300 ${
                   isExpanded ? 'rotate-180' : 'rotate-0'
                 }`} 
               />
             </Button>
           </div>
+          
           {isExpanded && (
             <div className="space-y-2 animate-accordion-down">
-              {sampleSongs.map((song, index) => (
-              <div
-                key={song.id}
-                className="group flex items-center justify-between p-3 rounded-lg hover:bg-[#1EAEDB]/10 transition-all duration-300 cursor-pointer border border-transparent hover:border-[#1EAEDB]/20 hover:shadow-lg hover:shadow-[#1EAEDB]/10 hover:scale-[1.02] transform animate-fade-in"
-                style={{ animationDelay: `${index * 30}ms` }}
-              >
-                <div className="flex items-center gap-3">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className={`h-8 w-8 rounded-full transition-all duration-200 ${
-                      playingSongId === song.id 
-                        ? 'text-[#1EAEDB] bg-[#1EAEDB]/20 animate-pulse' 
-                        : 'text-[#F2FCE2] hover:text-[#1EAEDB] hover:bg-[#1EAEDB]/10 opacity-0 group-hover:opacity-100'
-                    }`}
-                    onClick={() => handlePlaySong(song.id)}
+              {isLoading ? (
+                <SkeletonGrid count={10} className="animate-fade-in" />
+              ) : (
+                sampleSongs.map((song, index) => (
+                  <div
+                    key={song.id}
+                    className="glass-item group flex items-center justify-between p-3 rounded-lg cursor-pointer transform animate-fade-in gradient-mesh-2"
+                    style={{ animationDelay: `${index * 50}ms` }}
                   >
-                    <PlayCircle className="h-4 w-4" />
-                  </Button>
-                  <span className={`transition-colors ${
-                    playingSongId === song.id ? 'text-[#1EAEDB]' : 'text-[#F2FCE2] group-hover:text-[#FEF7CD]'
-                  }`}>
-                    {song.title}
-                  </span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <span className="text-[#F2FCE2]/60 group-hover:text-[#F2FCE2]/80 transition-colors">
-                    {song.duration}
-                  </span>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
+                    {/* Shimmer overlay for extra sparkle */}
+                    <div className="absolute inset-0 gradient-shimmer opacity-0 group-hover:opacity-100 rounded-lg" />
+                    
+                    <div className="flex items-center gap-3 relative z-10">
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-8 w-8 text-[#F2FCE2] hover:text-[#1EAEDB] hover:bg-[#1EAEDB]/10 transition-all duration-200 opacity-0 group-hover:opacity-100"
+                        className={`h-8 w-8 rounded-full transition-all duration-300 backdrop-blur-sm ${
+                          playingSongId === song.id 
+                            ? 'text-[#1EAEDB] bg-[#1EAEDB]/30 animate-pulse shadow-[0_0_15px_rgba(30,174,219,0.4)]' 
+                            : 'text-[#F2FCE2] hover:text-[#1EAEDB] hover:bg-[#1EAEDB]/20 opacity-0 group-hover:opacity-100'
+                        }`}
+                        onClick={() => handlePlaySong(song.id)}
                       >
-                        <Plus className="h-4 w-4" />
+                        <PlayCircle className="h-4 w-4" />
                       </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent>
-                      {playlists.map((playlist) => (
-                        <DropdownMenuItem
-                          key={playlist.id}
-                          onClick={() => handleAddToPlaylist(playlist.id, song.id)}
-                        >
-                          Add to {playlist.name}
-                        </DropdownMenuItem>
-                      ))}
-                      {playlists.length === 0 && (
-                        <DropdownMenuItem disabled>
-                          No playlists available
-                        </DropdownMenuItem>
-                      )}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-              </div>
-              ))}
+                      <span className={`transition-all duration-300 ${
+                        playingSongId === song.id ? 'text-[#1EAEDB] font-medium' : 'text-[#F2FCE2] group-hover:text-[#FEF7CD]'
+                      }`}>
+                        {song.title}
+                      </span>
+                    </div>
+                    
+                    <div className="flex items-center gap-3 relative z-10">
+                      <span className="text-[#F2FCE2]/60 group-hover:text-[#F2FCE2]/90 transition-colors duration-300 text-sm font-mono">
+                        {song.duration}
+                      </span>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-[#F2FCE2] hover:text-[#1EAEDB] hover:bg-[#1EAEDB]/20 transition-all duration-300 opacity-0 group-hover:opacity-100 backdrop-blur-sm"
+                          >
+                            <Plus className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent className="backdrop-blur-xl bg-black/80 border-[#1EAEDB]/20">
+                          {playlists.map((playlist) => (
+                            <DropdownMenuItem
+                              key={playlist.id}
+                              onClick={() => handleAddToPlaylist(playlist.id, song.id)}
+                              className="hover:bg-[#1EAEDB]/10 text-[#F2FCE2] hover:text-[#FEF7CD] transition-colors"
+                            >
+                              Add to {playlist.name}
+                            </DropdownMenuItem>
+                          ))}
+                          {playlists.length === 0 && (
+                            <DropdownMenuItem disabled className="text-[#F2FCE2]/50">
+                              No playlists available
+                            </DropdownMenuItem>
+                          )}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
           )}
         </CardContent>
