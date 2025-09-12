@@ -1,11 +1,12 @@
 
-import { Menu, Search, ShoppingCart, Home } from "lucide-react";
+import { Menu, Search, ShoppingCart, Home, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { useState } from "react";
 import { SearchModal } from "./SearchModal";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { PremiumBadge } from "./premium/PremiumBadge";
 import { 
   DropdownMenu,
   DropdownMenuContent,
@@ -89,21 +90,29 @@ export const Header = () => {
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56 bg-black/90 border-white/10" align="end">
               <div className="flex items-center justify-start gap-2 p-2">
-                <div className="flex flex-col space-y-1 leading-none">
+                <div className="w-8 h-8 bg-gradient-to-r from-[#1EAEDB] to-[#0FA0CE] rounded-full flex items-center justify-center">
+                  <User className="h-4 w-4 text-white" />
+                </div>
+                <div className="flex flex-col space-y-1 leading-none flex-1">
                   {isGuest ? (
                     <>
-                      <p className="font-medium text-white">Guest User</p>
+                      <div className="flex items-center gap-2">
+                        <p className="font-medium text-white">Guest User</p>
+                      </div>
                       <p className="w-[200px] truncate text-sm text-white/70">
                         Browsing as guest
                       </p>
                     </>
                   ) : (
                     <>
-                      <p className="font-medium text-white">
-                        {profile?.display_name || user?.email}
-                      </p>
+                      <div className="flex items-center gap-2">
+                        <p className="font-medium text-white">
+                          {profile?.display_name || user?.email}
+                        </p>
+                        <PremiumBadge size="sm" variant="solid" showText={false} />
+                      </div>
                       <p className="w-[200px] truncate text-sm text-white/70">
-                        {profile?.is_premium ? '👑 Premium User' : 'Free User'}
+                        {profile?.is_premium ? 'Premium Member' : 'Free User'}
                       </p>
                     </>
                   )}

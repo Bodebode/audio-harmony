@@ -1,12 +1,16 @@
 
-import { Play, Pause, SkipBack, SkipForward, Volume2, Volume1, VolumeX, Shuffle, Repeat, Repeat1, Maximize2 } from "lucide-react";
+import { 
+  Play, Pause, SkipBack, SkipForward, Volume2, Volume1, VolumeX, 
+  Shuffle, Repeat, Repeat1, Maximize2, Crown, Sliders, Download 
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
 import { useState, useCallback, useEffect } from "react";
-import { useToast } from "@/components/ui/use-toast";
 import { LyricsDisplay } from "./LyricsDisplay";
 import { FullScreenPlayer } from "./FullScreenPlayer";
+import { PremiumFeature } from "./premium/PremiumFeature";
+import { usePremium } from "@/hooks/usePremium";
 
 import { useGestures } from "@/hooks/useGestures";
 
@@ -33,8 +37,11 @@ export const MusicPlayer = () => {
   const [isShuffleOn, setIsShuffleOn] = useState(false);
   const [repeatMode, setRepeatMode] = useState<RepeatMode>("none");
   const [isFullScreen, setIsFullScreen] = useState(false);
+  const { checkFeatureAccess, limits } = usePremium();
   
-  const { toast } = useToast();
+  // Track skips for free users
+  const [skipsThisHour, setSkipsThisHour] = useState(0);
+  const [lastSkipReset, setLastSkipReset] = useState(Date.now());
 
   const currentSong = songs[currentSongIndex];
 
@@ -72,10 +79,6 @@ export const MusicPlayer = () => {
 
   const toggleShuffle = () => {
     setIsShuffleOn(!isShuffleOn);
-    toast({
-      title: !isShuffleOn ? "Shuffle mode enabled" : "Shuffle mode disabled",
-      duration: 2000,
-    });
   };
 
   const cycleRepeatMode = () => {
@@ -83,17 +86,6 @@ export const MusicPlayer = () => {
     const currentIndex = modes.indexOf(repeatMode);
     const nextMode = modes[(currentIndex + 1) % modes.length];
     setRepeatMode(nextMode);
-    
-    const messages = {
-      none: "Repeat mode disabled",
-      all: "Repeating all songs",
-      one: "Repeating current song"
-    };
-    
-    toast({
-      title: messages[nextMode],
-      duration: 2000,
-    });
   };
 
   const getNextSongIndex = useCallback(() => {
@@ -131,6 +123,21 @@ export const MusicPlayer = () => {
   };
 
   const handleNext = () => {
+    // Check skip limit for free users
+    if (!checkFeatureAccess('unlimitedSkips')) {
+      const now = Date.now();
+      if (now - lastSkipReset > 3600000) { // 1 hour
+        setSkipsThisHour(0);
+        setLastSkipReset(now);
+      }
+      
+      if (skipsThisHour >= limits.skipsPerHour) {
+        return; // Skip limit reached
+      }
+      
+      setSkipsThisHour(prev => prev + 1);
+    }
+    
     if (isShuffleOn && currentPlaylist) {
       const availableSongs = currentPlaylist.filter(id => id !== currentSong.id);
       if (availableSongs.length > 0) {
@@ -211,9 +218,26 @@ export const MusicPlayer = () => {
               </div>
             <div className="flex flex-col justify-between">
               <div>
-                <h2 className="text-3xl font-bold text-[#FEF7CD] mb-2">Now Playing</h2>
+                <div className="flex items-center justify-between mb-2">
+                  <h2 className="text-3xl font-bold text-[#FEF7CD]">Now Playing</h2>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-[#F2FCE2]/60">
+                      {limits.audioQuality}
+                    </span>
+                    {checkFeatureAccess('highQualityAudio') && (
+                      <Crown className="h-4 w-4 text-yellow-500" />
+                    )}
+                  </div>
+                </div>
                 <p className="text-[#F2FCE2] text-xl mb-1">{currentSong.title}</p>
                 <p className="text-[#F2FCE2]/80 text-lg">{currentSong.artist}</p>
+                
+                {/* Skip counter for free users */}
+                {!checkFeatureAccess('unlimitedSkips') && (
+                  <p className="text-xs text-[#F2FCE2]/60 mt-2">
+                    Skips left this hour: {limits.skipsPerHour - skipsThisHour}
+                  </p>
+                )}
               </div>
               <div className="space-y-4">
                 <LyricsDisplay isPlaying={isPlaying} songId={currentSong.id} />
@@ -232,6 +256,16 @@ export const MusicPlayer = () => {
                     </div>
                   </div>
                   <div className="flex justify-center items-center gap-4">
+                    <PremiumFeature feature="advancedControls" showUpgradeButton={false}>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-[#F2FCE2] hover:text-[#1EAEDB] transition-all duration-200 hover:scale-110"
+                      >
+                        <Sliders className="h-5 w-5" />
+                      </Button>
+                    </PremiumFeature>
+
                     <Button
                       variant="ghost"
                       size="icon"
@@ -240,6 +274,7 @@ export const MusicPlayer = () => {
                     >
                       <Shuffle className="h-5 w-5" />
                     </Button>
+
                     <Button
                       variant="ghost"
                       size="icon"
@@ -248,6 +283,7 @@ export const MusicPlayer = () => {
                     >
                       <SkipBack className="h-6 w-6" />
                     </Button>
+
                     <Button
                       variant="ghost"
                       size="icon"
@@ -259,14 +295,17 @@ export const MusicPlayer = () => {
                         <Play className="h-8 w-8" />
                       }
                     </Button>
+
                     <Button
                       variant="ghost"
                       size="icon"
                       className="text-[#F2FCE2] hover:text-[#1EAEDB] transition-all duration-200 hover:scale-110 active:scale-95"
                       onClick={handleNext}
+                      disabled={!checkFeatureAccess('unlimitedSkips') && skipsThisHour >= limits.skipsPerHour}
                     >
                       <SkipForward className="h-6 w-6" />
                     </Button>
+
                     <Button
                       variant="ghost"
                       size="icon"
@@ -281,6 +320,16 @@ export const MusicPlayer = () => {
                         <Repeat className="h-5 w-5" />
                       )}
                     </Button>
+
+                    <PremiumFeature feature="offlineDownloads" showUpgradeButton={false}>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-[#F2FCE2] hover:text-[#1EAEDB] transition-all duration-200 hover:scale-110"
+                      >
+                        <Download className="h-5 w-5" />
+                      </Button>
+                    </PremiumFeature>
                   </div>
                   <div className="flex items-center gap-2">
                     <Button

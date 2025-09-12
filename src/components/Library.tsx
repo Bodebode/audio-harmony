@@ -1,9 +1,12 @@
-import { PlayCircle, Heart, ChevronDown, Play, Pause } from "lucide-react";
+import { PlayCircle, Heart, ChevronDown, Play, Pause, Crown, Lock } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { SkeletonGrid } from "@/components/ui/skeleton-loader";
 import { useState, useEffect } from "react";
 import { useLikedSongs } from "@/hooks/useLikedSongs";
+import { usePremium } from "@/hooks/usePremium";
+import { PremiumFeature } from "./premium/PremiumFeature";
+import { UpgradePrompt } from "./premium/UpgradePrompt";
 
 const sampleSongs = [
   { id: 1, title: "Afrobeat Fusion", duration: "3:45" },
@@ -13,8 +16,11 @@ const sampleSongs = [
   { id: 5, title: "Unity Dance", duration: "3:41" },
   { id: 6, title: "River Flow", duration: "4:07" },
   { id: 7, title: "Rhythmic Soul", duration: "3:52" },
-  { id: 8, title: "Golden Dawn", duration: "4:18" }
-];
+  { id: 8, title: "Golden Dawn", duration: "4:18" },
+  // Premium-only content
+  { id: 9, title: "Exclusive Melody", duration: "3:33", isPremium: true },
+  { id: 10, title: "VIP Session", duration: "4:55", isPremium: true }
+] as Array<{ id: number; title: string; duration: string; isPremium?: boolean }>;
 
 export const Library = () => {
   const [playingSongId, setPlayingSongId] = useState<number | null>(null);
@@ -22,6 +28,12 @@ export const Library = () => {
   const [isAlbumPlaying, setIsAlbumPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const { toggleLikeSong, isLiked } = useLikedSongs();
+  const { checkFeatureAccess, limits } = usePremium();
+
+  // Separate free and premium songs
+  const freeSongs = sampleSongs.filter(song => !song.isPremium);
+  const premiumSongs = sampleSongs.filter(song => song.isPremium);
+  const displaySongs = checkFeatureAccess('premiumContent') ? sampleSongs : freeSongs;
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -54,10 +66,18 @@ export const Library = () => {
         <CardContent className="p-6 relative z-10">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
-              <h2 className="text-2xl font-bold text-[#FEF7CD] relative">
+              <h2 className="text-2xl font-bold text-[#FEF7CD] relative flex items-center gap-2">
                 Alkebulan
                 <div className="absolute -inset-1 bg-gradient-to-r from-[#1EAEDB]/20 via-transparent to-[#FEF7CD]/10 blur-sm -z-10 opacity-50" />
               </h2>
+              <div className="flex items-center gap-1 text-xs">
+                <span className="text-[#FEF7CD]/60">
+                  Quality: {limits.audioQuality}
+                </span>
+                {checkFeatureAccess('highQualityAudio') && (
+                  <Crown className="h-3 w-3 text-yellow-500" />
+                )}
+              </div>
               <Button
                 variant="ghost"
                 size="icon"
@@ -95,7 +115,8 @@ export const Library = () => {
               {isLoading ? (
                 <SkeletonGrid count={8} className="animate-fade-in" />
               ) : (
-                sampleSongs.map((song, index) => (
+                <>
+                  {displaySongs.map((song, index) => (
                   <div
                     key={song.id}
                     className="glass-item group flex items-center justify-between p-3 rounded-lg cursor-pointer transform animate-fade-in gradient-mesh-2"
@@ -146,7 +167,71 @@ export const Library = () => {
                       </Button>
                     </div>
                   </div>
-                ))
+                  ))}
+
+                  {/* Premium Content Section */}
+                  {premiumSongs.length > 0 && (
+                    <PremiumFeature 
+                      feature="premiumContent"
+                      className="mt-4 space-y-2"
+                      showUpgradeButton={false}
+                    >
+                      <div className="text-center py-4 border-t border-white/10">
+                        <div className="flex items-center justify-center gap-2 mb-2">
+                          <Crown className="h-4 w-4 text-yellow-500" />
+                          <span className="text-[#FEF7CD] font-medium">Premium Exclusives</span>
+                        </div>
+                        {premiumSongs.map((song, index) => (
+                          <div
+                            key={song.id}
+                            className="glass-item group flex items-center justify-between p-3 rounded-lg cursor-pointer transform animate-fade-in gradient-mesh-2"
+                            style={{ animationDelay: `${(displaySongs.length + index) * 50}ms` }}
+                          >
+                            <div className="absolute inset-0 gradient-shimmer opacity-0 group-hover:opacity-100 rounded-lg" />
+                            
+                            <div className="flex items-center gap-3 relative z-10">
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 rounded-full text-[#F2FCE2] hover:text-[#1EAEDB] hover:bg-[#1EAEDB]/20 transition-all duration-300 backdrop-blur-sm"
+                                onClick={() => handlePlaySong(song.id)}
+                              >
+                                <PlayCircle className="h-4 w-4" />
+                              </Button>
+                              <span className="text-[#F2FCE2] group-hover:text-[#FEF7CD] transition-all duration-300">
+                                {song.title}
+                              </span>
+                            </div>
+                            
+                            <div className="flex items-center gap-3 relative z-10">
+                              <span className="text-[#F2FCE2]/60 group-hover:text-[#F2FCE2]/90 transition-colors duration-300 text-sm font-mono">
+                                {song.duration}
+                              </span>
+                              <Crown className="h-4 w-4 text-yellow-500" />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </PremiumFeature>
+                  )}
+
+                  {/* Show upgrade prompt for non-premium users */}
+                  {!checkFeatureAccess('premiumContent') && (
+                    <div className="mt-6">
+                      <UpgradePrompt
+                        title="Access Premium Music"
+                        description="Unlock exclusive tracks and high-quality streaming"
+                        features={[
+                          "Exclusive premium songs",
+                          "High-quality 320kbps audio",
+                          "Unlimited playlists",
+                          "No advertisements"
+                        ]}
+                        variant="card"
+                      />
+                    </div>
+                  )}
+                </>
               )}
             </div>
           )}

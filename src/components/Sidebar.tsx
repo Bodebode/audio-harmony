@@ -1,6 +1,8 @@
 
-import { PlayCircle, User, Mail, Library, Heart, ExternalLink } from "lucide-react";
+import { PlayCircle, User, Mail, Library, Heart, ExternalLink, Crown } from "lucide-react";
 import { Link } from "react-router-dom";
+import { PremiumBadge } from "./premium/PremiumBadge";
+import { usePremium } from "@/hooks/usePremium";
 import { 
   Sidebar as SidebarComponent, 
   SidebarContent, 
@@ -41,12 +43,22 @@ const sidebarItems = [
 ];
 
 export const AppSidebar = () => {
+  const { isPremiumActive } = usePremium();
+
   return (
     <SidebarComponent className="border-r border-white/10 bg-black/95 backdrop-blur-lg">
       <SidebarContent className="bg-black/60">
         <SidebarGroup>
           <div className="p-4">
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-white to-[#1EAEDB] bg-clip-text text-transparent animate-fade-in">Bode Nathaniel</h1>
+            <div className="flex items-center gap-2 mb-2">
+              <h1 className="text-2xl font-bold bg-gradient-to-r from-white to-[#1EAEDB] bg-clip-text text-transparent animate-fade-in">
+                Bode Nathaniel
+              </h1>
+              <PremiumBadge size="sm" variant="glow" showText={false} />
+            </div>
+            {isPremiumActive && (
+              <p className="text-xs text-yellow-500 font-medium">Premium Member</p>
+            )}
           </div>
           <SidebarGroupContent>
             <SidebarMenu>

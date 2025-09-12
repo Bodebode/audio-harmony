@@ -8,11 +8,14 @@ import { Library } from "@/components/Library";
 import { LikedSongs } from "@/components/LikedSongs";
 import { AboutArtist } from "@/components/AboutArtist";
 import { BottomBanner } from "@/components/BottomBanner";
+import { PremiumFeatureShowcase } from "@/components/premium/PremiumFeatureShowcase";
 import { useAuth } from "@/hooks/useAuth";
+import { usePremium } from "@/hooks/usePremium";
 import { Loader2 } from "lucide-react";
 
 const Index = () => {
   const { isAuthenticated, loading } = useAuth();
+  const { isPremiumActive } = usePremium();
 
   // Show loading spinner while checking auth state
   if (loading) {
@@ -41,6 +44,7 @@ const Index = () => {
           <Library />
           <LikedSongs />
           <AboutArtist />
+          {!isPremiumActive && <PremiumFeatureShowcase />}
         </div>
       </div>
       <BottomBanner />
