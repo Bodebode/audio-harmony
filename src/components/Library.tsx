@@ -71,12 +71,7 @@ export const Library = () => {
                 <div className="absolute -inset-1 bg-gradient-to-r from-[#1EAEDB]/20 via-transparent to-[#FEF7CD]/10 blur-sm -z-10 opacity-50" />
               </h2>
               <div className="flex items-center gap-1 text-xs">
-                <span className="text-[#FEF7CD]/60">
-                  Quality: {limits.audioQuality}
-                </span>
-                {checkFeatureAccess('highQualityAudio') && (
-                  <Crown className="h-3 w-3 text-yellow-500" />
-                )}
+                {/* Audio quality indicator removed */}
               </div>
               <Button
                 variant="ghost"

@@ -2,7 +2,6 @@ import { useAuth } from './useAuth';
 
 export interface PremiumFeatures {
   unlimitedPlaylists: boolean;
-  highQualityAudio: boolean;
   noAds: boolean;
   advancedControls: boolean;
   offlineDownloads: boolean;
@@ -23,7 +22,6 @@ export const usePremium = () => {
   // Define what features premium users get
   const premiumFeatures: PremiumFeatures = {
     unlimitedPlaylists: isPremiumActive,
-    highQualityAudio: isPremiumActive,
     noAds: isPremiumActive,
     advancedControls: isPremiumActive,
     offlineDownloads: isPremiumActive,
@@ -35,7 +33,6 @@ export const usePremium = () => {
   // Free user limits
   const limits = {
     maxPlaylists: isPremiumActive ? Infinity : 2,
-    audioQuality: isPremiumActive ? '320kbps' : '128kbps',
     skipsPerHour: isPremiumActive ? Infinity : 6,
     maxOfflineDownloads: isPremiumActive ? Infinity : 0
   };
@@ -47,7 +44,6 @@ export const usePremium = () => {
   const getFeatureMessage = (feature: keyof PremiumFeatures): string => {
     const messages = {
       unlimitedPlaylists: 'Create unlimited playlists',
-      highQualityAudio: 'Stream in high-quality 320kbps',
       noAds: 'Listen without interruptions',
       advancedControls: 'Access equalizer and crossfade',
       offlineDownloads: 'Download music for offline listening',

@@ -218,17 +218,9 @@ export const MusicPlayer = () => {
               </div>
             <div className="flex flex-col justify-between">
               <div>
-                <div className="flex items-center justify-between mb-2">
-                  <h2 className="text-3xl font-bold text-[#FEF7CD]">Now Playing</h2>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs text-[#F2FCE2]/60">
-                      {limits.audioQuality}
-                    </span>
-                    {checkFeatureAccess('highQualityAudio') && (
-                      <Crown className="h-4 w-4 text-yellow-500" />
-                    )}
+                  <div className="flex items-center justify-between mb-2">
+                    <h2 className="text-3xl font-bold text-[#FEF7CD]">Now Playing</h2>
                   </div>
-                </div>
                 <p className="text-[#F2FCE2] text-xl mb-1">{currentSong.title}</p>
                 <p className="text-[#F2FCE2]/80 text-lg">{currentSong.artist}</p>
                 
