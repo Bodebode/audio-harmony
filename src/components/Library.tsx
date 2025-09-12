@@ -130,9 +130,9 @@ export const Library = () => {
                       <Button
                         variant="ghost"
                         size="icon"
-                        className={`h-8 w-8 transition-all duration-300 opacity-0 group-hover:opacity-100 backdrop-blur-sm ${
+                        className={`h-8 w-8 transition-all duration-300 opacity-30 group-hover:opacity-100 backdrop-blur-sm ${
                           isLiked(song.id) 
-                            ? 'text-red-500 hover:text-red-600' 
+                            ? 'text-red-500 hover:text-red-600 !opacity-100' 
                             : 'text-[#F2FCE2] hover:text-red-500'
                         }`}
                         onClick={(e) => {
