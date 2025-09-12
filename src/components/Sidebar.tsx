@@ -1,5 +1,5 @@
 
-import { PlayCircle, User, Mail, Library, Heart, ExternalLink, Crown } from "lucide-react";
+import { PlayCircle, User, Mail, Library, Heart, Crown, ChevronDown } from "lucide-react";
 import { Link } from "react-router-dom";
 import { PremiumBadge } from "./premium/PremiumBadge";
 import { usePremium } from "@/hooks/usePremium";
@@ -10,8 +10,12 @@ import {
   SidebarGroupContent, 
   SidebarMenu, 
   SidebarMenuButton, 
-  SidebarMenuItem 
+  SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubItem,
+  SidebarMenuSubButton 
 } from "@/components/ui/sidebar";
+import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible";
 
 const sidebarItems = [
   {
@@ -43,7 +47,7 @@ const sidebarItems = [
 ];
 
 export const AppSidebar = () => {
-  const { isPremiumActive } = usePremium();
+  const { isPremiumActive, premiumFeatures, getFeatureMessage } = usePremium();
 
   return (
     <SidebarComponent className="border-r border-white/10 bg-black/95 backdrop-blur-lg">
@@ -85,6 +89,33 @@ export const AppSidebar = () => {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
+              
+              {!isPremiumActive && (
+                <SidebarMenuItem className="animate-fade-in" style={{ animationDelay: `${sidebarItems.length * 0.1}s` }}>
+                  <Collapsible>
+                    <CollapsibleTrigger asChild>
+                      <SidebarMenuButton className="hover:bg-gradient-to-r hover:from-yellow-500/20 hover:to-amber-500/20 transition-all duration-300 group">
+                        <div className="flex items-center gap-2 text-yellow-500 font-medium w-full">
+                          <Crown className="h-5 w-5 group-hover:scale-110 transition-transform duration-200" />
+                          <span className="group-hover:translate-x-1 transition-transform duration-200">Upgrade to Premium</span>
+                          <ChevronDown className="ml-auto h-4 w-4 transition-transform group-data-[state=open]:rotate-180" />
+                        </div>
+                      </SidebarMenuButton>
+                    </CollapsibleTrigger>
+                    <CollapsibleContent>
+                      <SidebarMenuSub>
+                        {Object.entries(premiumFeatures).map(([feature, _]) => (
+                          <SidebarMenuSubItem key={feature}>
+                            <SidebarMenuSubButton className="text-white/70 hover:text-yellow-500 transition-colors">
+                              <span className="text-xs">• {getFeatureMessage(feature as keyof typeof premiumFeatures)}</span>
+                            </SidebarMenuSubButton>
+                          </SidebarMenuSubItem>
+                        ))}
+                      </SidebarMenuSub>
+                    </CollapsibleContent>
+                  </Collapsible>
+                </SidebarMenuItem>
+              )}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
