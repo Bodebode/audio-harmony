@@ -248,15 +248,13 @@ export const MusicPlayer = () => {
                     </div>
                   </div>
                   <div className="flex justify-center items-center gap-4">
-                    <PremiumFeature feature="advancedControls" showUpgradeButton={false}>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="text-[#F2FCE2] hover:text-[#1EAEDB] transition-all duration-200 hover:scale-110"
-                      >
-                        <Sliders className="h-5 w-5" />
-                      </Button>
-                    </PremiumFeature>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="text-[#F2FCE2] hover:text-[#1EAEDB] transition-all duration-200 hover:scale-110"
+                    >
+                      <Sliders className="h-5 w-5" />
+                    </Button>
 
                     <Button
                       variant="ghost"
@@ -313,15 +311,13 @@ export const MusicPlayer = () => {
                       )}
                     </Button>
 
-                    <PremiumFeature feature="offlineDownloads" showUpgradeButton={false}>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="text-[#F2FCE2] hover:text-[#1EAEDB] transition-all duration-200 hover:scale-110"
-                      >
-                        <Download className="h-5 w-5" />
-                      </Button>
-                    </PremiumFeature>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="text-[#F2FCE2] hover:text-[#1EAEDB] transition-all duration-200 hover:scale-110"
+                    >
+                      <Download className="h-5 w-5" />
+                    </Button>
                   </div>
                   <div className="flex items-center gap-2">
                     <Button
