@@ -5,6 +5,7 @@ import { SkeletonGrid } from "@/components/ui/skeleton-loader";
 import { useState, useEffect } from "react";
 import { useLikedSongs } from "@/hooks/useLikedSongs";
 import { usePremium } from "@/hooks/usePremium";
+import { useAuth } from "@/hooks/useAuth";
 import { PremiumFeature } from "./premium/PremiumFeature";
 import { UpgradePrompt } from "./premium/UpgradePrompt";
 
@@ -29,6 +30,7 @@ export const Library = () => {
   const [isLoading, setIsLoading] = useState(true);
   const { toggleLikeSong, isLiked } = useLikedSongs();
   const { checkFeatureAccess, limits } = usePremium();
+  const { isGuest } = useAuth();
 
   // Separate free and premium songs
   const freeSongs = sampleSongs.filter(song => !song.isPremium);
@@ -210,8 +212,8 @@ export const Library = () => {
                     </PremiumFeature>
                   )}
 
-                  {/* Show upgrade prompt for non-premium users */}
-                  {!checkFeatureAccess('premiumContent') && (
+                  {/* Show upgrade prompt for non-premium users (but not guests) */}
+                  {!isGuest && !checkFeatureAccess('premiumContent') && (
                     <div className="mt-6">
                       <UpgradePrompt
                         title="Access Premium Music"

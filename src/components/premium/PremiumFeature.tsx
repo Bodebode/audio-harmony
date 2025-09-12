@@ -1,6 +1,7 @@
 import { Lock, Crown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { usePremium, PremiumFeatures } from "@/hooks/usePremium";
+import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { ReactNode } from "react";
 
@@ -20,9 +21,15 @@ export const PremiumFeature = ({
   className = ""
 }: PremiumFeatureProps) => {
   const { checkFeatureAccess, getFeatureMessage } = usePremium();
+  const { isGuest } = useAuth();
   const navigate = useNavigate();
   
   const hasAccess = checkFeatureAccess(feature);
+  
+  // For guests, just show children without any premium overlays
+  if (isGuest) {
+    return <div className={className}>{children}</div>;
+  }
   
   if (hasAccess) {
     return <div className={className}>{children}</div>;

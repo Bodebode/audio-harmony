@@ -9,6 +9,7 @@ import { LikedSongs } from "@/components/LikedSongs";
 import { AboutArtist } from "@/components/AboutArtist";
 
 import { PremiumFeatureShowcase } from "@/components/premium/PremiumFeatureShowcase";
+import { Footer } from "@/components/Footer";
 import { useAuth } from "@/hooks/useAuth";
 import { usePremium } from "@/hooks/usePremium";
 import { Loader2 } from "lucide-react";
@@ -45,6 +46,7 @@ const Index = () => {
           <LikedSongs />
           <AboutArtist />
           {!isGuest && !isPremiumActive && <PremiumFeatureShowcase />}
+          <Footer />
         </div>
       </div>
     </SidebarProvider>

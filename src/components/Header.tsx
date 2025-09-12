@@ -134,7 +134,7 @@ export const Header = () => {
                 onClick={handleSignOut}
                 className="text-white hover:bg-white/10"
               >
-                {isGuest ? 'Exit Guest Mode' : 'Sign Out'}
+                {isGuest ? 'Sign Up' : 'Sign Out'}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
