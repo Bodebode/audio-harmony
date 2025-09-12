@@ -12,7 +12,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Loader2 } from "lucide-react";
 
 const Index = () => {
-  const { user, loading } = useAuth();
+  const { isAuthenticated, loading } = useAuth();
 
   // Show loading spinner while checking auth state
   if (loading) {
@@ -27,7 +27,7 @@ const Index = () => {
   }
 
   // Redirect to auth if not authenticated
-  if (!user) {
+  if (!isAuthenticated) {
     return <Navigate to="/auth" replace />;
   }
 

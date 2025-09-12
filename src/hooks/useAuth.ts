@@ -19,9 +19,14 @@ export const useAuth = () => {
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isGuest, setIsGuest] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
+    // Check for guest mode in localStorage
+    const guestMode = localStorage.getItem('guestMode') === 'true';
+    setIsGuest(guestMode);
+
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
@@ -29,6 +34,10 @@ export const useAuth = () => {
         setUser(session?.user ?? null);
         
         if (session?.user) {
+          // Clear guest mode when user signs in
+          localStorage.removeItem('guestMode');
+          setIsGuest(false);
+          
           // Fetch user profile
           setTimeout(async () => {
             const { data: profileData } = await supabase
@@ -53,6 +62,8 @@ export const useAuth = () => {
       setUser(session?.user ?? null);
       
       if (session?.user) {
+        localStorage.removeItem('guestMode');
+        setIsGuest(false);
         supabase
           .from('profiles')
           .select('*')
@@ -121,8 +132,42 @@ export const useAuth = () => {
     return { error };
   };
 
+  const signInWithSocial = async (provider: 'google' | 'facebook' | 'twitter') => {
+    const redirectUrl = `${window.location.origin}/`;
+    
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider,
+      options: {
+        redirectTo: redirectUrl
+      }
+    });
+
+    if (error) {
+      toast({
+        title: "Social sign in failed",
+        description: error.message,
+        variant: "destructive"
+      });
+    }
+
+    return { error };
+  };
+
+  const continueAsGuest = () => {
+    localStorage.setItem('guestMode', 'true');
+    setIsGuest(true);
+    toast({
+      title: "Welcome, Guest!",
+      description: "You're browsing as a guest. Sign up for premium features!"
+    });
+  };
+
   const signOut = async () => {
     const { error } = await supabase.auth.signOut();
+    
+    // Clear guest mode
+    localStorage.removeItem('guestMode');
+    setIsGuest(false);
     
     if (error) {
       toast({
@@ -140,9 +185,13 @@ export const useAuth = () => {
     session,
     profile,
     loading,
+    isGuest,
     signUp,
     signIn,
+    signInWithSocial,
+    continueAsGuest,
     signOut,
-    isPremium: profile?.is_premium || false
+    isPremium: profile?.is_premium || false,
+    isAuthenticated: !!user || isGuest
   };
 };
