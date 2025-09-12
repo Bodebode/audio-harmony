@@ -8,6 +8,8 @@ export interface PremiumFeatures {
   unlimitedSkips: boolean;
   premiumContent: boolean;
   earlyAccess: boolean;
+  exclusiveSongs: boolean;
+  vipMerchAccess: boolean;
 }
 
 export const usePremium = () => {
@@ -27,7 +29,9 @@ export const usePremium = () => {
     offlineDownloads: isPremiumActive,
     unlimitedSkips: isPremiumActive,
     premiumContent: isPremiumActive,
-    earlyAccess: isPremiumActive
+    earlyAccess: isPremiumActive,
+    exclusiveSongs: isPremiumActive,
+    vipMerchAccess: isPremiumActive
   };
 
   // Free user limits
@@ -44,12 +48,14 @@ export const usePremium = () => {
   const getFeatureMessage = (feature: keyof PremiumFeatures): string => {
     const messages = {
       unlimitedPlaylists: 'Create unlimited playlists',
-      noAds: 'Listen without interruptions',
+      noAds: 'No advertisements',
       advancedControls: 'Access equalizer and crossfade',
       offlineDownloads: 'Download music for offline listening',
       unlimitedSkips: 'Skip songs without limits',
       premiumContent: 'Access exclusive premium content',
-      earlyAccess: 'Get early access to new releases'
+      earlyAccess: 'Get early access to new releases',
+      exclusiveSongs: 'Exclusive Songs & Contents',
+      vipMerchAccess: 'VIP Merch & Access page'
     };
     
     return messages[feature] || 'Premium feature';

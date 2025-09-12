@@ -14,24 +14,6 @@ import { useNavigate } from "react-router-dom";
 
 const premiumFeatures = [
   {
-    icon: Music,
-    title: "Unlimited Playlists",
-    description: "Create as many playlists as you want",
-    accent: "from-blue-500 to-cyan-500"
-  },
-  {
-    icon: Headphones,
-    title: "High-Quality Audio",
-    description: "Stream in crystal clear 320kbps",
-    accent: "from-purple-500 to-pink-500"
-  },
-  {
-    icon: Download,
-    title: "Offline Downloads", 
-    description: "Take your music anywhere",
-    accent: "from-green-500 to-emerald-500"
-  },
-  {
     icon: Zap,
     title: "No Advertisements",
     description: "Uninterrupted music experience",
