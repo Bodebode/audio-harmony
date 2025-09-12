@@ -1,17 +1,11 @@
 
-import { Play, Pause, SkipBack, SkipForward, Volume2, Volume1, VolumeX, Shuffle, Repeat, Repeat1, ListMusic } from "lucide-react";
+import { Play, Pause, SkipBack, SkipForward, Volume2, Volume1, VolumeX, Shuffle, Repeat, Repeat1 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
 import { useState, useCallback } from "react";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
 import { useToast } from "@/components/ui/use-toast";
+import { LyricsDisplay } from "./LyricsDisplay";
 
 const songs = [
   {
@@ -19,7 +13,7 @@ const songs = [
     title: "Afrobeat Fusion",
     artist: "Bode Nathaniel",
     artwork: "/lovable-uploads/74cb0a2d-58c7-4be3-a188-27a043b76a3d.png",
-    description: "Experience the unique blend of African rhythms\nand contemporary beats in this captivating\nAfrobeat fusion track.",
+    
     duration: "3:45"
   },
 ];
@@ -34,7 +28,7 @@ export const MusicPlayer = () => {
   const [currentPlaylist, setCurrentPlaylist] = useState<number[] | null>(null);
   const [isShuffleOn, setIsShuffleOn] = useState(false);
   const [repeatMode, setRepeatMode] = useState<RepeatMode>("none");
-  const [queue, setQueue] = useState<number[]>([]);
+  
   const { toast } = useToast();
 
   const currentSong = songs[currentSongIndex];
@@ -128,7 +122,7 @@ export const MusicPlayer = () => {
       if (firstSongIndex !== -1) {
         setCurrentSongIndex(firstSongIndex);
         setCurrentPlaylist(songIds);
-        setQueue(songIds.slice(1));
+        
         setIsPlaying(true);
       }
     }
@@ -156,11 +150,7 @@ export const MusicPlayer = () => {
                 <p className="text-[#F2FCE2]/80 text-lg">{currentSong.artist}</p>
               </div>
               <div className="space-y-4">
-                <div className="h-40 overflow-y-auto bg-black/20 rounded p-4 custom-scrollbar">
-                  <p className="text-[#F2FCE2] whitespace-pre-line">
-                    {currentSong.description}
-                  </p>
-                </div>
+                <LyricsDisplay isPlaying={isPlaying} songId={currentSong.id} />
                 <div className="space-y-4">
                   <div className="space-y-2">
                     <Slider
@@ -247,46 +237,6 @@ export const MusicPlayer = () => {
                       step={1}
                       className="w-24"
                     />
-                    <Sheet>
-                      <SheetTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="text-[#F2FCE2] hover:text-[#1EAEDB] transition-all duration-200 hover:scale-110 ml-2"
-                        >
-                          <ListMusic className="h-5 w-5" />
-                        </Button>
-                      </SheetTrigger>
-                      <SheetContent side="right" className="w-[400px] bg-black/90 border-[#1EAEDB]/10">
-                        <SheetHeader>
-                          <SheetTitle className="text-[#FEF7CD]">Queue</SheetTitle>
-                        </SheetHeader>
-                        <div className="mt-4">
-                          {queue.length > 0 ? (
-                            <div className="space-y-2">
-                              {queue.map((songId) => {
-                                const song = songs.find(s => s.id === songId);
-                                if (!song) return null;
-                                return (
-                                  <div
-                                    key={song.id}
-                                    className="flex items-center justify-between p-2 rounded bg-black/20 text-[#F2FCE2]"
-                                  >
-                                    <div>
-                                      <p className="font-medium">{song.title}</p>
-                                      <p className="text-sm text-[#F2FCE2]/70">{song.artist}</p>
-                                    </div>
-                                    <span className="text-sm text-[#F2FCE2]/50">{song.duration}</span>
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          ) : (
-                            <p className="text-[#F2FCE2]/50 text-center">Queue is empty</p>
-                          )}
-                        </div>
-                      </SheetContent>
-                    </Sheet>
                   </div>
                 </div>
               </div>
