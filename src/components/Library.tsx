@@ -176,7 +176,7 @@ export const Library = () => {
                       <div className="text-center py-4 border-t border-white/10">
                         <div className="flex items-center justify-center gap-2 mb-2">
                           <Crown className="h-4 w-4 text-yellow-500" />
-                          <span className="text-[#FEF7CD] font-medium">Premium Exclusives</span>
+                          <span className="text-[#FEF7CD] font-medium">Signup Required</span>
                         </div>
                         {premiumSongs.map((song, index) => (
                           <div

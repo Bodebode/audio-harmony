@@ -23,7 +23,7 @@ export const Footer = () => {
           
           <div className="space-y-2">
             <h3 className="text-2xl font-bold text-white">
-              Ready to Start Your Musical Journey?
+              Ready to join the fan-mily?
             </h3>
             <p className="text-white/80 text-lg max-w-2xl mx-auto">
               Join thousands of music lovers and create your free account today
