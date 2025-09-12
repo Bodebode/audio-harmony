@@ -1,14 +1,11 @@
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
 
 export const BottomBanner = () => {
-  const { toast } = useToast();
+  const navigate = useNavigate();
 
   const handleSignUp = () => {
-    toast({
-      title: "Sign Up Coming Soon!",
-      description: "Thanks for your interest! Sign up functionality will be available soon.",
-    });
+    navigate('/auth');
   };
 
   return (
@@ -23,7 +20,7 @@ export const BottomBanner = () => {
         onClick={handleSignUp}
         className="bg-white text-purple-600 hover:bg-gray-100 font-semibold px-3 py-1.5 sm:px-6 sm:py-2 rounded-full transition-all duration-200 hover:scale-105 text-xs sm:text-sm whitespace-nowrap flex-shrink-0"
       >
-        Sign up free
+        Sign up for free
       </Button>
     </div>
   );
