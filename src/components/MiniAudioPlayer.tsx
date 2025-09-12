@@ -1,13 +1,16 @@
 import { useState, useEffect } from "react";
-import { Play, Pause, SkipBack, SkipForward } from "lucide-react";
+import { Play, Pause, SkipBack, SkipForward, Maximize2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
+import { Waveform } from "./Waveform";
+import { useGestures } from "@/hooks/useGestures";
 
 export const MiniAudioPlayer = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState([0]);
   const [visualizerBars, setVisualizerBars] = useState<number[]>([]);
+  const [showFullPlayer, setShowFullPlayer] = useState(false);
 
   // Generate visualizer bars
   useEffect(() => {
@@ -37,41 +40,53 @@ export const MiniAudioPlayer = () => {
     }
   }, [isPlaying]);
 
+  // Gesture controls
+  const gestureRef = useGestures({
+    onSwipeLeft: () => console.log('Next track'),
+    onSwipeRight: () => console.log('Previous track'),
+    onSwipeUp: () => setShowFullPlayer(true),
+    threshold: 50,
+    velocityThreshold: 0.3
+  });
+
+  const handleProgressChange = (value: number) => {
+    setProgress([value]);
+  };
+
   return (
     <Card className="glass-card gradient-mesh-2 relative overflow-hidden">
       <div className="absolute inset-0 gradient-shimmer opacity-30 animate-gentle-pulse pointer-events-none" />
       
-      <CardContent className="p-4 relative z-10">
+      <CardContent 
+        className="p-4 relative z-10" 
+        ref={gestureRef as React.RefObject<HTMLDivElement>}
+      >
         {/* Song Info */}
-        <div className="text-center mb-4">
-          <h3 className="text-lg font-semibold text-[#FEF7CD]">Now Playing</h3>
-          <p className="text-sm text-[#F2FCE2]/80">Alkebulan - Track 1</p>
+        <div className="text-center mb-4 flex items-center justify-between">
+          <div className="flex-1">
+            <h3 className="text-lg font-semibold text-[#FEF7CD]">Now Playing</h3>
+            <p className="text-sm text-[#F2FCE2]/80">Alkebulan - Track 1</p>
+          </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setShowFullPlayer(true)}
+            className="text-[#F2FCE2]/60 hover:text-[#1EAEDB] hover:bg-[#1EAEDB]/10 ml-2"
+          >
+            <Maximize2 className="h-4 w-4" />
+          </Button>
         </div>
 
-        {/* Visualizer */}
-        <div className="flex items-end justify-center gap-1 h-16 mb-4">
-          {visualizerBars.map((height, index) => (
-            <div
-              key={index}
-              className="w-2 bg-gradient-to-t from-[#1EAEDB] to-[#FEF7CD] rounded-full transition-all duration-150"
-              style={{ 
-                height: isPlaying ? `${Math.max(height, 10)}%` : '10%',
-                opacity: isPlaying ? 0.8 : 0.3
-              }}
-            />
-          ))}
-        </div>
-
-        {/* Progress Bar */}
+        {/* Waveform Visualizer */}
         <div className="mb-4">
-          <Slider
-            value={progress}
-            onValueChange={setProgress}
-            max={100}
-            step={1}
-            className="w-full"
+          <Waveform
+            isPlaying={isPlaying}
+            progress={progress[0]}
+            onSeek={handleProgressChange}
+            height={50}
+            className="mb-2"
           />
-          <div className="flex justify-between text-xs text-[#F2FCE2]/60 mt-1">
+          <div className="flex justify-between text-xs text-[#F2FCE2]/60">
             <span>{Math.floor((progress[0] / 100) * 245)}s</span>
             <span>3:45</span>
           </div>

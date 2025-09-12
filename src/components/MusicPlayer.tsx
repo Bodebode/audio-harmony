@@ -1,11 +1,14 @@
 
-import { Play, Pause, SkipBack, SkipForward, Volume2, Volume1, VolumeX, Shuffle, Repeat, Repeat1 } from "lucide-react";
+import { Play, Pause, SkipBack, SkipForward, Volume2, Volume1, VolumeX, Shuffle, Repeat, Repeat1, Maximize2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
 import { useState, useCallback, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { LyricsDisplay } from "./LyricsDisplay";
+import { FullScreenPlayer } from "./FullScreenPlayer";
+import { Waveform } from "./Waveform";
+import { useGestures } from "@/hooks/useGestures";
 
 const songs = [
   {
@@ -29,6 +32,7 @@ export const MusicPlayer = () => {
   const [currentPlaylist, setCurrentPlaylist] = useState<number[] | null>(null);
   const [isShuffleOn, setIsShuffleOn] = useState(false);
   const [repeatMode, setRepeatMode] = useState<RepeatMode>("none");
+  const [isFullScreen, setIsFullScreen] = useState(false);
   
   const { toast } = useToast();
 
@@ -59,6 +63,11 @@ export const MusicPlayer = () => {
     if (!isPlaying) {
       setSongProgress(0); // Reset progress when starting
     }
+  };
+
+  const handleProgressChange = (value: number) => {
+    setSongProgress(value);
+    setProgress([value]);
   };
 
   const toggleShuffle = () => {
@@ -139,6 +148,22 @@ export const MusicPlayer = () => {
     setCurrentSongIndex(nextIndex);
   };
 
+  // Gesture controls for mobile
+  const gestureRef = useGestures({
+    onSwipeLeft: handleNext,
+    onSwipeRight: handlePrevious,
+    onSwipeUp: () => {
+      const newVolume = Math.min(100, volume[0] + 10);
+      setVolume([newVolume]);
+    },
+    onSwipeDown: () => {
+      const newVolume = Math.max(0, volume[0] - 10);
+      setVolume([newVolume]);
+    },
+    threshold: 60,
+    velocityThreshold: 0.3
+  });
+
   // Export these methods to be used by other components
   (window as any).musicPlayerControls = {
     playPlaylist: (songIds: number[]) => {
@@ -155,20 +180,35 @@ export const MusicPlayer = () => {
   };
 
   return (
-    <section id="now-playing" className="p-6">
-      <Card className="bg-black/40 backdrop-blur-lg border-[#1EAEDB]/10 animate-fade-in hover:border-[#1EAEDB]/20 transition-all duration-300">
-        <CardContent className="p-6">
-          <div className="grid md:grid-cols-2 gap-8">
-            <div className="flex flex-col justify-center">
-              <div className="w-full aspect-square bg-[#222222] rounded-lg shadow-2xl overflow-hidden group relative">
-                <img 
-                  src={currentSong.artwork}
-                  alt={`Album Art - ${currentSong.artist}`}
-                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+    <>
+      <section id="now-playing" className="p-6">
+        <Card className="bg-black/40 backdrop-blur-lg border-[#1EAEDB]/10 animate-fade-in hover:border-[#1EAEDB]/20 transition-all duration-300">
+          <CardContent className="p-6">
+            <div 
+              className="grid md:grid-cols-2 gap-8"
+              ref={gestureRef as React.RefObject<HTMLDivElement>}
+            >
+              <div className="flex flex-col justify-center">
+                <div className="w-full aspect-square bg-[#222222] rounded-lg shadow-2xl overflow-hidden group relative">
+                  <img 
+                    src={currentSong.artwork}
+                    alt={`Album Art - ${currentSong.artist}`}
+                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 cursor-pointer"
+                    onClick={() => setIsFullScreen(true)}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  
+                  {/* Fullscreen button overlay */}
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setIsFullScreen(true)}
+                    className="absolute top-4 right-4 text-white/80 hover:text-white hover:bg-black/50 opacity-0 group-hover:opacity-100 transition-all duration-300"
+                  >
+                    <Maximize2 className="h-5 w-5" />
+                  </Button>
+                </div>
               </div>
-            </div>
             <div className="flex flex-col justify-between">
               <div>
                 <h2 className="text-3xl font-bold text-[#FEF7CD] mb-2">Now Playing</h2>
@@ -179,15 +219,15 @@ export const MusicPlayer = () => {
                 <LyricsDisplay isPlaying={isPlaying} songId={currentSong.id} />
                 <div className="space-y-4">
                   <div className="space-y-2">
-                    <Slider
-                      value={[songProgress]}
-                      onValueChange={(value) => setSongProgress(value[0])}
-                      max={100}
-                      step={1}
-                      className="w-full"
+                    <Waveform
+                      isPlaying={isPlaying}
+                      progress={songProgress}
+                      onSeek={handleProgressChange}
+                      height={60}
+                      className="mb-2"
                     />
                     <div className="flex justify-between text-sm text-[#F2FCE2]">
-                      <span>0:00</span>
+                      <span>{Math.floor((songProgress / 100) * 225)}s</span>
                       <span>{currentSong.duration}</span>
                     </div>
                   </div>
@@ -268,9 +308,25 @@ export const MusicPlayer = () => {
               </div>
             </div>
           </div>
-        </CardContent>
-      </Card>
-    </section>
+          </CardContent>
+        </Card>
+      </section>
+
+      {/* Full Screen Player */}
+      <FullScreenPlayer
+        isOpen={isFullScreen}
+        onClose={() => setIsFullScreen(false)}
+        isPlaying={isPlaying}
+        onTogglePlay={togglePlay}
+        volume={volume}
+        onVolumeChange={setVolume}
+        progress={songProgress}
+        onProgressChange={handleProgressChange}
+        onNext={handleNext}
+        onPrevious={handlePrevious}
+        currentSong={currentSong}
+      />
+    </>
   );
 };
 
