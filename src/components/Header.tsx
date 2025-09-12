@@ -119,17 +119,7 @@ export const Header = () => {
                 </div>
               </div>
               <DropdownMenuSeparator className="bg-white/10" />
-              {isGuest ? (
-                <>
-                  <DropdownMenuItem 
-                    onClick={handleUpgradeToPremium}
-                    className="text-white hover:bg-white/10"
-                  >
-                    Upgrade to Premium
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator className="bg-white/10" />
-                </>
-              ) : (
+              {!isGuest && (
                 <>
                   <DropdownMenuItem className="text-white hover:bg-white/10">
                     Profile Settings

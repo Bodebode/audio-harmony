@@ -3,6 +3,7 @@ import { PlayCircle, User, Mail, Library, Heart, Crown, ChevronDown } from "luci
 import { Link } from "react-router-dom";
 import { PremiumBadge } from "./premium/PremiumBadge";
 import { usePremium } from "@/hooks/usePremium";
+import { useAuth } from "@/hooks/useAuth";
 import { 
   Sidebar as SidebarComponent, 
   SidebarContent, 
@@ -48,6 +49,7 @@ const sidebarItems = [
 
 export const AppSidebar = () => {
   const { isPremiumActive, premiumFeatures, getFeatureMessage } = usePremium();
+  const { isGuest } = useAuth();
 
   return (
     <SidebarComponent className="border-r border-white/10 bg-black/95 backdrop-blur-lg">
@@ -90,7 +92,19 @@ export const AppSidebar = () => {
                 </SidebarMenuItem>
               ))}
               
-              {!isPremiumActive && (
+              {isGuest ? (
+                <SidebarMenuItem className="animate-fade-in" style={{ animationDelay: `${sidebarItems.length * 0.1}s` }}>
+                  <SidebarMenuButton className="hover:bg-gradient-to-r hover:from-[#1EAEDB]/20 hover:to-[#0FA0CE]/20 transition-all duration-300 group">
+                    <Link 
+                      to="/auth" 
+                      className="flex items-center gap-2 text-[#1EAEDB] font-medium w-full"
+                    >
+                      <User className="h-5 w-5 group-hover:scale-110 transition-transform duration-200" />
+                      <span className="group-hover:translate-x-1 transition-transform duration-200">Sign Up for Free</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ) : !isPremiumActive && (
                 <SidebarMenuItem className="animate-fade-in" style={{ animationDelay: `${sidebarItems.length * 0.1}s` }}>
                   <Collapsible>
                     <CollapsibleTrigger asChild>

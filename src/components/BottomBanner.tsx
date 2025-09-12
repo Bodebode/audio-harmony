@@ -2,15 +2,23 @@ import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { usePremium } from "@/hooks/usePremium";
+import { useAuth } from "@/hooks/useAuth";
 import { UpgradePrompt } from "./premium/UpgradePrompt";
+import { SignUpBanner } from "./SignUpBanner";
 
 export const BottomBanner = () => {
   const navigate = useNavigate();
   const { checkFeatureAccess } = usePremium();
+  const { isGuest } = useAuth();
   
   // Hide banner for premium users (no ads feature)
   if (checkFeatureAccess('noAds')) {
     return null;
+  }
+
+  // Show sign up banner for guests, upgrade prompt for authenticated users
+  if (isGuest) {
+    return <SignUpBanner />;
   }
 
   return (
@@ -21,8 +29,7 @@ export const BottomBanner = () => {
         features={[
           "No advertisements",
           "Unlimited skips",
-          "High-quality audio",
-          "Offline downloads"
+          "Exclusive content"
         ]}
         variant="banner"
         dismissible={false}

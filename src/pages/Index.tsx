@@ -14,7 +14,7 @@ import { usePremium } from "@/hooks/usePremium";
 import { Loader2 } from "lucide-react";
 
 const Index = () => {
-  const { isAuthenticated, loading } = useAuth();
+  const { isAuthenticated, loading, isGuest } = useAuth();
   const { isPremiumActive } = usePremium();
 
   // Show loading spinner while checking auth state
@@ -44,7 +44,7 @@ const Index = () => {
           <Library />
           <LikedSongs />
           <AboutArtist />
-          {!isPremiumActive && <PremiumFeatureShowcase />}
+          {!isGuest && !isPremiumActive && <PremiumFeatureShowcase />}
         </div>
       </div>
     </SidebarProvider>
