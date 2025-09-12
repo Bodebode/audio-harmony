@@ -7,7 +7,7 @@ import { useState, useCallback, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { LyricsDisplay } from "./LyricsDisplay";
 import { FullScreenPlayer } from "./FullScreenPlayer";
-import { Waveform } from "./Waveform";
+
 import { useGestures } from "@/hooks/useGestures";
 
 const songs = [
@@ -219,12 +219,12 @@ export const MusicPlayer = () => {
                 <LyricsDisplay isPlaying={isPlaying} songId={currentSong.id} />
                 <div className="space-y-4">
                   <div className="space-y-2">
-                    <Waveform
-                      isPlaying={isPlaying}
-                      progress={songProgress}
-                      onSeek={handleProgressChange}
-                      height={60}
-                      className="mb-2"
+                    <Slider
+                      value={[songProgress]}
+                      onValueChange={(vals) => handleProgressChange(vals[0])}
+                      max={100}
+                      step={0.5}
+                      className="w-full"
                     />
                     <div className="flex justify-between text-sm text-[#F2FCE2]">
                       <span>{Math.floor((songProgress / 100) * 225)}s</span>

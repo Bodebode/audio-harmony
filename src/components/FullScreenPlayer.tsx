@@ -2,7 +2,7 @@ import { X, Play, Pause, SkipBack, SkipForward, Volume2, Volume1, VolumeX, Heart
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { useState, useEffect } from "react";
-import { Waveform } from "./Waveform";
+
 import { LyricsDisplay } from "./LyricsDisplay";
 import { useGestures } from "@/hooks/useGestures";
 import { useLikedSongs } from "@/hooks/useLikedSongs";
@@ -199,16 +199,15 @@ export const FullScreenPlayer = ({
           {/* Right side - Controls and lyrics */}
           <div className="lg:w-1/2 flex flex-col">
             
-            {/* Waveform */}
+            {/* Progress */}
             <div className="mb-8">
-              <Waveform
-                isPlaying={isPlaying}
-                progress={progress}
-                onSeek={onProgressChange}
-                height={80}
+              <Slider
+                value={[progress]}
+                onValueChange={(vals) => onProgressChange(vals[0])}
+                max={100}
+                step={0.5}
                 className="mb-4"
               />
-              
               <div className="flex justify-between text-sm text-white/60">
                 <span>{Math.floor((progress / 100) * 225)}s</span>
                 <span>{currentSong.duration}</span>

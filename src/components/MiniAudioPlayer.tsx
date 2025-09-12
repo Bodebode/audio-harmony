@@ -3,7 +3,7 @@ import { Play, Pause, SkipBack, SkipForward, Maximize2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
-import { Waveform } from "./Waveform";
+
 import { useGestures } from "@/hooks/useGestures";
 
 export const MiniAudioPlayer = () => {
@@ -77,13 +77,13 @@ export const MiniAudioPlayer = () => {
           </Button>
         </div>
 
-        {/* Waveform Visualizer */}
+        {/* Progress */}
         <div className="mb-4">
-          <Waveform
-            isPlaying={isPlaying}
-            progress={progress[0]}
-            onSeek={handleProgressChange}
-            height={50}
+          <Slider
+            value={progress}
+            onValueChange={(vals) => handleProgressChange(vals[0])}
+            max={100}
+            step={0.5}
             className="mb-2"
           />
           <div className="flex justify-between text-xs text-[#F2FCE2]/60">

@@ -1,44 +1,59 @@
-import { useState, useEffect } from "react";
+import { useEffect, useSyncExternalStore } from "react";
 import { useToast } from "@/hooks/use-toast";
 
+// Simple external store to keep liked songs in sync across components
+let likedSongsStore: number[] = [];
+
+try {
+  const saved = localStorage.getItem('likedSongs');
+  likedSongsStore = saved ? JSON.parse(saved) : [];
+} catch {
+  likedSongsStore = [];
+}
+
+const listeners = new Set<() => void>();
+
+const emitChange = () => {
+  listeners.forEach((l) => l());
+};
+
+const subscribe = (listener: () => void) => {
+  listeners.add(listener);
+  return () => listeners.delete(listener);
+};
+
+const getSnapshot = () => likedSongsStore;
+
 export const useLikedSongs = () => {
-  const [likedSongs, setLikedSongs] = useState<number[]>([]);
   const { toast } = useToast();
+  const likedSongs = useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
 
-  // Load liked songs from localStorage on mount
+  // Persist whenever store changes
   useEffect(() => {
-    const savedLikedSongs = localStorage.getItem('likedSongs');
-    if (savedLikedSongs) {
-      setLikedSongs(JSON.parse(savedLikedSongs));
-    }
-  }, []);
-
-  // Save liked songs to localStorage whenever it changes
-  useEffect(() => {
-    localStorage.setItem('likedSongs', JSON.stringify(likedSongs));
+    try {
+      localStorage.setItem('likedSongs', JSON.stringify(likedSongs));
+    } catch {}
   }, [likedSongs]);
 
   const toggleLikeSong = (songId: number) => {
-    setLikedSongs(prev => {
-      const isLiked = prev.includes(songId);
-      const newLikedSongs = isLiked 
-        ? prev.filter(id => id !== songId)
-        : [...prev, songId];
-      
-      toast({
-        title: isLiked ? "Removed from liked songs" : "Added to liked songs",
-        duration: 2000,
-      });
-      
-      return newLikedSongs;
+    const isLiked = likedSongs.includes(songId);
+    likedSongsStore = isLiked
+      ? likedSongsStore.filter((id) => id !== songId)
+      : [...likedSongsStore, songId];
+
+    try {
+      localStorage.setItem('likedSongs', JSON.stringify(likedSongsStore));
+    } catch {}
+
+    emitChange();
+
+    toast({
+      title: isLiked ? "Removed from liked songs" : "Added to liked songs",
+      duration: 2000,
     });
   };
 
   const isLiked = (songId: number) => likedSongs.includes(songId);
 
-  return {
-    likedSongs,
-    toggleLikeSong,
-    isLiked
-  };
+  return { likedSongs, toggleLikeSong, isLiked };
 };
