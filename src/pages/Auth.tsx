@@ -15,10 +15,10 @@ const Auth = () => {
   const [displayName, setDisplayName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [socialLoading, setSocialLoading] = useState<string | null>(null);
-  const { signIn, signUp, signInWithSocial, continueAsGuest, isAuthenticated, loading } = useAuth();
+  const { signIn, signUp, signInWithSocial, continueAsGuest, user, isAuthenticated, loading } = useAuth();
 
-  // Redirect if already authenticated
-  if (isAuthenticated && !loading) {
+  // Redirect if already authenticated (but not guests)
+  if (user && !loading) {
     return <Navigate to="/" replace />;
   }
 
