@@ -1,5 +1,5 @@
 
-import { PlayCircle, User, Mail, Library, ListMusic, Heart, ExternalLink } from "lucide-react";
+import { PlayCircle, User, Mail, Library, Heart, ExternalLink } from "lucide-react";
 import { Link } from "react-router-dom";
 import { 
   Sidebar as SidebarComponent, 
@@ -16,11 +16,6 @@ const sidebarItems = [
     title: "Now Playing",
     icon: PlayCircle,
     url: "#now-playing"
-  },
-  {
-    title: "Playlists",
-    icon: ListMusic,
-    url: "#playlists"
   },
   {
     title: "Library",

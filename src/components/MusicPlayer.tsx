@@ -3,7 +3,7 @@ import { Play, Pause, SkipBack, SkipForward, Volume2, Volume1, VolumeX, Shuffle,
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { LyricsDisplay } from "./LyricsDisplay";
 
@@ -24,6 +24,7 @@ export const MusicPlayer = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState([75]);
   const [progress, setProgress] = useState([0]);
+  const [songProgress, setSongProgress] = useState(0);
   const [currentSongIndex, setCurrentSongIndex] = useState(0);
   const [currentPlaylist, setCurrentPlaylist] = useState<number[] | null>(null);
   const [isShuffleOn, setIsShuffleOn] = useState(false);
@@ -33,7 +34,32 @@ export const MusicPlayer = () => {
 
   const currentSong = songs[currentSongIndex];
 
-  const togglePlay = () => setIsPlaying(!isPlaying);
+  // Animate progress bar when playing
+  useEffect(() => {
+    let intervalId: NodeJS.Timeout;
+    
+    if (isPlaying) {
+      intervalId = setInterval(() => {
+        setSongProgress(prev => {
+          const newProgress = prev + (100 / (3.75 * 60)); // 3:45 song duration
+          return newProgress >= 100 ? 0 : newProgress;
+        });
+      }, 1000);
+    }
+    
+    return () => {
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
+    };
+  }, [isPlaying]);
+
+  const togglePlay = () => {
+    setIsPlaying(!isPlaying);
+    if (!isPlaying) {
+      setSongProgress(0); // Reset progress when starting
+    }
+  };
 
   const toggleShuffle = () => {
     setIsShuffleOn(!isShuffleOn);
@@ -154,8 +180,8 @@ export const MusicPlayer = () => {
                 <div className="space-y-4">
                   <div className="space-y-2">
                     <Slider
-                      value={progress}
-                      onValueChange={setProgress}
+                      value={[songProgress]}
+                      onValueChange={(value) => setSongProgress(value[0])}
                       max={100}
                       step={1}
                       className="w-full"

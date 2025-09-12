@@ -71,7 +71,7 @@ export const LyricsDisplay = ({ isPlaying, songId }: LyricsDisplayProps) => {
   return (
     <div className="h-40 overflow-hidden bg-black/20 rounded p-4 relative">
       <div 
-        className="transition-transform duration-300 ease-out space-y-2"
+        className="transition-transform duration-1000 ease-in-out space-y-2"
         style={{
           transform: `translateY(-${Math.max(0, (currentLineIndex - 2)) * 32}px)`
         }}
@@ -92,11 +92,6 @@ export const LyricsDisplay = ({ isPlaying, songId }: LyricsDisplayProps) => {
         ))}
       </div>
       
-      {!isPlaying && (
-        <div className="absolute inset-0 flex items-center justify-center bg-black/10 rounded">
-          <p className="text-[#F2FCE2]/50 text-sm">Press play to see lyrics</p>
-        </div>
-      )}
     </div>
   );
 };

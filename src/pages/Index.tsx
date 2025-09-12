@@ -4,7 +4,6 @@ import { AppSidebar } from "@/components/Sidebar";
 import { Header } from "@/components/Header";
 import { MusicPlayer } from "@/components/MusicPlayer";
 import { Library } from "@/components/Library";
-import { Playlists } from "@/components/Playlists";
 import { AboutArtist } from "@/components/AboutArtist";
 import { BottomBanner } from "@/components/BottomBanner";
 
@@ -18,7 +17,6 @@ const Index = () => {
           <MusicPlayer />
           <Library />
           <AboutArtist />
-          <Playlists />
         </div>
       </div>
       <BottomBanner />
