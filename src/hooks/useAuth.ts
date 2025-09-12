@@ -94,17 +94,8 @@ export const useAuth = () => {
       }
     });
 
-    if (error) {
-      toast({
-        title: "Sign up failed",
-        description: error.message,
-        variant: "destructive"
-      });
-    } else {
-      toast({
-        title: "Check your email",
-        description: "We've sent you a confirmation link."
-      });
+    if (!error) {
+      // Silent success - email confirmation needed
     }
 
     return { error };
@@ -116,18 +107,7 @@ export const useAuth = () => {
       password
     });
 
-    if (error) {
-      toast({
-        title: "Sign in failed",
-        description: error.message,
-        variant: "destructive"
-      });
-    } else {
-      toast({
-        title: "Welcome back!",
-        description: "You've been signed in successfully."
-      });
-    }
+    // Silent - let UI handle auth state changes
 
     return { error };
   };
@@ -142,13 +122,7 @@ export const useAuth = () => {
       }
     });
 
-    if (error) {
-      toast({
-        title: "Social sign in failed",
-        description: error.message,
-        variant: "destructive"
-      });
-    }
+    // Silent - let UI handle auth state changes
 
     return { error };
   };
@@ -156,10 +130,7 @@ export const useAuth = () => {
   const continueAsGuest = () => {
     localStorage.setItem('guestMode', 'true');
     setIsGuest(true);
-    toast({
-      title: "Welcome, Guest!",
-      description: "You're browsing as a guest. Sign up for premium features!"
-    });
+    // Silent guest mode entry
   };
 
   const signOut = async () => {
@@ -169,13 +140,7 @@ export const useAuth = () => {
     localStorage.removeItem('guestMode');
     setIsGuest(false);
     
-    if (error) {
-      toast({
-        title: "Sign out failed",
-        description: error.message,
-        variant: "destructive"
-      });
-    }
+    // Silent sign out
 
     return { error };
   };

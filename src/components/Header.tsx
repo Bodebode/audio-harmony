@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { useState } from "react";
 import { SearchModal } from "./SearchModal";
-import { useToast } from "@/components/ui/use-toast";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { 
   DropdownMenu,
@@ -17,19 +17,23 @@ import { Avatar, AvatarFallback } from "./ui/avatar";
 
 export const Header = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const { toast } = useToast();
+  const navigate = useNavigate();
   const { user, profile, isGuest, signOut } = useAuth();
 
   const handleCartClick = () => {
-    toast({
-      title: "Merch Store",
-      description: "Redirecting to merchandise store...",
-    });
     // TODO: Navigate to merch store
   };
 
   const handleSignOut = async () => {
-    await signOut();
+    if (isGuest) {
+      navigate('/auth');
+    } else {
+      await signOut();
+    }
+  };
+
+  const handleUpgradeToPremium = () => {
+    navigate('/auth');
   };
 
   return (
@@ -106,7 +110,17 @@ export const Header = () => {
                 </div>
               </div>
               <DropdownMenuSeparator className="bg-white/10" />
-              {!isGuest && (
+              {isGuest ? (
+                <>
+                  <DropdownMenuItem 
+                    onClick={handleUpgradeToPremium}
+                    className="text-white hover:bg-white/10"
+                  >
+                    Upgrade to Premium
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator className="bg-white/10" />
+                </>
+              ) : (
                 <>
                   <DropdownMenuItem className="text-white hover:bg-white/10">
                     Profile Settings
