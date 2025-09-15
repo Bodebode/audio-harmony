@@ -166,6 +166,47 @@ export const Library = () => {
                   </div>
                   ))}
 
+                  {/* Signup Required Section - Only shown to guests */}
+                  {isGuest && premiumSongs.length > 0 && (
+                    <div className="mt-4 space-y-2">
+                      <div className="text-center py-4 border-t border-white/10">
+                        <div className="flex items-center justify-center gap-2 mb-2">
+                          <Crown className="h-4 w-4 text-yellow-500" />
+                          <span className="text-[#FEF7CD] font-medium">Signup Required</span>
+                        </div>
+                        {premiumSongs.map((song, index) => (
+                          <div
+                            key={song.id}
+                            className="glass-item group flex items-center justify-between p-3 rounded-lg cursor-pointer transform animate-fade-in gradient-mesh-2"
+                            style={{ animationDelay: `${(displaySongs.length + index) * 50}ms` }}
+                          >
+                            <div className="absolute inset-0 gradient-shimmer opacity-0 group-hover:opacity-100 rounded-lg" />
+                            
+                            <div className="flex items-center gap-3 relative z-10">
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 rounded-full text-[#F2FCE2] hover:text-[#1EAEDB] hover:bg-[#1EAEDB]/20 transition-all duration-300 backdrop-blur-sm"
+                                onClick={() => handlePlaySong(song.id)}
+                              >
+                                <PlayCircle className="h-4 w-4" />
+                              </Button>
+                              <span className="text-[#F2FCE2] group-hover:text-[#FEF7CD] transition-all duration-300">
+                                {song.title}
+                              </span>
+                            </div>
+                            
+                            <div className="flex items-center gap-3 relative z-10">
+                              <span className="text-[#F2FCE2]/60 group-hover:text-[#F2FCE2]/90 transition-colors duration-300 text-sm font-mono">
+                                {song.duration}
+                              </span>
+                              <Crown className="h-4 w-4 text-yellow-500" />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
 
                   {/* Show upgrade prompt for non-premium users (but not guests) */}
                   {!isGuest && !checkFeatureAccess('premiumContent') && (
