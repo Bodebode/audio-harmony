@@ -2,10 +2,12 @@ import { Crown, Star, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { usePricing } from "@/hooks/usePricing";
 
 export const PremiumHeader = () => {
   const navigate = useNavigate();
   const { isGuest } = useAuth();
+  const pricing = usePricing();
 
   const handleUpgrade = () => {
     if (isGuest) {
@@ -46,8 +48,19 @@ export const PremiumHeader = () => {
             </div>
             
             <div className="mb-6">
-              <span className="text-5xl font-bold text-white">$9.99</span>
-              <span className="text-white/60 ml-2">per month</span>
+              <div className="flex items-center justify-center gap-2 mb-2">
+                <span className="bg-gradient-to-r from-red-500 to-red-600 text-white text-xs font-bold px-2 py-1 rounded-full">
+                  SAVE {pricing.savingsPercentage}%
+                </span>
+                <span className="bg-gradient-to-r from-green-500 to-green-600 text-white text-xs font-bold px-2 py-1 rounded-full">
+                  LIMITED TIME
+                </span>
+              </div>
+              <div className="flex items-center justify-center gap-3">
+                <span className="text-2xl text-white/60 line-through">{pricing.originalFormatted}</span>
+                <span className="text-5xl font-bold text-white">{pricing.discountedFormatted}</span>
+              </div>
+              <span className="text-white/60 text-lg">per month</span>
             </div>
             
             <Button

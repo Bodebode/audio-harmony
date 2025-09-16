@@ -51,6 +51,7 @@ export const Header = () => {
             variant="ghost" 
             size="icon" 
             className="text-white hover:text-[#1EAEDB] hover:bg-white/10 transition-colors duration-200 rounded-full"
+            onClick={() => navigate('/')}
           >
             <Home className="h-5 w-5" />
           </Button>

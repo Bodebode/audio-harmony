@@ -3,7 +3,6 @@ import { useAuth } from './useAuth';
 export interface PremiumFeatures {
   unlimitedPlaylists: boolean;
   noAds: boolean;
-  advancedControls: boolean;
   offlineDownloads: boolean;
   unlimitedSkips: boolean;
   premiumContent: boolean;
@@ -25,7 +24,6 @@ export const usePremium = () => {
   const premiumFeatures: PremiumFeatures = {
     unlimitedPlaylists: isPremiumActive,
     noAds: isPremiumActive,
-    advancedControls: isPremiumActive,
     offlineDownloads: isPremiumActive,
     unlimitedSkips: isPremiumActive,
     premiumContent: isPremiumActive,
@@ -49,7 +47,6 @@ export const usePremium = () => {
     const messages = {
       unlimitedPlaylists: 'Create unlimited playlists',
       noAds: 'No advertisements',
-      advancedControls: 'Access equalizer and crossfade',
       offlineDownloads: 'Download music for offline listening',
       unlimitedSkips: 'Skip songs without limits',
       premiumContent: 'Access exclusive premium content',

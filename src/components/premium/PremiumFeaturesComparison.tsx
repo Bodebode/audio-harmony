@@ -1,4 +1,4 @@
-import { Crown, X, Check, Infinity, Music, Download, SkipForward, Star, Clock, ShoppingBag, Settings } from "lucide-react";
+import { Crown, X, Check, Infinity, Music, Download, SkipForward, Star, Clock, ShoppingBag } from "lucide-react";
 
 interface Feature {
   icon: React.ReactNode;
@@ -62,13 +62,6 @@ export const PremiumFeaturesComparison = () => {
       free: "Standard merch",
       premium: "VIP access"
     },
-    {
-      icon: <Settings className="h-5 w-5" />,
-      title: "Advanced Controls",
-      description: "Equalizer, crossfade, and audio settings",
-      free: "Basic controls",
-      premium: "Advanced controls"
-    }
   ];
 
   return (
