@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Navigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Navigate, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -21,12 +21,20 @@ const Auth = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [passwordError, setPasswordError] = useState('');
-  const { signIn, signUp, signInWithSocial, continueAsGuest, user, isAuthenticated, loading } = useAuth();
+  const { signIn, signUp, signInWithSocial, continueAsGuest, user, isAuthenticated, loading, isGuest } = useAuth();
+  const navigate = useNavigate();
 
-  // Redirect if already authenticated (but not guests)
-  if (user && !loading) {
+  // Redirect if already authenticated or is guest
+  if ((user || isGuest) && !loading) {
     return <Navigate to="/" replace />;
   }
+
+  // Watch for guest state changes and redirect
+  useEffect(() => {
+    if (isGuest && !loading) {
+      navigate('/', { replace: true });
+    }
+  }, [isGuest, loading, navigate]);
 
   // Show loading spinner while checking auth state
   if (loading) {
@@ -74,6 +82,7 @@ const Auth = () => {
 
   const handleGuestAccess = () => {
     continueAsGuest();
+    navigate('/', { replace: true });
   };
 
   return (
