@@ -1,6 +1,7 @@
 
 import { PlayCircle, User, Mail, Library, Heart, Crown, ChevronDown } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useState } from "react";
 import { PremiumBadge } from "./premium/PremiumBadge";
 import { usePremium } from "@/hooks/usePremium";
 import { useAuth } from "@/hooks/useAuth";
@@ -48,8 +49,26 @@ const sidebarItems = [
 ];
 
 export const AppSidebar = () => {
-  const { isPremiumActive, premiumFeatures, getFeatureMessage } = usePremium();
+  const { isPremiumActive } = usePremium();
   const { isGuest } = useAuth();
+  const navigate = useNavigate();
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+  const handlePremiumClick = () => {
+    navigate('/premium');
+  };
+
+  const handleArrowClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDropdownOpen(!isDropdownOpen);
+  };
+
+  const handleManyMoreClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    navigate('/premium');
+  };
 
   return (
     <SidebarComponent className="border-r border-white/10 bg-black/95 backdrop-blur-lg">
@@ -106,28 +125,55 @@ export const AppSidebar = () => {
                 </SidebarMenuItem>
               ) : !isPremiumActive && (
                 <SidebarMenuItem className="animate-fade-in" style={{ animationDelay: `${sidebarItems.length * 0.1}s` }}>
-                  <Collapsible>
-                    <CollapsibleTrigger asChild>
-                      <SidebarMenuButton className="hover:bg-gradient-to-r hover:from-yellow-500/20 hover:to-amber-500/20 transition-all duration-300 group">
-                       <Link 
-                         to="/premium"
-                         className="flex items-center gap-2 text-yellow-500 font-medium w-full"
-                       >
-                         <Crown className="h-5 w-5 group-hover:scale-110 transition-transform duration-200" />
-                         <span className="group-hover:translate-x-1 transition-transform duration-200">Upgrade to Premium</span>
-                         <ChevronDown className="ml-auto h-4 w-4 transition-transform group-data-[state=open]:rotate-180" />
-                       </Link>
-                      </SidebarMenuButton>
-                    </CollapsibleTrigger>
+                  <Collapsible open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
+                    <SidebarMenuButton className="hover:bg-gradient-to-r hover:from-yellow-500/20 hover:to-amber-500/20 transition-all duration-300 group">
+                      <div className="flex items-center gap-2 w-full">
+                        <Crown className="h-5 w-5 group-hover:scale-110 transition-transform duration-200" />
+                        <span 
+                          onClick={handlePremiumClick}
+                          className="group-hover:translate-x-1 transition-transform duration-200 text-yellow-500 font-medium cursor-pointer hover:text-yellow-400 flex-1"
+                        >
+                          Upgrade to Premium
+                        </span>
+                        <CollapsibleTrigger asChild>
+                          <ChevronDown 
+                            onClick={handleArrowClick}
+                            className="h-4 w-4 transition-transform duration-200 cursor-pointer hover:scale-110 text-yellow-500"
+                            style={{ transform: isDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}
+                          />
+                        </CollapsibleTrigger>
+                      </div>
+                    </SidebarMenuButton>
                     <CollapsibleContent>
                       <SidebarMenuSub>
-                        {Object.entries(premiumFeatures).map(([feature, _]) => (
-                          <SidebarMenuSubItem key={feature}>
-                            <SidebarMenuSubButton className="text-white/70 hover:text-yellow-500 transition-colors">
-                              <span className="text-xs">• {getFeatureMessage(feature as keyof typeof premiumFeatures)}</span>
-                            </SidebarMenuSubButton>
-                          </SidebarMenuSubItem>
-                        ))}
+                        <SidebarMenuSubItem>
+                          <SidebarMenuSubButton className="text-white/70 hover:text-yellow-500 transition-colors">
+                            <span className="text-xs">• No advertisements</span>
+                          </SidebarMenuSubButton>
+                        </SidebarMenuSubItem>
+                        <SidebarMenuSubItem>
+                          <SidebarMenuSubButton className="text-white/70 hover:text-yellow-500 transition-colors">
+                            <span className="text-xs">• Exclusive premium songs</span>
+                          </SidebarMenuSubButton>
+                        </SidebarMenuSubItem>
+                        <SidebarMenuSubItem>
+                          <SidebarMenuSubButton className="text-white/70 hover:text-yellow-500 transition-colors">
+                            <span className="text-xs">• Download music for offline listening</span>
+                          </SidebarMenuSubButton>
+                        </SidebarMenuSubItem>
+                        <SidebarMenuSubItem>
+                          <SidebarMenuSubButton className="text-white/70 hover:text-yellow-500 transition-colors">
+                            <span className="text-xs">• VIP Merch Access</span>
+                          </SidebarMenuSubButton>
+                        </SidebarMenuSubItem>
+                        <SidebarMenuSubItem>
+                          <SidebarMenuSubButton 
+                            onClick={handleManyMoreClick}
+                            className="text-white/70 hover:text-yellow-500 transition-colors cursor-pointer"
+                          >
+                            <span className="text-xs font-bold">• & Many More</span>
+                          </SidebarMenuSubButton>
+                        </SidebarMenuSubItem>
                       </SidebarMenuSub>
                     </CollapsibleContent>
                   </Collapsible>
