@@ -3,8 +3,9 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Origin': 'https://rqvwqdzvsztzkbcvvpqj.supabase.co',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, stripe-signature',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
 };
 
 serve(async (req) => {
@@ -17,8 +18,9 @@ serve(async (req) => {
     const stripeKey = Deno.env.get('Stripe_key');
     const supabaseUrl = Deno.env.get('SUPABASE_URL');
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+    const webhookSecret = Deno.env.get('STRIPE_WEBHOOK_SECRET');
 
-    if (!stripeKey || !supabaseUrl || !supabaseServiceKey) {
+    if (!stripeKey || !supabaseUrl || !supabaseServiceKey || !webhookSecret) {
       throw new Error('Missing required environment variables');
     }
 
@@ -30,15 +32,50 @@ serve(async (req) => {
       throw new Error('No Stripe signature header');
     }
 
-    // Parse the webhook payload
+    // Verify webhook signature for security
     let event;
     try {
-      // For demo purposes, we'll parse the JSON directly
-      // In production, you should verify the webhook signature
+      // Create a simple signature verification
+      const elements = signature.split(',');
+      const signatureElements = elements.reduce((acc, element) => {
+        const [key, value] = element.split('=');
+        acc[key] = value;
+        return acc;
+      }, {} as Record<string, string>);
+
+      const timestamp = signatureElements.t;
+      const receivedSignature = signatureElements.v1;
+
+      if (!timestamp || !receivedSignature) {
+        throw new Error('Invalid signature format');
+      }
+
+      // Create expected signature
+      const payload = timestamp + '.' + body;
+      const expectedSignature = await crypto.subtle.importKey(
+        'raw',
+        new TextEncoder().encode(webhookSecret),
+        { name: 'HMAC', hash: 'SHA-256' },
+        false,
+        ['sign']
+      ).then(key => 
+        crypto.subtle.sign('HMAC', key, new TextEncoder().encode(payload))
+      ).then(signature => 
+        Array.from(new Uint8Array(signature))
+          .map(b => b.toString(16).padStart(2, '0'))
+          .join('')
+      );
+
+      if (expectedSignature !== receivedSignature) {
+        throw new Error('Signature mismatch');
+      }
+
+      // Parse the verified webhook payload
       event = JSON.parse(body);
+      console.log('Webhook signature verified successfully');
     } catch (err) {
       console.error('Webhook signature verification failed:', err);
-      throw new Error('Webhook signature verification failed');
+      throw new Error('Webhook signature verification failed: ' + err.message);
     }
 
     console.log('Received webhook event:', event.type);
