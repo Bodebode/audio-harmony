@@ -22,7 +22,7 @@ export const Header = () => {
   const { user, profile, isGuest, signOut } = useAuth();
 
   const handleCartClick = () => {
-    // TODO: Navigate to merch store
+    navigate('/merch');
   };
 
   const handleSignOut = async () => {
@@ -130,10 +130,16 @@ export const Header = () => {
               <DropdownMenuSeparator className="bg-white/10" />
               {!isGuest && (
                 <>
-                  <DropdownMenuItem className="text-white hover:bg-white/10">
+                  <DropdownMenuItem 
+                    onClick={() => navigate('/profile')}
+                    className="text-white hover:bg-white/10 cursor-pointer"
+                  >
                     Profile Settings
                   </DropdownMenuItem>
-                  <DropdownMenuItem className="text-white hover:bg-white/10">
+                  <DropdownMenuItem 
+                    onClick={() => navigate('/premium')}
+                    className="text-white hover:bg-white/10 cursor-pointer"
+                  >
                     {profile?.is_premium ? 'Manage Subscription' : 'Upgrade to Premium'}
                   </DropdownMenuItem>
                   <DropdownMenuSeparator className="bg-white/10" />
