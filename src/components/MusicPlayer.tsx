@@ -197,7 +197,7 @@ export const MusicPlayer = () => {
             >
               {/* Mobile-first album art - smaller on mobile */}
               <div className="flex flex-col justify-center">
-                <div className="w-full max-w-56 mx-auto md:max-w-none aspect-square bg-[#222222] rounded-lg shadow-2xl overflow-hidden group relative">
+                <div className="w-full max-w-48 mx-auto md:max-w-none aspect-square bg-[#222222] rounded-lg shadow-2xl overflow-hidden group relative">
                   <img 
                     src={currentSong.artwork}
                     alt={`Album Art - ${currentSong.artist}`}
@@ -225,17 +225,10 @@ export const MusicPlayer = () => {
                   </div>
                 <p className="text-[#F2FCE2] text-lg mb-1">{currentSong.title}</p>
                 <p className="text-[#F2FCE2]/80 text-base">{currentSong.artist}</p>
-                
-                {/* Skip counter for free users */}
-                {!checkFeatureAccess('unlimitedSkips') && (
-                  <p className="text-xs text-[#F2FCE2]/60 mt-2">
-                    Skips left this hour: {limits.skipsPerHour - skipsThisHour}
-                  </p>
-                )}
               </div>
-              <div className="space-y-3">
+              <div className="space-y-2">
                 <LyricsDisplay isPlaying={isPlaying} songId={currentSong.id} />
-                <div className="space-y-3">
+                <div className="space-y-2">
                  <div className="space-y-2">
                      <Slider
                        value={[songProgress]}
@@ -250,18 +243,10 @@ export const MusicPlayer = () => {
                      </div>
                    </div>
                    
-                   {/* Mobile-optimized controls with larger touch targets */}
-                   <div className="flex justify-center items-center gap-2 sm:gap-4">
-                     {/* Secondary controls - smaller on mobile */}
-                     <Button
-                       variant="ghost"
-                       size="icon"
-                       className="text-[#F2FCE2] hover:text-[#1EAEDB] transition-all duration-200 hover:scale-110 h-11 w-11 md:h-10 md:w-10"
-                     >
-                       <Sliders className="h-5 w-5 md:h-4 md:w-4" />
-                     </Button>
-
-                     <Button
+                    {/* Mobile-optimized controls with larger touch targets */}
+                    <div className="flex justify-center items-center gap-2 sm:gap-4">
+                      {/* Secondary controls - smaller on mobile */}
+                      <Button
                        variant="ghost"
                        size="icon"
                        className={`text-[#F2FCE2] transition-all duration-200 hover:scale-110 h-11 w-11 md:h-10 md:w-10 ${isShuffleOn ? 'text-[#1EAEDB] animate-pulse' : 'hover:text-[#1EAEDB]'}`}
