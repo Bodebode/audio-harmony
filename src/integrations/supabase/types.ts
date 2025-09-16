@@ -14,6 +14,57 @@ export type Database = {
   }
   public: {
     Tables: {
+      email_campaigns: {
+        Row: {
+          clicked_count: number | null
+          content: string
+          created_at: string
+          created_by_user_id: string | null
+          id: string
+          name: string
+          opened_count: number | null
+          recipients_count: number | null
+          scheduled_at: string | null
+          sent_at: string | null
+          status: string
+          subject: string
+          target_audience: string
+          updated_at: string
+        }
+        Insert: {
+          clicked_count?: number | null
+          content: string
+          created_at?: string
+          created_by_user_id?: string | null
+          id?: string
+          name: string
+          opened_count?: number | null
+          recipients_count?: number | null
+          scheduled_at?: string | null
+          sent_at?: string | null
+          status?: string
+          subject: string
+          target_audience?: string
+          updated_at?: string
+        }
+        Update: {
+          clicked_count?: number | null
+          content?: string
+          created_at?: string
+          created_by_user_id?: string | null
+          id?: string
+          name?: string
+          opened_count?: number | null
+          recipients_count?: number | null
+          scheduled_at?: string | null
+          sent_at?: string | null
+          status?: string
+          subject?: string
+          target_audience?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       entitlements: {
         Row: {
           created_at: string
@@ -177,6 +228,102 @@ export type Database = {
           stripe_subscription_status?: string | null
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      promotional_banners: {
+        Row: {
+          background_color: string
+          button_text: string | null
+          button_url: string | null
+          created_at: string
+          created_by_user_id: string | null
+          end_date: string | null
+          id: string
+          is_active: boolean
+          message: string
+          priority: number
+          start_date: string | null
+          target_audience: string
+          text_color: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          background_color?: string
+          button_text?: string | null
+          button_url?: string | null
+          created_at?: string
+          created_by_user_id?: string | null
+          end_date?: string | null
+          id?: string
+          is_active?: boolean
+          message: string
+          priority?: number
+          start_date?: string | null
+          target_audience?: string
+          text_color?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          background_color?: string
+          button_text?: string | null
+          button_url?: string | null
+          created_at?: string
+          created_by_user_id?: string | null
+          end_date?: string | null
+          id?: string
+          is_active?: boolean
+          message?: string
+          priority?: number
+          start_date?: string | null
+          target_audience?: string
+          text_color?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      push_notifications: {
+        Row: {
+          action_url: string | null
+          created_at: string
+          expires_at: string | null
+          id: string
+          is_read: boolean
+          message: string
+          metadata: Json | null
+          notification_type: string
+          target_audience: string
+          title: string
+          user_id: string | null
+        }
+        Insert: {
+          action_url?: string | null
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          is_read?: boolean
+          message: string
+          metadata?: Json | null
+          notification_type?: string
+          target_audience?: string
+          title: string
+          user_id?: string | null
+        }
+        Update: {
+          action_url?: string | null
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          is_read?: boolean
+          message?: string
+          metadata?: Json | null
+          notification_type?: string
+          target_audience?: string
+          title?: string
+          user_id?: string | null
         }
         Relationships: []
       }

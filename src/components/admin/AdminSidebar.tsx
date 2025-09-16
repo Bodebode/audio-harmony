@@ -9,7 +9,8 @@ import {
   FileText,
   Crown,
   Shield,
-  Mail
+  Mail,
+  Megaphone
 } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import { useAdmin } from "@/hooks/useAdmin";
@@ -33,6 +34,7 @@ const adminItems = [
   { title: "Upload", url: "/admin/upload", icon: Upload, roles: ['admin', 'editor'] },
   { title: "Users", url: "/admin/users", icon: Users, roles: ['admin', 'support'] },
   { title: "Analytics", url: "/admin/analytics", icon: BarChart3, roles: ['admin', 'editor'] },
+  { title: "Marketing", url: "/admin/marketing", icon: Megaphone, roles: ['admin', 'editor'] },
   { title: "Campaigns", url: "/admin/campaigns", icon: Mail, roles: ['admin', 'editor'] },
   { title: "Settings", url: "/admin/settings", icon: Settings, roles: ['admin'] },
 ];

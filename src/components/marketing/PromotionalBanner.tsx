@@ -46,8 +46,9 @@ export const PromotionalBanner = ({ onDismiss, maxBanners = 3 }: PromotionalBann
     try {
       const now = new Date().toISOString();
       
+      // Using any type temporarily until Supabase types are regenerated
       const { data, error } = await supabase
-        .from('promotional_banners')
+        .from('promotional_banners' as any)
         .select('*')
         .eq('is_active', true)
         .or(`start_date.is.null,start_date.lte.${now}`)
@@ -56,7 +57,7 @@ export const PromotionalBanner = ({ onDismiss, maxBanners = 3 }: PromotionalBann
         .limit(maxBanners);
 
       if (error) throw error;
-      setBanners(data || []);
+      setBanners((data as unknown as PromotionalBanner[]) || []);
     } catch (error) {
       console.error('Error fetching promotional banners:', error);
     } finally {

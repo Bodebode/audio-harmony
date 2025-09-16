@@ -18,6 +18,7 @@ import AdminReleases from "./pages/admin/AdminReleases";
 import AdminAnalytics from "./pages/admin/AdminAnalytics";
 import AdminSettings from "./pages/admin/AdminSettings";
 import AdminAudit from "./pages/admin/AdminAudit";
+import AdminMarketing from "./pages/admin/AdminMarketing";
 
 const queryClient = new QueryClient();
 
@@ -40,6 +41,7 @@ const App = () => (
             <Route path="/admin/users" element={<AdminUsers />} />
             <Route path="/admin/releases" element={<AdminReleases />} />
             <Route path="/admin/analytics" element={<AdminAnalytics />} />
+            <Route path="/admin/marketing" element={<AdminMarketing />} />
             <Route path="/admin/settings" element={<AdminSettings />} />
             <Route path="/admin/audit" element={<AdminAudit />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
