@@ -79,7 +79,7 @@ export type Database = {
           supporter_email: string | null
           supporter_name: string | null
           updated_at: string
-          user_id: string | null
+          user_id: string
         }
         Insert: {
           amount: number
@@ -94,7 +94,7 @@ export type Database = {
           supporter_email?: string | null
           supporter_name?: string | null
           updated_at?: string
-          user_id?: string | null
+          user_id: string
         }
         Update: {
           amount?: number
@@ -109,7 +109,7 @@ export type Database = {
           supporter_email?: string | null
           supporter_name?: string | null
           updated_at?: string
-          user_id?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -118,7 +118,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      is_payment_field_update: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never
