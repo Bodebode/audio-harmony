@@ -34,30 +34,30 @@ export const CompactPremiumShowcase = () => {
             </div>
           </div>
           
-          <div className="flex items-center gap-4">
-            <div className="text-right">
-              <div className="flex items-center gap-2">
-                <span className="text-white font-bold text-xl">{discountedFormatted}</span>
-                <span className="text-white/60 text-sm">/month</span>
-              </div>
-              {savingsPercentage > 0 && (
-                <div className="flex items-center gap-2">
-                  <span className="text-white/60 line-through text-sm">{originalFormatted}</span>
-                  <Badge variant="secondary" className="bg-green-500/20 text-green-400 border-green-500/30 text-xs">
-                    Save {savingsPercentage}%
-                  </Badge>
-                </div>
-              )}
+          <div className="text-right">
+            <div className="flex items-center justify-end gap-2">
+              <span className="text-white font-bold text-xl">{discountedFormatted}</span>
+              <span className="text-white/60 text-sm">/month</span>
             </div>
-            
-            <Button
-              onClick={handleUpgrade}
-              className="bg-gradient-to-r from-purple-600 to-blue-600 text-white font-semibold px-6 hover:scale-105 transition-all duration-300"
-            >
-              {isGuest ? "Sign Up" : "Upgrade"}
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
+            {savingsPercentage > 0 && (
+              <div className="flex items-center justify-end gap-2">
+                <span className="text-white/60 line-through text-sm">{originalFormatted}</span>
+                <Badge variant="secondary" className="bg-green-500/20 text-green-400 border-green-500/30 text-xs">
+                  Save {savingsPercentage}%
+                </Badge>
+              </div>
+            )}
           </div>
+        </div>
+        
+        <div className="flex justify-center mt-4">
+          <Button
+            onClick={handleUpgrade}
+            className="bg-gradient-to-r from-purple-600 to-blue-600 text-white font-semibold px-8 py-2.5 hover:scale-105 transition-all duration-300 w-full sm:w-auto"
+          >
+            {isGuest ? "Sign Up" : "Upgrade"}
+            <ArrowRight className="ml-2 h-4 w-4" />
+          </Button>
         </div>
         
         <div className="flex items-center justify-center gap-2 mt-4 pt-4 border-t border-white/10">
