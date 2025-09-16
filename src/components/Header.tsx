@@ -34,7 +34,7 @@ export const Header = () => {
   };
 
   const handleUpgradeToPremium = () => {
-    navigate('/auth');
+    navigate('/premium');
   };
 
   return (

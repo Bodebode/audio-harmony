@@ -109,11 +109,14 @@ export const AppSidebar = () => {
                   <Collapsible>
                     <CollapsibleTrigger asChild>
                       <SidebarMenuButton className="hover:bg-gradient-to-r hover:from-yellow-500/20 hover:to-amber-500/20 transition-all duration-300 group">
-                        <div className="flex items-center gap-2 text-yellow-500 font-medium w-full">
-                          <Crown className="h-5 w-5 group-hover:scale-110 transition-transform duration-200" />
-                          <span className="group-hover:translate-x-1 transition-transform duration-200">Upgrade to Premium</span>
-                          <ChevronDown className="ml-auto h-4 w-4 transition-transform group-data-[state=open]:rotate-180" />
-                        </div>
+                       <Link 
+                         to="/premium"
+                         className="flex items-center gap-2 text-yellow-500 font-medium w-full"
+                       >
+                         <Crown className="h-5 w-5 group-hover:scale-110 transition-transform duration-200" />
+                         <span className="group-hover:translate-x-1 transition-transform duration-200">Upgrade to Premium</span>
+                         <ChevronDown className="ml-auto h-4 w-4 transition-transform group-data-[state=open]:rotate-180" />
+                       </Link>
                       </SidebarMenuButton>
                     </CollapsibleTrigger>
                     <CollapsibleContent>

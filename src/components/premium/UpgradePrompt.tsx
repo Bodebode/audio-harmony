@@ -29,9 +29,9 @@ export const UpgradePrompt = ({
   const [isDismissed, setIsDismissed] = useState(false);
   const navigate = useNavigate();
 
-  const handleUpgrade = () => {
-    navigate('/auth');
-  };
+    const handleUpgrade = () => {
+      navigate('/premium');
+    };
 
   const handleDismiss = () => {
     setIsDismissed(true);

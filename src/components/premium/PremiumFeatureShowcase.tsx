@@ -81,16 +81,16 @@ export const PremiumFeatureShowcase = () => {
 
       <div className="text-center pt-6">
         <Button
-          onClick={() => navigate('/auth')}
+          onClick={() => navigate('/premium')}
           size="lg"
           className="bg-gradient-to-r from-yellow-500 to-amber-500 text-black font-semibold text-lg px-8 py-3 hover:from-yellow-600 hover:to-amber-600 transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl"
         >
           <Crown className="mr-2 h-5 w-5" />
-          Get Premium Now
+          View Premium Plans
         </Button>
         
         <p className="text-white/60 text-sm mt-4">
-          Start your premium experience today
+          Learn more about premium features and pricing
         </p>
       </div>
     </section>
