@@ -14,6 +14,60 @@ export type Database = {
   }
   public: {
     Tables: {
+      analytics_daily: {
+        Row: {
+          active_users: number | null
+          average_session_duration_minutes: number | null
+          bounce_rate: number | null
+          conversion_rate: number | null
+          created_at: string
+          date: string
+          id: string
+          new_users: number | null
+          premium_users: number | null
+          revenue: number | null
+          total_likes: number | null
+          total_plays: number | null
+          total_shares: number | null
+          total_users: number | null
+          updated_at: string
+        }
+        Insert: {
+          active_users?: number | null
+          average_session_duration_minutes?: number | null
+          bounce_rate?: number | null
+          conversion_rate?: number | null
+          created_at?: string
+          date: string
+          id?: string
+          new_users?: number | null
+          premium_users?: number | null
+          revenue?: number | null
+          total_likes?: number | null
+          total_plays?: number | null
+          total_shares?: number | null
+          total_users?: number | null
+          updated_at?: string
+        }
+        Update: {
+          active_users?: number | null
+          average_session_duration_minutes?: number | null
+          bounce_rate?: number | null
+          conversion_rate?: number | null
+          created_at?: string
+          date?: string
+          id?: string
+          new_users?: number | null
+          premium_users?: number | null
+          revenue?: number | null
+          total_likes?: number | null
+          total_plays?: number | null
+          total_shares?: number | null
+          total_users?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       email_campaigns: {
         Row: {
           clicked_count: number | null
@@ -505,6 +559,147 @@ export type Database = {
           },
         ]
       }
+      user_cohorts: {
+        Row: {
+          churn_date: string | null
+          cohort_month: string
+          conversion_date: string | null
+          created_at: string
+          first_activity_date: string
+          id: string
+          is_retained_month_1: boolean | null
+          is_retained_month_3: boolean | null
+          is_retained_month_6: boolean | null
+          lifetime_value: number | null
+          total_plays: number | null
+          total_sessions: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          churn_date?: string | null
+          cohort_month: string
+          conversion_date?: string | null
+          created_at?: string
+          first_activity_date: string
+          id?: string
+          is_retained_month_1?: boolean | null
+          is_retained_month_3?: boolean | null
+          is_retained_month_6?: boolean | null
+          lifetime_value?: number | null
+          total_plays?: number | null
+          total_sessions?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          churn_date?: string | null
+          cohort_month?: string
+          conversion_date?: string | null
+          created_at?: string
+          first_activity_date?: string
+          id?: string
+          is_retained_month_1?: boolean | null
+          is_retained_month_3?: boolean | null
+          is_retained_month_6?: boolean | null
+          lifetime_value?: number | null
+          total_plays?: number | null
+          total_sessions?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_journeys: {
+        Row: {
+          action_type: string
+          created_at: string
+          id: string
+          metadata: Json | null
+          page_path: string
+          session_id: string
+          step_number: number
+          timestamp: string
+          user_id: string | null
+        }
+        Insert: {
+          action_type: string
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          page_path: string
+          session_id: string
+          step_number: number
+          timestamp?: string
+          user_id?: string | null
+        }
+        Update: {
+          action_type?: string
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          page_path?: string
+          session_id?: string
+          step_number?: number
+          timestamp?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      user_sessions: {
+        Row: {
+          actions_count: number | null
+          city: string | null
+          country: string | null
+          created_at: string
+          device_type: string | null
+          duration_minutes: number | null
+          end_time: string | null
+          id: string
+          is_bounce: boolean | null
+          pages_visited: number | null
+          referrer: string | null
+          session_id: string
+          start_time: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          actions_count?: number | null
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          device_type?: string | null
+          duration_minutes?: number | null
+          end_time?: string | null
+          id?: string
+          is_bounce?: boolean | null
+          pages_visited?: number | null
+          referrer?: string | null
+          session_id: string
+          start_time?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          actions_count?: number | null
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          device_type?: string | null
+          duration_minutes?: number | null
+          end_time?: string | null
+          id?: string
+          is_bounce?: boolean | null
+          pages_visited?: number | null
+          referrer?: string | null
+          session_id?: string
+          start_time?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       whitelists: {
         Row: {
           added_by_admin_id: string | null
@@ -539,7 +734,19 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      analytics_overview: {
+        Row: {
+          active_users_30d: number | null
+          avg_session_duration: number | null
+          bounce_rate: number | null
+          premium_users: number | null
+          total_likes: number | null
+          total_plays_30d: number | null
+          total_shares: number | null
+          total_users: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       is_payment_field_update: {
