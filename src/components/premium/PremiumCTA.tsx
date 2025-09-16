@@ -5,6 +5,7 @@ import { UpgradePrompt } from "./UpgradePrompt";
 import PayPalSubscription from "./PayPalSubscription";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
+import { StripeCheckout } from "./StripeCheckout";
 
 export const PremiumCTA = () => {
   const navigate = useNavigate();
@@ -57,25 +58,19 @@ export const PremiumCTA = () => {
             </p>
           </div>
 
-          {/* CTA Button */}
-          <div className="mb-8">
-            <Button
-              onClick={handleUpgrade}
-              size="lg"
-              className="bg-gradient-to-r from-yellow-400 to-yellow-600 text-black font-bold px-12 py-6 text-xl rounded-full hover:scale-105 transition-all duration-300 hover:shadow-2xl hover:shadow-yellow-400/25"
-            >
-              {isGuest ? "Sign Up & Get Premium" : "Start Your Premium Journey"}
-              <ArrowRight className="ml-3 h-6 w-6" />
-            </Button>
-          </div>
-
-          {/* PayPal Option */}
-          <div id="paypal-subscription" className="max-w-md mx-auto">
-            <div className="text-center mb-6">
-              <p className="text-white/80 text-lg">Alternative Payment Method</p>
-              <p className="text-white/60 text-sm">Subscribe with PayPal for the same great benefits</p>
+          {/* Payment Options */}
+          <div className="mb-8 space-y-4">
+            <StripeCheckout className="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white font-semibold py-4 text-lg hover:scale-105 transition-all duration-300">
+              {isGuest ? "Sign Up & Pay with Stripe" : "Start Premium with Stripe"}
+            </StripeCheckout>
+            
+            <div className="text-center text-white/60 text-sm">
+              or
             </div>
-            <PayPalSubscription />
+            
+            <div id="paypal-subscription" className="scroll-mt-20">
+              <PayPalSubscription />
+            </div>
           </div>
 
           {/* Trial Info */}

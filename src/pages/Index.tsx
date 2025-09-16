@@ -7,7 +7,7 @@ import { MusicPlayer } from "@/components/MusicPlayer";
 import { Library } from "@/components/Library";
 import { LikedSongs } from "@/components/LikedSongs";
 import { AboutArtist } from "@/components/AboutArtist";
-
+import { CompactPremiumShowcase } from "@/components/premium/CompactPremiumShowcase";
 import { Footer } from "@/components/Footer";
 import { useAuth } from "@/hooks/useAuth";
 import { usePremium } from "@/hooks/usePremium";
@@ -47,6 +47,11 @@ const Index = () => {
           <Library />
           <LikedSongs />
           <AboutArtist />
+          {!isPremiumActive && !isGuest && (
+            <section className="p-6">
+              <CompactPremiumShowcase />
+            </section>
+          )}
           <Footer />
         </div>
       </div>

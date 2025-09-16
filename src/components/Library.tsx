@@ -7,7 +7,7 @@ import { useLikedSongs } from "@/hooks/useLikedSongs";
 import { usePremium } from "@/hooks/usePremium";
 import { useAuth } from "@/hooks/useAuth";
 import { PremiumFeature } from "./premium/PremiumFeature";
-import { UpgradePrompt } from "./premium/UpgradePrompt";
+
 
 const sampleSongs = [
   { id: 1, title: "Afrobeat Fusion", duration: "3:45" },
@@ -183,12 +183,6 @@ export const Library = () => {
                   </div>
                   ))}
 
-                  {/* Show upgrade prompt for non-premium users (but not guests) */}
-                  {!isGuest && !checkFeatureAccess('premiumContent') && (
-                    <div className="mt-6">
-                      <UpgradePrompt />
-                    </div>
-                  )}
                 </>
               )}
             </div>

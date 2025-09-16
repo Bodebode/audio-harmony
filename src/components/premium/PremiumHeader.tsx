@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { usePricing } from "@/hooks/usePricing";
+import { StripeCheckout } from "./StripeCheckout";
 
 export const PremiumHeader = () => {
   const navigate = useNavigate();
@@ -66,12 +67,18 @@ export const PremiumHeader = () => {
               <span className="text-white/60 text-lg">per month</span>
             </div>
             
-            <Button
-              onClick={handleUpgrade}
-              className="w-full bg-gradient-to-r from-yellow-400 to-yellow-600 text-black font-bold py-4 text-lg hover:scale-105 transition-all duration-300 hover:shadow-lg hover:shadow-yellow-400/25"
-            >
-              {isGuest ? "Sign Up & Get Premium" : "Upgrade Now"}
-            </Button>
+            <div className="flex flex-col sm:flex-row gap-4">
+              <StripeCheckout className="flex-1 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-semibold py-4 hover:scale-105 transition-all duration-300">
+                {isGuest ? "Sign Up & Pay with Stripe" : "Start Premium with Stripe"}
+              </StripeCheckout>
+              <Button
+                onClick={handleUpgrade}
+                variant="outline"
+                className="flex-1 border-white/30 text-white hover:bg-white/10 py-4"
+              >
+                {isGuest ? "Sign Up First" : "View More Options"}
+              </Button>
+            </div>
             
             <p className="text-white/60 text-sm mt-4">
               Cancel anytime • 7-day free trial
