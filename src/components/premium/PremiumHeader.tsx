@@ -13,8 +13,11 @@ export const PremiumHeader = () => {
     if (isGuest) {
       navigate('/auth');
     } else {
-      // Navigate to support page for payment
-      navigate('/support');
+      // Scroll to PayPal section
+      const paypalSection = document.getElementById('paypal-subscription');
+      if (paypalSection) {
+        paypalSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
     }
   };
 

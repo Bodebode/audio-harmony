@@ -14,8 +14,11 @@ export const PremiumCTA = () => {
     if (isGuest) {
       navigate('/auth');
     } else {
-      // Navigate to support page for payment
-      navigate('/support');
+      // Scroll to PayPal section
+      const paypalSection = document.getElementById('paypal-subscription');
+      if (paypalSection) {
+        paypalSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
     }
   };
 
@@ -67,7 +70,7 @@ export const PremiumCTA = () => {
           </div>
 
           {/* PayPal Option */}
-          <div className="max-w-md mx-auto">
+          <div id="paypal-subscription" className="max-w-md mx-auto">
             <div className="text-center mb-6">
               <p className="text-white/80 text-lg">Alternative Payment Method</p>
               <p className="text-white/60 text-sm">Subscribe with PayPal for the same great benefits</p>

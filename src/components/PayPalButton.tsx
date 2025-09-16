@@ -52,6 +52,12 @@ const PayPalButton: React.FC<PayPalButtonProps> = ({
         return;
       }
 
+      // Clear any existing buttons in the container
+      const container = document.getElementById(containerId);
+      if (container) {
+        container.innerHTML = '';
+      }
+
       buttonRendered.current = true;
 
       const buttonConfig: any = {
@@ -112,6 +118,11 @@ const PayPalButton: React.FC<PayPalButtonProps> = ({
 
     return () => {
       buttonRendered.current = false;
+      // Clear the container on cleanup
+      const container = document.getElementById(containerId);
+      if (container) {
+        container.innerHTML = '';
+      }
     };
   }, [planId, amount, color, onApprove, onError, style, containerId]);
 
