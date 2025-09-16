@@ -23,7 +23,8 @@ export const useAdmin = () => {
     enabled: !!user?.id,
   });
 
-  const isAdmin = adminProfile?.role !== null && adminProfile?.role !== undefined;
+  const isAdmin = adminProfile?.is_admin === true || 
+    ['admin', 'editor', 'support'].includes(adminProfile?.role);
   const role = adminProfile?.role;
   
   const hasRole = (requiredRole: 'admin' | 'editor' | 'support') => {

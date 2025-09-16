@@ -30,7 +30,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
   }
 
   if (!isAuthenticated) {
-    return <Navigate to="/auth" replace />;
+    return <Navigate to="/admin-access" replace />;
   }
 
   const handleSignOut = async () => {
