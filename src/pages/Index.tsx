@@ -45,7 +45,7 @@ const Index = () => {
           <Library />
           <LikedSongs />
           <AboutArtist />
-          {!isGuest && !isPremiumActive && <PremiumFeatureShowcase />}
+          {!isGuest && !isPremiumActive && <div className="container mx-auto px-6 py-8"><PremiumFeatureShowcase /></div>}
           <Footer />
         </div>
       </div>

@@ -23,17 +23,7 @@ export const BottomBanner = () => {
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-40">
-      <UpgradePrompt
-        title="Get Premium for Ad-Free Experience"
-        description="Enjoy uninterrupted music with premium features"
-        features={[
-          "No advertisements",
-          "Unlimited skips",
-          "Exclusive content"
-        ]}
-        variant="banner"
-        dismissible={false}
-      />
+      <UpgradePrompt />
     </div>
   );
 };

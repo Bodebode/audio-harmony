@@ -1,111 +1,90 @@
-import { Crown, ArrowRight, X } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Crown, CheckCircle, Shield, RefreshCw, Headphones } from "lucide-react";
 
-interface UpgradePromptProps {
-  title?: string;
-  description?: string;
-  features?: string[];
-  variant?: "card" | "banner" | "modal";
-  onDismiss?: () => void;
-  dismissible?: boolean;
-}
+export const UpgradePrompt = () => {
+  const benefits = [
+    {
+      icon: <Shield className="h-4 w-4" />,
+      text: "30-day money-back guarantee"
+    },
+    {
+      icon: <RefreshCw className="h-4 w-4" />,
+      text: "Cancel anytime"
+    },
+    {
+      icon: <Headphones className="h-4 w-4" />,
+      text: "24/7 premium support"
+    }
+  ];
 
-export const UpgradePrompt = ({
-  title = "Upgrade to Premium",
-  description = "Unlock unlimited music and exclusive features",
-  features = [
-    "Unlimited playlists",
-    "High-quality 320kbps streaming", 
-    "No advertisements",
-    "Offline downloads"
-  ],
-  variant = "card",
-  onDismiss,
-  dismissible = false
-}: UpgradePromptProps) => {
-  const [isDismissed, setIsDismissed] = useState(false);
-  const navigate = useNavigate();
-
-    const handleUpgrade = () => {
-      navigate('/premium');
-    };
-
-  const handleDismiss = () => {
-    setIsDismissed(true);
-    onDismiss?.();
-  };
-
-  if (isDismissed) return null;
-
-  const content = (
-    <>
-      {dismissible && (
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={handleDismiss}
-          className="absolute top-2 right-2 text-white/60 hover:text-white h-8 w-8"
-        >
-          <X className="h-4 w-4" />
-        </Button>
-      )}
-      
-      <div className="flex items-center gap-3 mb-4">
-        <div className="p-2 bg-gradient-to-r from-yellow-500 to-amber-500 rounded-lg">
-          <Crown className="h-6 w-6 text-black" />
-        </div>
-        <div>
-          <h3 className="text-xl font-bold text-white">{title}</h3>
-          <p className="text-white/80 text-sm">{description}</p>
-        </div>
-      </div>
-
-      <div className="space-y-2 mb-6">
-        {features.map((feature, index) => (
-          <div key={index} className="flex items-center gap-2 text-white/90 text-sm">
-            <div className="w-1.5 h-1.5 bg-gradient-to-r from-yellow-500 to-amber-500 rounded-full" />
-            <span>{feature}</span>
-          </div>
-        ))}
-      </div>
-
-      <Button
-        onClick={handleUpgrade}
-        className="w-full bg-gradient-to-r from-yellow-500 to-amber-500 text-black font-semibold hover:from-yellow-600 hover:to-amber-600 transition-all duration-300"
-      >
-        Upgrade Now
-        <ArrowRight className="ml-2 h-4 w-4" />
-      </Button>
-    </>
-  );
-
-  if (variant === "banner") {
-    return (
-      <div className="bg-gradient-to-r from-black/80 to-gray-900/80 backdrop-blur-lg border border-yellow-500/20 p-4 relative">
-        {content}
-      </div>
-    );
-  }
-
-  if (variant === "modal") {
-    return (
-      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-        <Card className="bg-gradient-to-br from-gray-900 to-black border-yellow-500/20 max-w-md w-full">
-          <CardContent className="p-6 relative">
-            {content}
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
+  const premiumFeatures = [
+    "Unlimited playlists & saves",
+    "Offline downloads available",
+    "Skip songs without limits", 
+    "Exclusive premium content",
+    "Early access to new releases",
+    "VIP merchandise access"
+  ];
 
   return (
-    <Card className="bg-gradient-to-br from-gray-900/80 to-black/80 backdrop-blur-lg border-yellow-500/20 hover:border-yellow-500/40 transition-all duration-300">
-      <CardContent className="p-6 relative">
-        {content}
+    <Card className="glass-card border-white/20 relative overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-br from-yellow-500/10 to-amber-500/10" />
+      <CardHeader className="relative text-center">
+        <div className="flex items-center justify-center gap-3 mb-4">
+          <div className="p-3 bg-gradient-to-r from-yellow-500/20 to-amber-500/20 rounded-full">
+            <Crown className="h-6 w-6 text-yellow-400" />
+          </div>
+        </div>
+        <CardTitle className="text-white text-2xl">Why Go Premium?</CardTitle>
+        <CardDescription className="text-white/70">
+          Join thousands of music lovers worldwide
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="relative space-y-6">
+        {/* Premium Features List */}
+        <div className="space-y-3">
+          {premiumFeatures.map((feature, index) => (
+            <div key={index} className="flex items-center gap-3">
+              <div className="flex-shrink-0">
+                <CheckCircle className="h-4 w-4 text-green-400" />
+              </div>
+              <span className="text-white/80 text-sm">{feature}</span>
+            </div>
+          ))}
+        </div>
+
+        {/* Trial Badge */}
+        <div className="text-center">
+          <Badge variant="secondary" className="bg-yellow-500/20 text-yellow-400 border-yellow-500/30 px-4 py-2">
+            <Crown className="h-3 w-3 mr-1" />
+            7-Day Free Trial
+          </Badge>
+        </div>
+
+        {/* Benefits */}
+        <div className="bg-gradient-to-r from-yellow-500/10 to-amber-500/10 p-4 rounded-lg border border-white/20">
+          <div className="space-y-2">
+            {benefits.map((benefit, index) => (
+              <div key={index} className="flex items-center gap-2">
+                <div className="text-yellow-400">{benefit.icon}</div>
+                <span className="text-white/80 text-sm">{benefit.text}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Stats */}
+        <div className="grid grid-cols-2 gap-4 text-center">
+          <div className="space-y-1">
+            <div className="text-2xl font-bold text-white">50K+</div>
+            <div className="text-white/60 text-xs">Active Premium Users</div>
+          </div>
+          <div className="space-y-1">
+            <div className="text-2xl font-bold text-white">4.9/5</div>
+            <div className="text-white/60 text-xs">User Rating</div>
+          </div>
+        </div>
       </CardContent>
     </Card>
   );

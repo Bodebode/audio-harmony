@@ -211,17 +211,7 @@ export const Library = () => {
                   {/* Show upgrade prompt for non-premium users (but not guests) */}
                   {!isGuest && !checkFeatureAccess('premiumContent') && (
                     <div className="mt-6">
-                      <UpgradePrompt
-                        title="Access Premium Music"
-                        description="Unlock exclusive tracks and high-quality streaming"
-                        features={[
-                          "Exclusive premium songs",
-                          "High-quality 320kbps audio",
-                          "Unlimited playlists",
-                          "No advertisements"
-                        ]}
-                        variant="card"
-                      />
+                      <UpgradePrompt />
                     </div>
                   )}
                 </>

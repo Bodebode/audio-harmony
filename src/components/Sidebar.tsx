@@ -178,7 +178,20 @@ export const AppSidebar = () => {
                     </CollapsibleContent>
                   </Collapsible>
                 </SidebarMenuItem>
-              )}
+               )}
+               
+               {/* Support the Artist Section */}
+               <SidebarMenuItem className="animate-fade-in mt-2" style={{ animationDelay: `${sidebarItems.length * 0.1 + 0.1}s` }}>
+                 <SidebarMenuButton className="hover:bg-gradient-to-r hover:from-pink-500/20 hover:to-red-500/20 transition-all duration-300 group">
+                   <Link 
+                     to="/support" 
+                     className="flex items-center gap-2 text-pink-400 hover:text-pink-300 font-medium w-full transition-all duration-300"
+                   >
+                     <Heart className="h-5 w-5 group-hover:scale-110 transition-transform duration-200" />
+                     <span className="group-hover:translate-x-1 transition-transform duration-200">Support the Artist</span>
+                   </Link>
+                 </SidebarMenuButton>
+               </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

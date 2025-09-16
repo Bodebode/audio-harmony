@@ -1,7 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { Crown, ArrowRight, Shield, RefreshCw, Headphones } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { PremiumFeatureShowcase } from "./PremiumFeatureShowcase";
+import { UpgradePrompt } from "./UpgradePrompt";
+import PayPalSubscription from "./PayPalSubscription";
 import { useAuth } from "@/hooks/useAuth";
+import { useNavigate } from "react-router-dom";
 
 export const PremiumCTA = () => {
   const navigate = useNavigate();
@@ -63,14 +66,18 @@ export const PremiumCTA = () => {
             </Button>
           </div>
 
-          {/* Benefits */}
-          <div className="flex flex-col lg:flex-row items-center justify-center gap-6 lg:gap-12 text-white/80">
-            {benefits.map((benefit, index) => (
-              <div key={index} className="flex items-center gap-2">
-                <div className="text-yellow-400">{benefit.icon}</div>
-                <span className="text-sm">{benefit.text}</span>
-              </div>
-            ))}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-4xl mx-auto mb-8">
+            <PremiumFeatureShowcase />
+            <UpgradePrompt />
+          </div>
+          
+          {/* PayPal Option */}
+          <div className="max-w-md mx-auto">
+            <div className="text-center mb-6">
+              <p className="text-white/80 text-lg">Alternative Payment Method</p>
+              <p className="text-white/60 text-sm">Subscribe with PayPal for the same great benefits</p>
+            </div>
+            <PayPalSubscription />
           </div>
 
           {/* Trial Info */}

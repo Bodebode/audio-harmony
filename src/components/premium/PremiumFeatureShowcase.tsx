@@ -1,98 +1,85 @@
-import { 
-  Music, 
-  Download, 
-  Volume2, 
-  Shuffle, 
-  Crown, 
-  Zap, 
-  Star,
-  Headphones
-} from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Crown, ArrowRight, Zap, Star } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
-
-const premiumFeatures = [
-  {
-    icon: Zap,
-    title: "No Advertisements",
-    description: "Uninterrupted music experience",
-    accent: "from-orange-500 to-red-500"
-  },
-  {
-    icon: Shuffle,
-    title: "Unlimited Skips",
-    description: "Skip songs without limits",
-    accent: "from-indigo-500 to-purple-500"
-  },
-  {
-    icon: Star,
-    title: "Exclusive Content",
-    description: "Access premium-only releases",
-    accent: "from-yellow-500 to-amber-500"
-  }
-];
+import { usePricing } from "@/hooks/usePricing";
 
 export const PremiumFeatureShowcase = () => {
+  const { isGuest } = useAuth();
   const navigate = useNavigate();
+  const { discountedFormatted, originalFormatted, savingsPercentage } = usePricing();
+
+  const handleUpgrade = () => {
+    if (isGuest) {
+      navigate('/auth');
+    } else {
+      // Here you would integrate with Stripe
+      console.log('Upgrade to premium with Stripe');
+    }
+  };
 
   return (
-    <section className="p-6 space-y-6">
-      <div className="text-center space-y-4">
-        <div className="flex justify-center">
-          <div className="p-3 bg-gradient-to-r from-yellow-500 to-amber-500 rounded-full">
-            <Crown className="h-8 w-8 text-black" />
+    <Card className="glass-card border-white/20 relative overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-blue-500/10" />
+      <CardHeader className="relative text-center">
+        <div className="flex items-center justify-center gap-3 mb-4">
+          <div className="p-3 bg-gradient-to-r from-purple-500/20 to-blue-500/20 rounded-full">
+            <Crown className="h-6 w-6 text-yellow-400" />
           </div>
         </div>
-        <h2 className="text-3xl font-bold text-white">
-          Upgrade to Premium
-        </h2>
-        <p className="text-white/80 text-lg max-w-2xl mx-auto">
-          Unlock the full potential of your music experience with these exclusive features
-        </p>
-      </div>
+        <CardTitle className="text-white text-2xl">Stripe Premium</CardTitle>
+        <CardDescription className="text-white/70">
+          Subscribe with credit/debit card
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="relative space-y-6">
+        {/* Pricing */}
+        <div className="text-center space-y-2">
+          <div className="flex items-center justify-center gap-2">
+            <span className="text-3xl font-bold text-white">{discountedFormatted}</span>
+            <span className="text-white/60">/month</span>
+          </div>
+          {savingsPercentage > 0 && (
+            <div className="flex items-center justify-center gap-2">
+              <span className="text-white/60 line-through text-lg">{originalFormatted}</span>
+              <Badge variant="secondary" className="bg-green-500/20 text-green-400 border-green-500/30">
+                Save {savingsPercentage}%
+              </Badge>
+            </div>
+          )}
+        </div>
 
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {premiumFeatures.map((feature, index) => (
-          <Card 
-            key={feature.title}
-            className="bg-black/40 backdrop-blur-lg border-white/10 hover:border-white/20 transition-all duration-300 group animate-fade-in"
-            style={{ animationDelay: `${index * 100}ms` }}
-          >
-            <CardContent className="p-6 text-center space-y-4">
-              <div className="flex justify-center">
-                <div className={`p-3 bg-gradient-to-r ${feature.accent} rounded-lg group-hover:scale-110 transition-transform duration-300`}>
-                  <feature.icon className="h-6 w-6 text-white" />
-                </div>
-              </div>
-              
-              <div className="space-y-2">
-                <h3 className="text-xl font-semibold text-white group-hover:text-white/90">
-                  {feature.title}
-                </h3>
-                <p className="text-white/70 text-sm">
-                  {feature.description}
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+        {/* Key Features */}
+        <div className="bg-gradient-to-r from-purple-500/10 to-blue-500/10 p-4 rounded-lg border border-white/20">
+          <div className="flex items-center gap-2 mb-3">
+            <Star className="h-4 w-4 text-yellow-400" />
+            <span className="text-white font-medium">Premium Features:</span>
+          </div>
+          <ul className="text-white/80 text-sm space-y-1">
+            <li>• Unlimited playlist creation</li>
+            <li>• Ad-free listening experience</li>
+            <li>• High-quality audio streaming</li>
+            <li>• Priority customer support</li>
+          </ul>
+        </div>
 
-      <div className="text-center pt-6">
+        {/* CTA Button */}
         <Button
-          onClick={() => navigate('/premium')}
-          size="lg"
-          className="bg-gradient-to-r from-yellow-500 to-amber-500 text-black font-semibold text-lg px-8 py-3 hover:from-yellow-600 hover:to-amber-600 transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl"
+          onClick={handleUpgrade}
+          className="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white font-semibold py-3 hover:scale-105 transition-all duration-300"
         >
-          <Crown className="mr-2 h-5 w-5" />
-          View Premium Plans
+          {isGuest ? "Sign Up & Get Premium" : "Start Premium with Stripe"}
+          <ArrowRight className="ml-2 h-4 w-4" />
         </Button>
-        
-        <p className="text-white/60 text-sm mt-4">
-          Learn more about premium features and pricing
-        </p>
-      </div>
-    </section>
+
+        {/* Features Badge */}
+        <div className="flex items-center justify-center gap-2">
+          <Zap className="h-4 w-4 text-yellow-400" />
+          <span className="text-white/70 text-sm">Instant activation</span>
+        </div>
+      </CardContent>
+    </Card>
   );
 };
