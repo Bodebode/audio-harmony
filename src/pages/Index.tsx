@@ -9,8 +9,10 @@ import { LikedSongs } from "@/components/LikedSongs";
 import { AboutArtist } from "@/components/AboutArtist";
 import { CompactPremiumShowcase } from "@/components/premium/CompactPremiumShowcase";
 import { Footer } from "@/components/Footer";
+import { BottomNavigation } from "@/components/BottomNavigation";
 import { useAuth } from "@/hooks/useAuth";
 import { usePremium } from "@/hooks/usePremium";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
 import { Crown, Zap, SkipForward, Star, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -18,6 +20,7 @@ import { useNavigate } from "react-router-dom";
 const Index = () => {
   const { isAuthenticated, loading, isGuest } = useAuth();
   const { isPremiumActive } = usePremium();
+  const isMobile = useIsMobile();
   const navigate = useNavigate();
 
   // Show loading spinner while checking auth state
@@ -41,7 +44,7 @@ const Index = () => {
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-gradient-to-br from-[#0FA0CE] via-[#222222] to-[#1EAEDB]">
         <AppSidebar />
-        <div className="flex-1 overflow-auto pb-16">
+        <div className="flex-1 overflow-auto pb-20 md:pb-16">
           <Header />
           <MusicPlayer />
           <Library />
@@ -54,6 +57,9 @@ const Index = () => {
           )}
           <Footer />
         </div>
+        
+        {/* Mobile bottom navigation */}
+        {isMobile && <BottomNavigation />}
       </div>
     </SidebarProvider>
   );

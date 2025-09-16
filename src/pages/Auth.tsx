@@ -77,8 +77,8 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0FA0CE] via-[#222222] to-[#1EAEDB] flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen bg-gradient-to-br from-[#0FA0CE] via-[#222222] to-[#1EAEDB] flex items-center justify-center p-4 md:p-6">
+      <div className="w-full max-w-md mx-auto">
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-2 mb-4">
             <Music className="h-8 w-8 text-[#1EAEDB]" />
@@ -131,42 +131,42 @@ const Auth = () => {
                 <form onSubmit={handleSignIn} className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="signin-email" className="text-white">Email</Label>
-                    <Input
-                      id="signin-email"
-                      type="email"
-                      placeholder="Enter your email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
-                      className="bg-white/10 border-white/20 text-white placeholder:text-white/50"
-                    />
+                       <Input
+                         id="signin-email"
+                         type="email"
+                         placeholder="Enter your email"
+                         value={email}
+                         onChange={(e) => setEmail(e.target.value)}
+                         required
+                         className="bg-white/10 border-white/20 text-white placeholder:text-white/50 h-12 md:h-10 text-base md:text-sm"
+                       />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="signin-password" className="text-white">Password</Label>
                     <div className="relative">
-                      <Input
-                        id="signin-password"
-                        type={showPassword ? "text" : "password"}
-                        placeholder="Enter your password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                        className="bg-white/10 border-white/20 text-white placeholder:text-white/50 pr-10"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-white/60 hover:text-white transition-colors"
-                      >
-                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                      </button>
+                       <Input
+                         id="signin-password"
+                         type={showPassword ? "text" : "password"}
+                         placeholder="Enter your password"
+                         value={password}
+                         onChange={(e) => setPassword(e.target.value)}
+                         required
+                         className="bg-white/10 border-white/20 text-white placeholder:text-white/50 pr-12 h-12 md:h-10 text-base md:text-sm"
+                       />
+                       <button
+                         type="button"
+                         onClick={() => setShowPassword(!showPassword)}
+                         className="absolute right-3 top-1/2 -translate-y-1/2 text-white/60 hover:text-white transition-colors h-8 w-8 flex items-center justify-center"
+                       >
+                         {showPassword ? <EyeOff className="h-5 w-5 md:h-4 md:w-4" /> : <Eye className="h-5 w-5 md:h-4 md:w-4" />}
+                       </button>
                     </div>
                   </div>
-                  <Button
-                    type="submit"
-                    className="w-full bg-[#1EAEDB] hover:bg-[#0FA0CE] text-white"
-                    disabled={isLoading}
-                  >
+                   <Button
+                     type="submit"
+                     className="w-full bg-[#1EAEDB] hover:bg-[#0FA0CE] text-white h-12 md:h-10 text-base md:text-sm"
+                     disabled={isLoading}
+                   >
                     {isLoading ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -196,32 +196,32 @@ const Auth = () => {
                   {/* Contact Method Toggle */}
                   <div className="space-y-2">
                     <Label className="text-white">Contact Method</Label>
-                    <div className="flex gap-2">
-                      <Button
-                        type="button"
-                        onClick={() => setContactMethod('email')}
-                        className={`flex-1 ${contactMethod === 'email' 
-                          ? 'bg-[#1EAEDB] text-white' 
-                          : 'bg-white/10 text-white/70 hover:bg-white/20'
-                        }`}
-                        variant={contactMethod === 'email' ? 'default' : 'outline'}
-                      >
-                        <Mail className="mr-2 h-4 w-4" />
-                        Email
-                      </Button>
-                      <Button
-                        type="button"
-                        onClick={() => setContactMethod('phone')}
-                        className={`flex-1 ${contactMethod === 'phone' 
-                          ? 'bg-[#1EAEDB] text-white' 
-                          : 'bg-white/10 text-white/70 hover:bg-white/20'
-                        }`}
-                        variant={contactMethod === 'phone' ? 'default' : 'outline'}
-                      >
-                        <Phone className="mr-2 h-4 w-4" />
-                        Phone
-                      </Button>
-                    </div>
+                     <div className="flex gap-2">
+                       <Button
+                         type="button"
+                         onClick={() => setContactMethod('email')}
+                         className={`flex-1 h-12 md:h-10 ${contactMethod === 'email' 
+                           ? 'bg-[#1EAEDB] text-white' 
+                           : 'bg-white/10 text-white/70 hover:bg-white/20'
+                         }`}
+                         variant={contactMethod === 'email' ? 'default' : 'outline'}
+                       >
+                         <Mail className="mr-2 h-5 w-5 md:h-4 md:w-4" />
+                         Email
+                       </Button>
+                       <Button
+                         type="button"
+                         onClick={() => setContactMethod('phone')}
+                         className={`flex-1 h-12 md:h-10 ${contactMethod === 'phone' 
+                           ? 'bg-[#1EAEDB] text-white' 
+                           : 'bg-white/10 text-white/70 hover:bg-white/20'
+                         }`}
+                         variant={contactMethod === 'phone' ? 'default' : 'outline'}
+                       >
+                         <Phone className="mr-2 h-5 w-5 md:h-4 md:w-4" />
+                         Phone
+                       </Button>
+                     </div>
                   </div>
 
                   {/* Email or Phone Input */}

@@ -39,51 +39,59 @@ export const Header = () => {
 
   return (
     <>
-      <header className="p-6 flex justify-between items-center">
-        <Button variant="ghost" size="icon" className="text-white" asChild>
+      <header className="p-4 md:p-6 flex justify-between items-center">
+        {/* Mobile-optimized sidebar trigger */}
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          className="text-white h-11 w-11 md:h-10 md:w-10" 
+          asChild
+        >
           <SidebarTrigger>
             <Menu className="h-6 w-6" />
           </SidebarTrigger>
         </Button>
         
-        <div className="flex items-center gap-2">
+        {/* Mobile-optimized navigation with larger touch targets */}
+        <div className="flex items-center gap-1 md:gap-2">
           <Button 
             variant="ghost" 
             size="icon" 
-            className="text-white hover:text-[#1EAEDB] hover:bg-white/10 transition-colors duration-200 rounded-full"
+            className="text-white hover:text-[#1EAEDB] hover:bg-white/10 transition-colors duration-200 rounded-full h-11 w-11 md:h-10 md:w-10"
             onClick={() => navigate('/')}
           >
-            <Home className="h-5 w-5" />
+            <Home className="h-6 w-6 md:h-5 md:w-5" />
           </Button>
           
           <Button 
             variant="ghost" 
             size="icon" 
-            className="text-white hover:text-[#1EAEDB] hover:bg-white/10 transition-colors duration-200 rounded-full"
+            className="text-white hover:text-[#1EAEDB] hover:bg-white/10 transition-colors duration-200 rounded-full h-11 w-11 md:h-10 md:w-10"
             onClick={() => setIsSearchOpen(true)}
+            data-search-trigger
           >
-            <Search className="h-5 w-5" />
+            <Search className="h-6 w-6 md:h-5 md:w-5" />
           </Button>
           
           <Button 
             variant="ghost" 
             size="icon" 
-            className="text-white hover:text-[#1EAEDB] hover:bg-white/10 transition-colors duration-200 rounded-full"
+            className="text-white hover:text-[#1EAEDB] hover:bg-white/10 transition-colors duration-200 rounded-full h-11 w-11 md:h-10 md:w-10"
             onClick={handleCartClick}
           >
-            <ShoppingCart className="h-5 w-5" />
+            <ShoppingCart className="h-6 w-6 md:h-5 md:w-5" />
           </Button>
 
-          {/* User Menu */}
+          {/* User Menu with larger touch target */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button 
                 variant="ghost" 
                 size="icon" 
-                className="text-white hover:text-[#1EAEDB] hover:bg-white/10 transition-colors duration-200 rounded-full"
+                className="text-white hover:text-[#1EAEDB] hover:bg-white/10 transition-colors duration-200 rounded-full h-11 w-11 md:h-10 md:w-10"
               >
-                <Avatar className="h-5 w-5">
-                  <AvatarFallback className="bg-[#1EAEDB] text-white text-xs">
+                <Avatar className="h-6 w-6 md:h-5 md:w-5">
+                  <AvatarFallback className="bg-[#1EAEDB] text-white text-sm md:text-xs">
                     {isGuest ? 'G' : profile?.display_name?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || 'U'}
                   </AvatarFallback>
                 </Avatar>

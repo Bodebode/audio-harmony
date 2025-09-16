@@ -192,11 +192,12 @@ export const MusicPlayer = () => {
         <Card className="bg-black/40 backdrop-blur-lg border-[#1EAEDB]/10 animate-fade-in hover:border-[#1EAEDB]/20 transition-all duration-300">
           <CardContent className="p-6">
             <div 
-              className="grid md:grid-cols-2 gap-8"
+              className="flex flex-col gap-6 md:grid md:grid-cols-2 md:gap-8"
               ref={gestureRef as React.RefObject<HTMLDivElement>}
             >
+              {/* Mobile-first album art - smaller on mobile */}
               <div className="flex flex-col justify-center">
-                <div className="w-full aspect-square bg-[#222222] rounded-lg shadow-2xl overflow-hidden group relative">
+                <div className="w-full max-w-80 mx-auto md:max-w-none aspect-square bg-[#222222] rounded-lg shadow-2xl overflow-hidden group relative">
                   <img 
                     src={currentSong.artwork}
                     alt={`Album Art - ${currentSong.artist}`}
@@ -205,18 +206,19 @@ export const MusicPlayer = () => {
                   />
                   <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                   
-                  {/* Fullscreen button overlay */}
+                  {/* Fullscreen button overlay - larger touch target */}
                   <Button
                     variant="ghost"
                     size="icon"
                     onClick={() => setIsFullScreen(true)}
-                    className="absolute top-4 right-4 text-white/80 hover:text-white hover:bg-black/50 opacity-0 group-hover:opacity-100 transition-all duration-300"
+                    className="absolute top-4 right-4 text-white/80 hover:text-white hover:bg-black/50 opacity-0 group-hover:opacity-100 transition-all duration-300 h-12 w-12 md:h-10 md:w-10"
                   >
-                    <Maximize2 className="h-5 w-5" />
+                    <Maximize2 className="h-6 w-6 md:h-5 md:w-5" />
                   </Button>
                 </div>
               </div>
-            <div className="flex flex-col justify-between">
+              
+            <div className="flex flex-col justify-between min-h-0">
               <div>
                   <div className="flex items-center justify-between mb-2">
                     <h2 className="text-3xl font-bold text-[#FEF7CD]">Now Playing</h2>
@@ -234,113 +236,119 @@ export const MusicPlayer = () => {
               <div className="space-y-4">
                 <LyricsDisplay isPlaying={isPlaying} songId={currentSong.id} />
                 <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Slider
-                      value={[songProgress]}
-                      onValueChange={(vals) => handleProgressChange(vals[0])}
-                      max={100}
-                      step={0.5}
-                      className="w-full"
-                    />
-                    <div className="flex justify-between text-sm text-[#F2FCE2]">
-                      <span>{Math.floor((songProgress / 100) * 225)}s</span>
-                      <span>{currentSong.duration}</span>
-                    </div>
+                 <div className="space-y-2">
+                     <Slider
+                       value={[songProgress]}
+                       onValueChange={(vals) => handleProgressChange(vals[0])}
+                       max={100}
+                       step={0.5}
+                       className="w-full [&>span[role=slider]]:h-6 [&>span[role=slider]]:w-6 md:[&>span[role=slider]]:h-4 md:[&>span[role=slider]]:w-4"
+                     />
+                     <div className="flex justify-between text-sm text-[#F2FCE2]">
+                       <span>{Math.floor((songProgress / 100) * 225)}s</span>
+                       <span>{currentSong.duration}</span>
+                     </div>
+                   </div>
+                   
+                   {/* Mobile-optimized controls with larger touch targets */}
+                   <div className="flex justify-center items-center gap-2 sm:gap-4">
+                     {/* Secondary controls - smaller on mobile */}
+                     <Button
+                       variant="ghost"
+                       size="icon"
+                       className="text-[#F2FCE2] hover:text-[#1EAEDB] transition-all duration-200 hover:scale-110 h-11 w-11 md:h-10 md:w-10"
+                     >
+                       <Sliders className="h-5 w-5 md:h-4 md:w-4" />
+                     </Button>
+
+                     <Button
+                       variant="ghost"
+                       size="icon"
+                       className={`text-[#F2FCE2] transition-all duration-200 hover:scale-110 h-11 w-11 md:h-10 md:w-10 ${isShuffleOn ? 'text-[#1EAEDB] animate-pulse' : 'hover:text-[#1EAEDB]'}`}
+                       onClick={toggleShuffle}
+                     >
+                       <Shuffle className="h-5 w-5 md:h-4 md:w-4" />
+                     </Button>
+
+                     {/* Primary playback controls - larger touch targets */}
+                     <Button
+                       variant="ghost"
+                       size="icon"
+                       className="text-[#F2FCE2] hover:text-[#1EAEDB] transition-all duration-200 hover:scale-110 active:scale-95 h-12 w-12 md:h-11 md:w-11"
+                       onClick={handlePrevious}
+                     >
+                       <SkipBack className="h-7 w-7 md:h-6 md:w-6" />
+                     </Button>
+
+                     {/* Play/pause button - largest touch target */}
+                     <Button
+                       variant="ghost"
+                       size="icon"
+                       className="text-[#F2FCE2] hover:text-[#1EAEDB] transition-all duration-200 hover:scale-125 active:scale-110 hover:shadow-lg hover:shadow-[#1EAEDB]/20 h-14 w-14 md:h-12 md:w-12"
+                       onClick={togglePlay}
+                     >
+                       {isPlaying ? 
+                         <Pause className="h-8 w-8 md:h-7 md:w-7" /> : 
+                         <Play className="h-8 w-8 md:h-7 md:w-7" />
+                       }
+                     </Button>
+
+                     <Button
+                       variant="ghost"
+                       size="icon"
+                       className="text-[#F2FCE2] hover:text-[#1EAEDB] transition-all duration-200 hover:scale-110 active:scale-95 h-12 w-12 md:h-11 md:w-11"
+                       onClick={handleNext}
+                       disabled={!checkFeatureAccess('unlimitedSkips') && skipsThisHour >= limits.skipsPerHour}
+                     >
+                       <SkipForward className="h-7 w-7 md:h-6 md:w-6" />
+                     </Button>
+
+                     <Button
+                       variant="ghost"
+                       size="icon"
+                       className={`text-[#F2FCE2] transition-all duration-200 hover:scale-110 h-11 w-11 md:h-10 md:w-10 ${
+                         repeatMode !== "none" ? 'text-[#1EAEDB] animate-pulse' : 'hover:text-[#1EAEDB]'
+                       }`}
+                       onClick={cycleRepeatMode}
+                     >
+                       {repeatMode === "one" ? (
+                         <Repeat1 className="h-5 w-5 md:h-4 md:w-4" />
+                       ) : (
+                         <Repeat className="h-5 w-5 md:h-4 md:w-4" />
+                       )}
+                     </Button>
+
+                     <Button
+                       variant="ghost"
+                       size="icon"
+                       className="text-[#F2FCE2] hover:text-[#1EAEDB] transition-all duration-200 hover:scale-110 h-11 w-11 md:h-10 md:w-10"
+                     >
+                       <Download className="h-5 w-5 md:h-4 md:w-4" />
+                     </Button>
                   </div>
-                  <div className="flex justify-center items-center gap-4">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="text-[#F2FCE2] hover:text-[#1EAEDB] transition-all duration-200 hover:scale-110"
-                    >
-                      <Sliders className="h-5 w-5" />
-                    </Button>
-
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className={`text-[#F2FCE2] transition-all duration-200 hover:scale-110 ${isShuffleOn ? 'text-[#1EAEDB] animate-pulse' : 'hover:text-[#1EAEDB]'}`}
-                      onClick={toggleShuffle}
-                    >
-                      <Shuffle className="h-5 w-5" />
-                    </Button>
-
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="text-[#F2FCE2] hover:text-[#1EAEDB] transition-all duration-200 hover:scale-110 active:scale-95"
-                      onClick={handlePrevious}
-                    >
-                      <SkipBack className="h-6 w-6" />
-                    </Button>
-
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="text-[#F2FCE2] hover:text-[#1EAEDB] transition-all duration-200 hover:scale-125 active:scale-110 hover:shadow-lg hover:shadow-[#1EAEDB]/20"
-                      onClick={togglePlay}
-                    >
-                      {isPlaying ? 
-                        <Pause className="h-8 w-8" /> : 
-                        <Play className="h-8 w-8" />
-                      }
-                    </Button>
-
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="text-[#F2FCE2] hover:text-[#1EAEDB] transition-all duration-200 hover:scale-110 active:scale-95"
-                      onClick={handleNext}
-                      disabled={!checkFeatureAccess('unlimitedSkips') && skipsThisHour >= limits.skipsPerHour}
-                    >
-                      <SkipForward className="h-6 w-6" />
-                    </Button>
-
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className={`text-[#F2FCE2] transition-all duration-200 hover:scale-110 ${
-                        repeatMode !== "none" ? 'text-[#1EAEDB] animate-pulse' : 'hover:text-[#1EAEDB]'
-                      }`}
-                      onClick={cycleRepeatMode}
-                    >
-                      {repeatMode === "one" ? (
-                        <Repeat1 className="h-5 w-5" />
-                      ) : (
-                        <Repeat className="h-5 w-5" />
-                      )}
-                    </Button>
-
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="text-[#F2FCE2] hover:text-[#1EAEDB] transition-all duration-200 hover:scale-110"
-                    >
-                      <Download className="h-5 w-5" />
-                    </Button>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="text-[#F2FCE2] hover:text-[#1EAEDB] transition-all duration-200 hover:scale-110"
-                    >
-                      {volume[0] > 50 ? (
-                        <Volume2 className="h-5 w-5" />
-                      ) : volume[0] > 0 ? (
-                        <Volume1 className="h-5 w-5" />
-                      ) : (
-                        <VolumeX className="h-5 w-5" />
-                      )}
-                    </Button>
-                    <Slider
-                      value={volume}
-                      onValueChange={setVolume}
-                      max={100}
-                      step={1}
-                      className="w-24"
-                    />
-                  </div>
+                   {/* Volume control - mobile-optimized */}
+                   <div className="flex items-center gap-3 md:gap-2">
+                     <Button
+                       variant="ghost"
+                       size="icon"
+                       className="text-[#F2FCE2] hover:text-[#1EAEDB] transition-all duration-200 hover:scale-110 h-11 w-11 md:h-10 md:w-10"
+                     >
+                       {volume[0] > 50 ? (
+                         <Volume2 className="h-5 w-5 md:h-4 md:w-4" />
+                       ) : volume[0] > 0 ? (
+                         <Volume1 className="h-5 w-5 md:h-4 md:w-4" />
+                       ) : (
+                         <VolumeX className="h-5 w-5 md:h-4 md:w-4" />
+                       )}
+                     </Button>
+                     <Slider
+                       value={volume}
+                       onValueChange={setVolume}
+                       max={100}
+                       step={1}
+                       className="flex-1 max-w-32 md:w-24 [&>span[role=slider]]:h-5 [&>span[role=slider]]:w-5 md:[&>span[role=slider]]:h-4 md:[&>span[role=slider]]:w-4"
+                     />
+                   </div>
                 </div>
               </div>
             </div>
