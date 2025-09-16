@@ -48,8 +48,8 @@ const Index = () => {
           <Header />
           <MusicPlayer />
           <Library />
-          <LikedSongs />
           <AboutArtist />
+          <LikedSongs />
           {!isPremiumActive && !isGuest && (
             <section className="p-6">
               <CompactPremiumShowcase />
