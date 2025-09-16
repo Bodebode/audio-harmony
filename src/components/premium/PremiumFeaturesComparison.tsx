@@ -1,4 +1,4 @@
-import { Crown, X, Check, Infinity, Music, Download, SkipForward, Star, Clock, ShoppingBag } from "lucide-react";
+import { Crown, X, Check, Infinity, Music, Download, SkipForward, Star, Clock, ShoppingBag, Video } from "lucide-react";
 
 interface Feature {
   icon: React.ReactNode;
@@ -12,10 +12,10 @@ interface Feature {
 export const PremiumFeaturesComparison = () => {
   const features: Feature[] = [
     {
-      icon: <Music className="h-5 w-5" />,
-      title: "Unlimited Playlists",
-      description: "Create as many playlists as you want",
-      free: "2 playlists max",
+      icon: <SkipForward className="h-5 w-5" />,
+      title: "Unlimited Skips & Playlists",
+      description: "Skip songs and create playlists without limits",
+      free: "6 skips/hour, 0 playlists",
       premium: <div className="flex items-center gap-1"><Infinity className="h-4 w-4" /> Unlimited</div>,
       highlight: true
     },
@@ -35,11 +35,11 @@ export const PremiumFeaturesComparison = () => {
       premium: "Available"
     },
     {
-      icon: <SkipForward className="h-5 w-5" />,
-      title: "Unlimited Skips",
-      description: "Skip as many songs as you like",
-      free: "6 per hour",
-      premium: <div className="flex items-center gap-1"><Infinity className="h-4 w-4" /> Unlimited</div>
+      icon: <Video className="h-5 w-5" />,
+      title: "Access Exclusive Video Content",
+      description: "Watch exclusive music videos and behind-the-scenes",
+      free: "Not available",
+      premium: "Full access"
     },
     {
       icon: <Star className="h-5 w-5" />,
