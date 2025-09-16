@@ -737,6 +737,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      ensure_first_user_admin: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       get_analytics_overview: {
         Args: Record<PropertyKey, never>
         Returns: {

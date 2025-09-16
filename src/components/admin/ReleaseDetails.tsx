@@ -96,20 +96,31 @@ export function ReleaseDetails({ releaseId, onClose }: ReleaseDetailsProps) {
 
   const publishRelease = async () => {
     try {
-      const { error } = await supabase
+      // Update release status to live
+      const { error: releaseError } = await supabase
         .from('releases')
         .update({ status: 'live' })
         .eq('id', releaseId);
 
-      if (error) throw error;
+      if (releaseError) throw releaseError;
+
+      // Also ensure all tracks are ready
+      const { error: tracksError } = await supabase
+        .from('tracks')
+        .update({ status: 'ready' })
+        .eq('release_id', releaseId)
+        .neq('status', 'ready'); // Only update tracks that aren't already ready
+
+      if (tracksError) throw tracksError;
 
       toast({
         title: "Release published",
-        description: "Your release is now live and accessible to users.",
+        description: "Your release is now live and all tracks are ready to play!",
       });
 
       setShowPublishDialog(false);
       refetchRelease();
+      refetchTracks();
 
     } catch (error) {
       console.error('Error publishing release:', error);
@@ -213,14 +224,14 @@ export function ReleaseDetails({ releaseId, onClose }: ReleaseDetailsProps) {
                   <div className="space-y-4">
                     <p>
                       Are you sure you want to publish "{release.title}"? 
-                      This will make it accessible to users based on their entitlements.
+                      This will make the release visible to all users and ensure all tracks are ready to play.
                     </p>
                     <div className="flex justify-end gap-2">
                       <Button variant="outline" onClick={() => setShowPublishDialog(false)}>
                         Cancel
                       </Button>
                       <Button onClick={publishRelease}>
-                        Publish Now
+                        Publish & Make Ready
                       </Button>
                     </div>
                   </div>

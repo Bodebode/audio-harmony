@@ -7,64 +7,72 @@ import { useLikedSongs } from "@/hooks/useLikedSongs";
 import { usePremium } from "@/hooks/usePremium";
 import { useAuth } from "@/hooks/useAuth";
 import { PremiumFeature } from "./premium/PremiumFeature";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
+interface Track {
+  id: string;
+  title: string;
+  duration_sec?: number;
+  explicit?: boolean;
+  release?: {
+    title: string;
+    cover_url?: string;
+  };
+}
 
-const sampleSongs = [
-  { id: 1, title: "Afrobeat Fusion", duration: "3:45" },
-  { id: 2, title: "Lagos Nights", duration: "4:12" },
-  { id: 3, title: "Ancestral Voices", duration: "3:58" },
-  { id: 4, title: "Modern Traditions", duration: "4:23" },
-  { id: 5, title: "Unity Dance", duration: "3:41" },
-  { id: 6, title: "River Flow", duration: "4:07" },
-  { id: 7, title: "Rhythmic Soul", duration: "3:52" },
-  { id: 8, title: "Golden Dawn", duration: "4:18" },
-  // Premium-only content
-  { id: 9, title: "Exclusive Melody", duration: "3:33", isPremium: true },
-  { id: 10, title: "VIP Session", duration: "4:55", isPremium: true }
-] as Array<{ id: number; title: string; duration: string; isPremium?: boolean }>;
 
 export const Library = () => {
-  const [playingSongId, setPlayingSongId] = useState<number | null>(null);
+  const [playingSongId, setPlayingSongId] = useState<string | null>(null);
   const [isExpanded, setIsExpanded] = useState(true);
   const [isAlbumPlaying, setIsAlbumPlaying] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
   const { toggleLikeSong, isLiked } = useLikedSongs();
   const { checkFeatureAccess, limits } = usePremium();
   const { isGuest } = useAuth();
 
-  // Show all songs in main list, premium users can access all
-  const displaySongs = sampleSongs;
+  // Fetch tracks from database
+  const { data: tracks = [], isLoading } = useQuery({
+    queryKey: ['library-tracks'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('tracks')
+        .select(`
+          *,
+          release:releases!inner(title, cover_url, status)
+        `)
+        .eq('status', 'ready')
+        .eq('release.status', 'live')
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      return data as Track[];
+    },
+  });
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
-    
-    return () => {
-      clearTimeout(timer);
-    };
-  }, []);
+  const formatDuration = (seconds?: number) => {
+    if (!seconds) return "0:00";
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
 
-  const handlePlaySong = (songId: number) => {
-    const song = sampleSongs.find(s => s.id === songId);
-    
-    // Check if it's a premium song and user doesn't have access
-    if (song?.isPremium && !checkFeatureAccess('premiumContent')) {
-      // Show toast message for premium-only content
-      const event = new CustomEvent('show-toast', {
-        detail: { message: 'Premium users only', type: 'error' }
-      });
-      window.dispatchEvent(event);
-      return;
+  const handlePlaySong = (trackId: string) => {
+    // If there's a global music player control, use it
+    if ((window as any).musicPlayerControls?.playPlaylist) {
+      (window as any).musicPlayerControls.playPlaylist([trackId]);
     }
-    
-    setPlayingSongId(songId);
+    setPlayingSongId(trackId);
   };
 
   const handleAlbumPlayPause = () => {
     setIsAlbumPlaying(!isAlbumPlaying);
-    if (!isAlbumPlaying) {
-      setPlayingSongId(sampleSongs[0].id);
+    if (!isAlbumPlaying && tracks.length > 0) {
+      // Play the first track
+      const trackIds = tracks.map(track => track.id);
+      if ((window as any).musicPlayerControls?.playPlaylist) {
+        (window as any).musicPlayerControls.playPlaylist(trackIds);
+      }
+      setPlayingSongId(tracks[0].id);
     } else {
       setPlayingSongId(null);
     }
@@ -121,11 +129,18 @@ export const Library = () => {
             <div className="space-y-2 animate-accordion-down">
               {isLoading ? (
                 <SkeletonGrid count={8} className="animate-fade-in" />
+              ) : tracks.length === 0 ? (
+                <div className="text-center py-12">
+                  <div className="text-[#F2FCE2]/60 mb-2">No tracks available</div>
+                  <div className="text-[#F2FCE2]/40 text-sm">
+                    Tracks will appear here once they're published by an admin
+                  </div>
+                </div>
               ) : (
                 <>
-                  {displaySongs.map((song, index) => (
+                  {tracks.map((track, index) => (
                   <div
-                    key={song.id}
+                    key={track.id}
                     className="glass-item group flex items-center justify-between p-3 rounded-lg cursor-pointer transform animate-fade-in gradient-mesh-2"
                     style={{ animationDelay: `${index * 50}ms` }}
                   >
@@ -136,47 +151,43 @@ export const Library = () => {
                         variant="ghost"
                         size="icon"
                         className={`h-8 w-8 rounded-full transition-all duration-300 backdrop-blur-sm ${
-                          playingSongId === song.id 
+                          playingSongId === track.id 
                             ? 'text-[#1EAEDB] bg-[#1EAEDB]/30 animate-pulse shadow-[0_0_15px_rgba(30,174,219,0.4)]' 
                             : 'text-[#F2FCE2] hover:text-[#1EAEDB] hover:bg-[#1EAEDB]/20 opacity-0 group-hover:opacity-100'
                         }`}
-                        onClick={() => handlePlaySong(song.id)}
+                        onClick={() => handlePlaySong(track.id)}
                       >
-                        {song.isPremium && !checkFeatureAccess('premiumContent') ? (
-                          <Lock className="h-4 w-4" />
-                        ) : (
-                          <PlayCircle className="h-4 w-4" />
-                        )}
+                        <PlayCircle className="h-4 w-4" />
                       </Button>
                       <span className={`flex items-center gap-2 transition-all duration-300 ${
-                        playingSongId === song.id ? 'text-[#1EAEDB] font-medium' : 'text-[#F2FCE2] group-hover:text-[#FEF7CD]'
+                        playingSongId === track.id ? 'text-[#1EAEDB] font-medium' : 'text-[#F2FCE2] group-hover:text-[#FEF7CD]'
                       }`}>
-                        {song.title}
-                        {song.isPremium && !checkFeatureAccess('premiumContent') && (
-                          <Crown className="h-3 w-3 text-yellow-500" />
+                        {track.title}
+                        {track.explicit && (
+                          <span className="px-1 py-0.5 bg-red-600 text-white text-xs rounded">E</span>
                         )}
                       </span>
                     </div>
                     
                     <div className="flex items-center gap-3 relative z-10">
                       <span className="text-[#F2FCE2]/60 group-hover:text-[#F2FCE2]/90 transition-colors duration-300 text-sm font-mono">
-                        {song.duration}
+                        {formatDuration(track.duration_sec)}
                       </span>
                       <Button
                         variant="ghost"
                         size="icon"
                         className={`h-8 w-8 transition-all duration-300 opacity-30 group-hover:opacity-100 backdrop-blur-sm ${
-                          isLiked(song.id) 
+                          isLiked(parseInt(track.id)) 
                             ? 'text-red-500 hover:text-red-600 !opacity-100' 
                             : 'text-[#F2FCE2] hover:text-red-500'
                         }`}
                         onClick={(e) => {
                           e.stopPropagation();
-                          toggleLikeSong(song.id);
+                          toggleLikeSong(parseInt(track.id));
                         }}
                       >
                         <Heart 
-                          className={`h-4 w-4 ${isLiked(song.id) ? 'fill-current' : ''}`} 
+                          className={`h-4 w-4 ${isLiked(parseInt(track.id)) ? 'fill-current' : ''}`} 
                         />
                       </Button>
                     </div>

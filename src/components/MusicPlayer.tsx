@@ -58,9 +58,10 @@ export const MusicPlayer = () => {
         .from('tracks')
         .select(`
           *,
-          release:releases(title, cover_url)
+          release:releases!inner(title, cover_url, status)
         `)
         .eq('status', 'ready')
+        .eq('release.status', 'live')
         .order('created_at', { ascending: false });
       
       if (error) throw error;
