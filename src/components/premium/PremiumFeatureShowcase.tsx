@@ -15,8 +15,8 @@ export const PremiumFeatureShowcase = () => {
     if (isGuest) {
       navigate('/auth');
     } else {
-      // Here you would integrate with Stripe
-      console.log('Upgrade to premium with Stripe');
+      // Navigate to support page for payment
+      navigate('/support');
     }
   };
 

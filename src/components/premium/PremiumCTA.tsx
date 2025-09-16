@@ -14,8 +14,8 @@ export const PremiumCTA = () => {
     if (isGuest) {
       navigate('/auth');
     } else {
-      // Here you would integrate with your payment system
-      console.log('Upgrade to premium');
+      // Navigate to support page for payment
+      navigate('/support');
     }
   };
 
@@ -66,11 +66,6 @@ export const PremiumCTA = () => {
             </Button>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-4xl mx-auto mb-8">
-            <PremiumFeatureShowcase />
-            <UpgradePrompt />
-          </div>
-          
           {/* PayPal Option */}
           <div className="max-w-md mx-auto">
             <div className="text-center mb-6">

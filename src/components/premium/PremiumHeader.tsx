@@ -13,8 +13,8 @@ export const PremiumHeader = () => {
     if (isGuest) {
       navigate('/auth');
     } else {
-      // Here you would integrate with your payment system
-      console.log('Upgrade to premium');
+      // Navigate to support page for payment
+      navigate('/support');
     }
   };
 
