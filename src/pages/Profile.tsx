@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/useAuth";
 import { usePremium } from "@/hooks/usePremium";
 import { useNavigate, Navigate } from "react-router-dom";
-import { User, Crown, Settings, LogOut, ArrowLeft } from "lucide-react";
+import { User, Crown, Settings, LogOut, ArrowLeft, MessageCircle, Activity, Menu } from "lucide-react";
 import { PremiumBadge } from "@/components/premium/PremiumBadge";
 
 const Profile = () => {
@@ -182,32 +182,67 @@ const Profile = () => {
                   </CardContent>
                 </Card>
 
-                {/* Account Actions */}
-                <Card className="glass-card border-white/20 lg:col-span-2">
+                {/* Messages & Inbox - Coming Soon */}
+                <Card className="glass-card border-white/20">
                   <CardHeader>
-                    <CardTitle className="text-white">Account Actions</CardTitle>
+                    <CardTitle className="text-white flex items-center gap-2">
+                      <MessageCircle className="h-5 w-5" />
+                      Messages
+                    </CardTitle>
                     <CardDescription className="text-white/70">
-                      Manage your account settings and preferences
+                      Connect with other music lovers
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className="flex flex-col sm:flex-row gap-4">
-                      <Button 
-                        variant="outline" 
-                        className="border-white/20 text-white hover:bg-white/10"
-                      >
-                        <Settings className="h-4 w-4 mr-2" />
-                        Account Settings
-                      </Button>
-                      <Button 
-                        onClick={handleSignOut}
-                        variant="outline" 
-                        className="border-red-400/20 text-red-400 hover:bg-red-400/10"
-                      >
-                        <LogOut className="h-4 w-4 mr-2" />
-                        Sign Out
-                      </Button>
+                    <div className="text-center py-6">
+                      <MessageCircle className="h-12 w-12 text-white/30 mx-auto mb-3" />
+                      <p className="text-white/50 mb-2">Coming Soon</p>
+                      <p className="text-white/30 text-sm">
+                        Send and receive messages from friends and other users
+                      </p>
                     </div>
+                  </CardContent>
+                </Card>
+
+                {/* Activity & Stats - Coming Soon */}
+                <Card className="glass-card border-white/20">
+                  <CardHeader>
+                    <CardTitle className="text-white flex items-center gap-2">
+                      <Activity className="h-5 w-5" />
+                      Activity
+                    </CardTitle>
+                    <CardDescription className="text-white/70">
+                      Your music listening statistics
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-center py-6">
+                      <Activity className="h-12 w-12 text-white/30 mx-auto mb-3" />
+                      <p className="text-white/50 mb-2">Coming Soon</p>
+                      <p className="text-white/30 text-sm">
+                        Track your listening history and favorite genres
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Account Settings - Simplified */}
+                <Card className="glass-card border-white/20">
+                  <CardHeader>
+                    <CardTitle className="text-white">Account</CardTitle>
+                    <CardDescription className="text-white/70">
+                      Account management
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Button 
+                      onClick={handleSignOut}
+                      variant="outline" 
+                      className="w-full border-red-400/20 text-red-400 hover:bg-red-400/10"
+                    >
+                      <LogOut className="h-4 w-4 mr-2" />
+                      Sign Out
+                    </Button>
                   </CardContent>
                 </Card>
               </div>
