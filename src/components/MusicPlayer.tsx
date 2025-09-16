@@ -1,7 +1,7 @@
 
 import { 
   Play, Pause, SkipBack, SkipForward, Volume2, Volume1, VolumeX, 
-  Shuffle, Repeat, Repeat1, Maximize2, Crown, Sliders, Download 
+  Shuffle, Repeat, Repeat1, Maximize2, Crown, Sliders, Download, Heart
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -11,70 +11,138 @@ import { LyricsDisplay } from "./LyricsDisplay";
 import { FullScreenPlayer } from "./FullScreenPlayer";
 import { PremiumFeature } from "./premium/PremiumFeature";
 import { usePremium } from "@/hooks/usePremium";
-
+import { useAnalytics } from "@/hooks/useAnalytics";
+import { useLikedSongs } from "@/hooks/useLikedSongs";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { useGestures } from "@/hooks/useGestures";
 
-const songs = [
-  {
-    id: 1,
-    title: "Afrobeat Fusion",
-    artist: "Bode Nathaniel",
-    artwork: "/lovable-uploads/74cb0a2d-58c7-4be3-a188-27a043b76a3d.png",
-    
-    duration: "3:45"
-  },
-];
+interface Track {
+  id: string;
+  title: string;
+  audio_file_url?: string;
+  duration_sec?: number;
+  explicit?: boolean;
+  lyrics?: string;
+  release?: {
+    title: string;
+    cover_url?: string;
+  };
+}
 
 type RepeatMode = "none" | "all" | "one";
 
 export const MusicPlayer = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState([75]);
-  const [progress, setProgress] = useState([0]);
-  const [songProgress, setSongProgress] = useState(0);
-  const [currentSongIndex, setCurrentSongIndex] = useState(0);
-  const [currentPlaylist, setCurrentPlaylist] = useState<number[] | null>(null);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
+  const [currentPlaylist, setCurrentPlaylist] = useState<string[] | null>(null);
   const [isShuffleOn, setIsShuffleOn] = useState(false);
   const [repeatMode, setRepeatMode] = useState<RepeatMode>("none");
   const [isFullScreen, setIsFullScreen] = useState(false);
   const { checkFeatureAccess, limits } = usePremium();
+  const { track: trackAnalytics } = useAnalytics();
+  const { likedSongs, toggleLikeSong, isLiked } = useLikedSongs();
   
   // Track skips for free users
   const [skipsThisHour, setSkipsThisHour] = useState(0);
   const [lastSkipReset, setLastSkipReset] = useState(Date.now());
 
-  const currentSong = songs[currentSongIndex];
+  // Fetch available tracks
+  const { data: tracks = [], isLoading } = useQuery({
+    queryKey: ['available-tracks'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('tracks')
+        .select(`
+          *,
+          release:releases(title, cover_url)
+        `)
+        .eq('status', 'ready')
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      return data as Track[];
+    },
+  });
 
-  // Animate progress bar when playing
+  const currentTrack = tracks[currentTrackIndex];
+
+  // Handle audio playback
   useEffect(() => {
-    let intervalId: NodeJS.Timeout;
+    if (!currentTrack?.audio_file_url) return;
+
+    const audio = new Audio(currentTrack.audio_file_url);
     
-    if (isPlaying) {
-      intervalId = setInterval(() => {
-        setSongProgress(prev => {
-          const newProgress = prev + (100 / (3.75 * 60)); // 3:45 song duration
-          return newProgress >= 100 ? 0 : newProgress;
-        });
-      }, 1000);
-    }
-    
-    return () => {
-      if (intervalId) {
-        clearInterval(intervalId);
-      }
+    const updateTime = () => setCurrentTime(audio.currentTime);
+    const updateDuration = () => setDuration(audio.duration || 0);
+    const handleEnded = () => {
+      setIsPlaying(false);
+      trackAnalytics({
+        name: 'play_completed',
+        properties: {
+          track_id: currentTrack.id,
+          pct_played: 100,
+        },
+      });
+      handleNext();
     };
-  }, [isPlaying]);
+
+    audio.addEventListener('timeupdate', updateTime);
+    audio.addEventListener('loadedmetadata', updateDuration);
+    audio.addEventListener('ended', handleEnded);
+
+    if (isPlaying) {
+      audio.play();
+      trackAnalytics({
+        name: 'play_started',
+        properties: {
+          track_id: currentTrack.id,
+          position_ms: Math.floor(currentTime * 1000),
+        },
+      });
+    } else {
+      audio.pause();
+    }
+
+    audio.volume = volume[0] / 100;
+
+    return () => {
+      audio.removeEventListener('timeupdate', updateTime);
+      audio.removeEventListener('loadedmetadata', updateDuration);
+      audio.removeEventListener('ended', handleEnded);
+      audio.pause();
+    };
+  }, [currentTrack, isPlaying, volume, trackAnalytics, currentTime]);
 
   const togglePlay = () => {
+    if (!currentTrack?.audio_file_url) return;
     setIsPlaying(!isPlaying);
-    if (!isPlaying) {
-      setSongProgress(0); // Reset progress when starting
-    }
   };
 
   const handleProgressChange = (value: number) => {
-    setSongProgress(value);
-    setProgress([value]);
+    setCurrentTime(value);
+  };
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  const handleLike = () => {
+    if (!currentTrack) return;
+    const trackIdNumber = parseInt(currentTrack.id);
+    toggleLikeSong(trackIdNumber);
+    trackAnalytics({
+      name: 'like_action',
+      properties: {
+        track_id: currentTrack.id,
+        action: isLiked(trackIdNumber) ? 'unlike' : 'like',
+      },
+    });
   };
 
   const toggleShuffle = () => {
@@ -88,37 +156,37 @@ export const MusicPlayer = () => {
     setRepeatMode(nextMode);
   };
 
-  const getNextSongIndex = useCallback(() => {
-    if (repeatMode === "one") return currentSongIndex;
+  const getNextTrackIndex = useCallback(() => {
+    if (repeatMode === "one") return currentTrackIndex;
     
     if (!currentPlaylist) {
-      if (currentSongIndex === songs.length - 1) {
-        return repeatMode === "all" ? 0 : currentSongIndex;
+      if (currentTrackIndex === tracks.length - 1) {
+        return repeatMode === "all" ? 0 : currentTrackIndex;
       }
-      return currentSongIndex + 1;
+      return currentTrackIndex + 1;
     }
     
-    const currentIndex = currentPlaylist.indexOf(currentSong.id);
+    const currentIndex = currentPlaylist.indexOf(currentTrack?.id || '');
     if (currentIndex < currentPlaylist.length - 1) {
-      const nextSongId = currentPlaylist[currentIndex + 1];
-      const nextSongIndex = songs.findIndex(song => song.id === nextSongId);
-      return nextSongIndex !== -1 ? nextSongIndex : currentSongIndex;
+      const nextTrackId = currentPlaylist[currentIndex + 1];
+      const nextTrackIndex = tracks.findIndex(track => track.id === nextTrackId);
+      return nextTrackIndex !== -1 ? nextTrackIndex : currentTrackIndex;
     }
     
-    return repeatMode === "all" ? 0 : currentSongIndex;
-  }, [currentSongIndex, currentPlaylist, currentSong.id, repeatMode]);
+    return repeatMode === "all" ? 0 : currentTrackIndex;
+  }, [currentTrackIndex, currentPlaylist, currentTrack?.id, repeatMode, tracks]);
 
   const handlePrevious = () => {
     if (!currentPlaylist) {
-      setCurrentSongIndex((prev) => (prev === 0 ? songs.length - 1 : prev - 1));
+      setCurrentTrackIndex((prev) => (prev === 0 ? tracks.length - 1 : prev - 1));
       return;
     }
     
-    const currentIndex = currentPlaylist.indexOf(currentSong.id);
+    const currentIndex = currentPlaylist.indexOf(currentTrack?.id || '');
     if (currentIndex > 0) {
-      const prevSongId = currentPlaylist[currentIndex - 1];
-      const prevSongIndex = songs.findIndex(song => song.id === prevSongId);
-      setCurrentSongIndex(prevSongIndex !== -1 ? prevSongIndex : 0);
+      const prevTrackId = currentPlaylist[currentIndex - 1];
+      const prevTrackIndex = tracks.findIndex(track => track.id === prevTrackId);
+      setCurrentTrackIndex(prevTrackIndex !== -1 ? prevTrackIndex : 0);
     }
   };
 
@@ -139,20 +207,20 @@ export const MusicPlayer = () => {
     }
     
     if (isShuffleOn && currentPlaylist) {
-      const availableSongs = currentPlaylist.filter(id => id !== currentSong.id);
-      if (availableSongs.length > 0) {
-        const randomIndex = Math.floor(Math.random() * availableSongs.length);
-        const nextSongId = availableSongs[randomIndex];
-        const nextSongIndex = songs.findIndex(song => song.id === nextSongId);
-        if (nextSongIndex !== -1) {
-          setCurrentSongIndex(nextSongIndex);
+      const availableTracks = currentPlaylist.filter(id => id !== currentTrack?.id);
+      if (availableTracks.length > 0) {
+        const randomIndex = Math.floor(Math.random() * availableTracks.length);
+        const nextTrackId = availableTracks[randomIndex];
+        const nextTrackIndex = tracks.findIndex(track => track.id === nextTrackId);
+        if (nextTrackIndex !== -1) {
+          setCurrentTrackIndex(nextTrackIndex);
           return;
         }
       }
     }
     
-    const nextIndex = getNextSongIndex();
-    setCurrentSongIndex(nextIndex);
+    const nextIndex = getNextTrackIndex();
+    setCurrentTrackIndex(nextIndex);
   };
 
   // Gesture controls for mobile
@@ -173,18 +241,43 @@ export const MusicPlayer = () => {
 
   // Export these methods to be used by other components
   (window as any).musicPlayerControls = {
-    playPlaylist: (songIds: number[]) => {
-      if (songIds.length === 0) return;
-      const firstSongId = songIds[0];
-      const firstSongIndex = songs.findIndex(song => song.id === firstSongId);
-      if (firstSongIndex !== -1) {
-        setCurrentSongIndex(firstSongIndex);
-        setCurrentPlaylist(songIds);
-        
+    playPlaylist: (trackIds: string[]) => {
+      if (trackIds.length === 0) return;
+      const firstTrackId = trackIds[0];
+      const firstTrackIndex = tracks.findIndex(track => track.id === firstTrackId);
+      if (firstTrackIndex !== -1) {
+        setCurrentTrackIndex(firstTrackIndex);
+        setCurrentPlaylist(trackIds);
         setIsPlaying(true);
       }
     }
   };
+
+  if (isLoading) {
+    return (
+      <section id="now-playing" className="p-4">
+        <Card className="bg-black/40 backdrop-blur-lg border-[#1EAEDB]/10">
+          <CardContent className="p-4 text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+            <p className="text-[#F2FCE2]">Loading tracks...</p>
+          </CardContent>
+        </Card>
+      </section>
+    );
+  }
+
+  if (!currentTrack) {
+    return (
+      <section id="now-playing" className="p-4">
+        <Card className="bg-black/40 backdrop-blur-lg border-[#1EAEDB]/10">
+          <CardContent className="p-4 text-center">
+            <Play className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+            <p className="text-[#F2FCE2]">No tracks available</p>
+          </CardContent>
+        </Card>
+      </section>
+    );
+  }
 
   return (
     <>
@@ -195,12 +288,11 @@ export const MusicPlayer = () => {
               className="flex flex-col gap-4 md:grid md:grid-cols-2 md:gap-6"
               ref={gestureRef as React.RefObject<HTMLDivElement>}
             >
-              {/* Mobile-first album art - smaller on mobile */}
               <div className="flex flex-col justify-center">
                 <div className="w-full max-w-48 mx-auto md:max-w-none aspect-square bg-[#222222] rounded-lg shadow-2xl overflow-hidden group relative">
                   <img 
-                    src={currentSong.artwork}
-                    alt={`Album Art - ${currentSong.artist}`}
+                    src={currentTrack.release?.cover_url || "/lovable-uploads/74cb0a2d-58c7-4be3-a188-27a043b76a3d.png"}
+                    alt={`Album Art - ${currentTrack.release?.title || 'Unknown Album'}`}
                     className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 cursor-pointer"
                     onClick={() => setIsFullScreen(true)}
                   />
@@ -223,23 +315,45 @@ export const MusicPlayer = () => {
                   <div className="flex items-center justify-between mb-2">
                     <h2 className="text-2xl font-bold text-[#FEF7CD]">Now Playing</h2>
                   </div>
-                <p className="text-[#F2FCE2] text-lg mb-1">{currentSong.title}</p>
-                <p className="text-[#F2FCE2]/80 text-base">{currentSong.artist}</p>
+                <p className="text-[#F2FCE2] text-lg mb-1 flex items-center gap-2">
+                  {currentTrack.title}
+                  {currentTrack.explicit && (
+                    <span className="px-1 py-0.5 bg-red-600 text-white text-xs rounded">E</span>
+                  )}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleLike}
+                    className={`text-[#F2FCE2] hover:text-red-500 p-1 h-6 w-6 ${
+                      isLiked(parseInt(currentTrack.id)) ? 'text-red-500' : ''
+                    }`}
+                  >
+                    <Heart className={`h-4 w-4 ${isLiked(parseInt(currentTrack.id)) ? 'fill-current' : ''}`} />
+                  </Button>
+                </p>
+                <p className="text-[#F2FCE2]/80 text-base">{currentTrack.release?.title || 'Unknown Album'}</p>
               </div>
               <div className="space-y-2">
-                <LyricsDisplay isPlaying={isPlaying} songId={currentSong.id} />
+                {currentTrack.lyrics && (
+                  <div className="mb-4 p-3 bg-muted/30 rounded-lg">
+                    <h4 className="text-sm font-medium text-[#FEF7CD] mb-2">Lyrics</h4>
+                    <div className="text-xs text-[#F2FCE2]/80 whitespace-pre-line max-h-20 overflow-y-auto">
+                      {currentTrack.lyrics}
+                    </div>
+                  </div>
+                )}
                 <div className="space-y-2">
                  <div className="space-y-2">
                      <Slider
-                       value={[songProgress]}
+                       value={[currentTime]}
                        onValueChange={(vals) => handleProgressChange(vals[0])}
-                       max={100}
+                       max={duration}
                        step={0.5}
                        className="w-full [&>span[role=slider]]:h-6 [&>span[role=slider]]:w-6 md:[&>span[role=slider]]:h-4 md:[&>span[role=slider]]:w-4"
                      />
                      <div className="flex justify-between text-sm text-[#F2FCE2]">
-                       <span>{Math.floor((songProgress / 100) * 225)}s</span>
-                       <span>{currentSong.duration}</span>
+                       <span>{formatTime(currentTime)}</span>
+                       <span>{formatTime(duration)}</span>
                      </div>
                    </div>
                    
@@ -350,11 +464,17 @@ export const MusicPlayer = () => {
         onTogglePlay={togglePlay}
         volume={volume}
         onVolumeChange={setVolume}
-        progress={songProgress}
+        onProgress={currentTime}
         onProgressChange={handleProgressChange}
         onNext={handleNext}
         onPrevious={handlePrevious}
-        currentSong={currentSong}
+        currentSong={{
+          id: parseInt(currentTrack.id),
+          title: currentTrack.title,
+          artist: currentTrack.release?.title || 'Unknown Album',
+          artwork: currentTrack.release?.cover_url || "/lovable-uploads/74cb0a2d-58c7-4be3-a188-27a043b76a3d.png",
+          duration: formatTime(duration)
+        }}
       />
     </>
   );

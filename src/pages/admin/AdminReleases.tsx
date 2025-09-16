@@ -21,12 +21,14 @@ import {
   TableHeader, 
   TableRow 
 } from "@/components/ui/table";
-import { Plus, Music, Calendar, Eye, Upload } from "lucide-react";
+import { Plus, Music, Calendar, Eye, Upload, ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { ReleaseForm } from "@/components/admin/ReleaseForm";
+import { ReleaseDetails } from "@/components/admin/ReleaseDetails";
 
 const AdminReleases = () => {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [selectedReleaseId, setSelectedReleaseId] = useState<string | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -69,6 +71,28 @@ const AdminReleases = () => {
     setIsCreateDialogOpen(false);
     queryClient.invalidateQueries({ queryKey: ['admin-releases'] });
   };
+
+  // Show release details if one is selected
+  if (selectedReleaseId) {
+    return (
+      <AdminLayout>
+        <div className="space-y-4">
+          <Button 
+            variant="outline" 
+            onClick={() => setSelectedReleaseId(null)}
+            className="mb-4"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Releases
+          </Button>
+          <ReleaseDetails 
+            releaseId={selectedReleaseId} 
+            onClose={() => setSelectedReleaseId(null)}
+          />
+        </div>
+      </AdminLayout>
+    );
+  }
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -183,7 +207,11 @@ const AdminReleases = () => {
                         </span>
                       </TableCell>
                       <TableCell>
-                        <Button size="sm" variant="outline">
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          onClick={() => setSelectedReleaseId(release.id)}
+                        >
                           <Eye className="h-3 w-3 mr-1" />
                           View
                         </Button>
