@@ -26,8 +26,8 @@ const Support = () => {
   const predefinedAmounts = [
     { amount: '5', planId: 'P-2LM460357N721533WNDEMQEI', color: 'silver' as const, icon: Coffee, label: 'Buy me a coffee' },
     { amount: '10', planId: 'P-7A373816S2101190ANDEMTKY', color: 'gold' as const, icon: Heart, label: 'Show some love' },
-    { amount: '25', planId: 'P-5X178743BT784302PNDEMU2I', color: 'gold' as const, icon: Star, label: 'Super supporter' },
-    { amount: '100', planId: 'P-2LE84220VT3721543NDEMV4A', color: 'blue' as const, icon: Gift, label: 'Amazing supporter' }
+    { amount: '25', planId: 'P-5X178743BT784302PNDEMU2I', color: 'gold' as const, icon: Star, label: "Fanmily" },
+    { amount: '100', planId: 'P-2LE84220VT3721543NDEMV4A', color: 'blue' as const, icon: Gift, label: "Destiny Helper" }
   ];
 
   const handlePayPalSuccess = async (data: any) => {
