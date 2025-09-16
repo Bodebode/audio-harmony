@@ -74,14 +74,14 @@ export const PremiumHeader = () => {
               <Button
                 onClick={handleUpgrade}
                 variant="outline"
-                className="flex-1 border-white/30 text-white hover:bg-white/10 py-4"
+                className="flex-1 border-white/30 text-white hover:bg-white/10 py-4 bg-white/5"
               >
                 {isGuest ? "Sign Up First" : "View More Options"}
               </Button>
             </div>
             
             <p className="text-white/60 text-sm mt-4">
-              Cancel anytime • 7-day free trial
+              Cancel anytime • No hidden fees
             </p>
           </div>
         </div>

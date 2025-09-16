@@ -62,7 +62,7 @@ export const CompactPremiumShowcase = () => {
         
         <div className="flex items-center justify-center gap-2 mt-4 pt-4 border-t border-white/10">
           <Zap className="h-4 w-4 text-yellow-400" />
-          <span className="text-white/70 text-sm">7-day free trial • Cancel anytime</span>
+          <span className="text-white/70 text-sm">Cancel anytime • No commitment</span>
         </div>
       </CardContent>
     </Card>

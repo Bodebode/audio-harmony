@@ -90,21 +90,6 @@ const PayPalSubscription = () => {
           )}
         </div>
 
-        {/* Features Highlight */}
-        <div className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 p-4 rounded-lg border border-white/20">
-          <div className="flex items-center gap-2 mb-3">
-            <Zap className="h-4 w-4 text-yellow-400" />
-            <span className="text-white font-medium">Premium Features Include:</span>
-          </div>
-          <ul className="text-white/80 text-sm space-y-1">
-            <li>• Unlimited playlist creation</li>
-            <li>• Ad-free listening experience</li>
-            <li>• Offline downloads</li>
-            <li>• Unlimited skips</li>
-            <li>• Exclusive premium content</li>
-            <li>• Early access to new releases</li>
-          </ul>
-        </div>
 
         {/* PayPal Subscription Button */}
         <div className="space-y-4">
@@ -126,7 +111,7 @@ const PayPalSubscription = () => {
         {/* Terms */}
         <div className="text-center text-xs text-white/60 pt-4 border-t border-white/20">
           <p>
-            7-day free trial • Cancel anytime • No hidden fees
+            Cancel anytime • No hidden fees
           </p>
           <p className="mt-1">
             By subscribing, you agree to our Terms of Service and Privacy Policy

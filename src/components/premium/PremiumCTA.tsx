@@ -73,12 +73,6 @@ export const PremiumCTA = () => {
             </div>
           </div>
 
-          {/* Trial Info */}
-          <div className="mt-8 pt-6 border-t border-white/10">
-            <p className="text-white/60">
-              Start with a <span className="text-yellow-400 font-semibold">7-day free trial</span> • No commitment required
-            </p>
-          </div>
         </div>
       </div>
     </div>
