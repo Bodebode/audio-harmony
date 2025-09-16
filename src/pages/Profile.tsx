@@ -6,7 +6,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { AvatarUpload } from "@/components/AvatarUpload";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/useAuth";
 import { usePremium } from "@/hooks/usePremium";
@@ -68,11 +69,7 @@ const Profile = () => {
               <Card className="glass-card border-white/20 mb-8">
                 <CardHeader>
                   <div className="flex items-center gap-6">
-                    <Avatar className="h-20 w-20">
-                      <AvatarFallback className="bg-gradient-to-r from-[#1EAEDB] to-[#0FA0CE] text-white text-2xl">
-                        {profile?.display_name?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || 'U'}
-                      </AvatarFallback>
-                    </Avatar>
+                    <AvatarUpload size="xl" />
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-2">
                         <CardTitle className="text-white text-2xl">
@@ -194,8 +191,8 @@ const Profile = () => {
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-center py-6">
-                      <MessageCircle className="h-12 w-12 text-white/30 mx-auto mb-3" />
+                    <div className="text-center py-4">
+                      <MessageCircle className="h-8 w-8 text-white/30 mx-auto mb-2" />
                       <p className="text-white/50 mb-2">Coming Soon</p>
                       <p className="text-white/30 text-sm">
                         Send and receive messages from friends and other users
@@ -216,8 +213,8 @@ const Profile = () => {
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-center py-6">
-                      <Activity className="h-12 w-12 text-white/30 mx-auto mb-3" />
+                    <div className="text-center py-4">
+                      <Activity className="h-8 w-8 text-white/30 mx-auto mb-2" />
                       <p className="text-white/50 mb-2">Coming Soon</p>
                       <p className="text-white/30 text-sm">
                         Track your listening history and favorite genres
