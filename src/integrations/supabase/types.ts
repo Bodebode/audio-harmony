@@ -734,21 +734,22 @@ export type Database = {
       }
     }
     Views: {
-      analytics_overview: {
-        Row: {
-          active_users_30d: number | null
-          avg_session_duration: number | null
-          bounce_rate: number | null
-          premium_users: number | null
-          total_likes: number | null
-          total_plays_30d: number | null
-          total_shares: number | null
-          total_users: number | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
+      get_analytics_overview: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          active_users_30d: number
+          avg_session_duration: number
+          bounce_rate: number
+          premium_users: number
+          total_likes: number
+          total_plays_30d: number
+          total_shares: number
+          total_users: number
+        }[]
+      }
       is_payment_field_update: {
         Args: Record<PropertyKey, never>
         Returns: boolean
