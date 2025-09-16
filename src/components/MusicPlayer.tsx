@@ -464,7 +464,7 @@ export const MusicPlayer = () => {
         onTogglePlay={togglePlay}
         volume={volume}
         onVolumeChange={setVolume}
-        onProgress={currentTime}
+        progress={currentTime}
         onProgressChange={handleProgressChange}
         onNext={handleNext}
         onPrevious={handlePrevious}
