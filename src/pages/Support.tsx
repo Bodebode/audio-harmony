@@ -21,7 +21,7 @@ const Support = () => {
   const [message, setMessage] = useState('');
   const [selectedAmount, setSelectedAmount] = useState<string | null>(null);
   const { toast } = useToast();
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
 
   const predefinedAmounts = [
     { amount: '5', planId: 'P-2LM460357N721533WNDEMQEI', color: 'silver' as const, icon: Coffee, label: 'Buy me a coffee' },
@@ -53,8 +53,18 @@ const Support = () => {
         console.error('Error storing tip:', error);
       }
 
+      // Create personalized thank you message
+      let personalizedTitle = "Thank you! 🎉";
+      
+      if (profile?.display_name) {
+        personalizedTitle = `Hey ${profile.display_name}! Thank you! 🎉`;
+      } else if (user?.email) {
+        const emailUsername = user.email.split('@')[0];
+        personalizedTitle = `Hey ${emailUsername}! Thank you! 🎉`;
+      }
+
       toast({
-        title: "Thank you! 🎉",
+        title: personalizedTitle,
         description: "Your support means the world to me! I truly appreciate your generosity.",
       });
 
