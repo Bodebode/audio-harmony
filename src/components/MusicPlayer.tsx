@@ -188,16 +188,16 @@ export const MusicPlayer = () => {
 
   return (
     <>
-      <section id="now-playing" className="p-6">
+      <section id="now-playing" className="p-4">
         <Card className="bg-black/40 backdrop-blur-lg border-[#1EAEDB]/10 animate-fade-in hover:border-[#1EAEDB]/20 transition-all duration-300">
-          <CardContent className="p-6">
+          <CardContent className="p-4">
             <div 
-              className="flex flex-col gap-6 md:grid md:grid-cols-2 md:gap-8"
+              className="flex flex-col gap-4 md:grid md:grid-cols-2 md:gap-6"
               ref={gestureRef as React.RefObject<HTMLDivElement>}
             >
               {/* Mobile-first album art - smaller on mobile */}
               <div className="flex flex-col justify-center">
-                <div className="w-full max-w-80 mx-auto md:max-w-none aspect-square bg-[#222222] rounded-lg shadow-2xl overflow-hidden group relative">
+                <div className="w-full max-w-56 mx-auto md:max-w-none aspect-square bg-[#222222] rounded-lg shadow-2xl overflow-hidden group relative">
                   <img 
                     src={currentSong.artwork}
                     alt={`Album Art - ${currentSong.artist}`}
@@ -221,10 +221,10 @@ export const MusicPlayer = () => {
             <div className="flex flex-col justify-between min-h-0">
               <div>
                   <div className="flex items-center justify-between mb-2">
-                    <h2 className="text-3xl font-bold text-[#FEF7CD]">Now Playing</h2>
+                    <h2 className="text-2xl font-bold text-[#FEF7CD]">Now Playing</h2>
                   </div>
-                <p className="text-[#F2FCE2] text-xl mb-1">{currentSong.title}</p>
-                <p className="text-[#F2FCE2]/80 text-lg">{currentSong.artist}</p>
+                <p className="text-[#F2FCE2] text-lg mb-1">{currentSong.title}</p>
+                <p className="text-[#F2FCE2]/80 text-base">{currentSong.artist}</p>
                 
                 {/* Skip counter for free users */}
                 {!checkFeatureAccess('unlimitedSkips') && (
@@ -233,9 +233,9 @@ export const MusicPlayer = () => {
                   </p>
                 )}
               </div>
-              <div className="space-y-4">
+              <div className="space-y-3">
                 <LyricsDisplay isPlaying={isPlaying} songId={currentSong.id} />
-                <div className="space-y-4">
+                <div className="space-y-3">
                  <div className="space-y-2">
                      <Slider
                        value={[songProgress]}
