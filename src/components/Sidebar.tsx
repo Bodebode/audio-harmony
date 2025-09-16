@@ -158,7 +158,7 @@ export const AppSidebar = () => {
                         </SidebarMenuSubItem>
                         <SidebarMenuSubItem>
                           <SidebarMenuSubButton className="text-white/70 hover:text-yellow-500 transition-colors">
-                            <span className="text-xs">• Download music for offline listening</span>
+                            <span className="text-xs">• Offline Access</span>
                           </SidebarMenuSubButton>
                         </SidebarMenuSubItem>
                         <SidebarMenuSubItem>
@@ -171,7 +171,7 @@ export const AppSidebar = () => {
                             onClick={handleManyMoreClick}
                             className="text-white/70 hover:text-yellow-500 transition-colors cursor-pointer"
                           >
-                            <span className="text-xs font-bold">• & Many More</span>
+                            <span className="text-xs font-bold">& Many More</span>
                           </SidebarMenuSubButton>
                         </SidebarMenuSubItem>
                       </SidebarMenuSub>
