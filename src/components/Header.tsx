@@ -145,6 +145,12 @@ export const Header = () => {
                   >
                     {profile?.is_premium ? 'Manage Subscription' : 'Upgrade to Premium'}
                   </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    onClick={() => navigate('/admin-access')}
+                    className="text-white hover:bg-white/10 cursor-pointer"
+                  >
+                    Admin Access
+                  </DropdownMenuItem>
                   {isAdmin && (
                     <DropdownMenuItem 
                       onClick={() => navigate('/admin')}

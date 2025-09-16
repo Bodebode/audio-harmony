@@ -19,6 +19,7 @@ import AdminAnalytics from "./pages/admin/AdminAnalytics";
 import AdminSettings from "./pages/admin/AdminSettings";
 import AdminAudit from "./pages/admin/AdminAudit";
 import AdminMarketing from "./pages/admin/AdminMarketing";
+import { AdminAccess } from "./pages/AdminAccess";
 
 const queryClient = new QueryClient();
 
@@ -37,6 +38,7 @@ const App = () => (
             <Route path="/auth" element={<Auth />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/merch" element={<Merch />} />
+            <Route path="/admin-access" element={<AdminAccess />} />
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/admin/users" element={<AdminUsers />} />
             <Route path="/admin/releases" element={<AdminReleases />} />

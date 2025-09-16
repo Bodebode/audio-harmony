@@ -750,9 +750,21 @@ export type Database = {
           total_users: number
         }[]
       }
+      grant_admin_access: {
+        Args: { user_email: string }
+        Returns: string
+      }
       is_payment_field_update: {
         Args: Record<PropertyKey, never>
         Returns: boolean
+      }
+      promote_first_user_to_admin: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      revoke_admin_access: {
+        Args: { user_email: string }
+        Returns: string
       }
       validate_tip_access: {
         Args: { tip_user_id: string }
