@@ -19,7 +19,7 @@ import { Avatar, AvatarFallback } from "./ui/avatar";
 export const Header = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const navigate = useNavigate();
-  const { user, profile, isGuest, signOut } = useAuth();
+  const { user, profile, isGuest, signOut, exitGuestMode } = useAuth();
 
   const handleCartClick = () => {
     navigate('/merch');
@@ -27,6 +27,7 @@ export const Header = () => {
 
   const handleSignOut = async () => {
     if (isGuest) {
+      exitGuestMode();
       navigate('/auth');
     } else {
       await signOut();

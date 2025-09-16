@@ -157,6 +157,11 @@ export const useAuth = () => {
     // Silent guest mode entry
   };
 
+  const exitGuestMode = () => {
+    localStorage.removeItem('guestMode');
+    setIsGuest(false);
+  };
+
   const signOut = async () => {
     const { error } = await supabase.auth.signOut();
     
@@ -179,6 +184,7 @@ export const useAuth = () => {
     signIn,
     signInWithSocial,
     continueAsGuest,
+    exitGuestMode,
     signOut,
     isPremium: profile?.is_premium || false,
     isAuthenticated: !!user || isGuest

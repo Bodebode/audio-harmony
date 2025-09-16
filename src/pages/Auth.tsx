@@ -24,17 +24,10 @@ const Auth = () => {
   const { signIn, signUp, signInWithSocial, continueAsGuest, user, isAuthenticated, loading, isGuest } = useAuth();
   const navigate = useNavigate();
 
-  // Redirect if already authenticated or is guest
-  if ((user || isGuest) && !loading) {
+  // Redirect if already authenticated (but not guests)
+  if (user && !loading) {
     return <Navigate to="/" replace />;
   }
-
-  // Watch for guest state changes and redirect
-  useEffect(() => {
-    if (isGuest && !loading) {
-      navigate('/', { replace: true });
-    }
-  }, [isGuest, loading, navigate]);
 
   // Show loading spinner while checking auth state
   if (loading) {
