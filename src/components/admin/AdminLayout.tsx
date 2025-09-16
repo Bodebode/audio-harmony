@@ -73,9 +73,10 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                   <LogOut className="mr-2 h-4 w-4" />
                   Sign Out
                 </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </header>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          </div>
+        </header>
 
           {/* Admin Content */}
           <main className="flex-1 p-6">
