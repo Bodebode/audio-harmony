@@ -7,19 +7,7 @@ import { useLikedSongs } from "@/hooks/useLikedSongs";
 import { usePremium } from "@/hooks/usePremium";
 import { useAuth } from "@/hooks/useAuth";
 import { PremiumFeature } from "./premium/PremiumFeature";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-
-interface Track {
-  id: string;
-  title: string;
-  duration_sec?: number;
-  explicit?: boolean;
-  release?: {
-    title: string;
-    cover_url?: string;
-  };
-}
+import { useTracks } from "@/hooks/useTracks";
 
 
 export const Library = () => {
@@ -30,24 +18,8 @@ export const Library = () => {
   const { checkFeatureAccess, limits } = usePremium();
   const { isGuest } = useAuth();
 
-  // Fetch tracks from database
-  const { data: tracks = [], isLoading } = useQuery({
-    queryKey: ['library-tracks'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('tracks')
-        .select(`
-          *,
-          release:releases!inner(title, cover_url, status)
-        `)
-        .eq('status', 'ready')
-        .eq('release.status', 'live')
-        .order('created_at', { ascending: false });
-      
-      if (error) throw error;
-      return data as Track[];
-    },
-  });
+  // Fetch tracks using unified hook
+  const { data: tracks = [], isLoading } = useTracks();
 
   const formatDuration = (seconds?: number) => {
     if (!seconds) return "0:00";
@@ -177,17 +149,17 @@ export const Library = () => {
                         variant="ghost"
                         size="icon"
                         className={`h-8 w-8 transition-all duration-300 opacity-30 group-hover:opacity-100 backdrop-blur-sm ${
-                          isLiked(parseInt(track.id)) 
+                          isLiked(track.id) 
                             ? 'text-red-500 hover:text-red-600 !opacity-100' 
                             : 'text-[#F2FCE2] hover:text-red-500'
                         }`}
                         onClick={(e) => {
                           e.stopPropagation();
-                          toggleLikeSong(parseInt(track.id));
+                          toggleLikeSong(track.id);
                         }}
                       >
                         <Heart 
-                          className={`h-4 w-4 ${isLiked(parseInt(track.id)) ? 'fill-current' : ''}`} 
+                          className={`h-4 w-4 ${isLiked(track.id) ? 'fill-current' : ''}`}
                         />
                       </Button>
                     </div>

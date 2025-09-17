@@ -2,7 +2,7 @@ import { useEffect, useSyncExternalStore } from "react";
 import { useToast } from "@/hooks/use-toast";
 
 // Simple external store to keep liked songs in sync across components
-let likedSongsStore: number[] = [];
+let likedSongsStore: string[] = [];
 
 try {
   const saved = localStorage.getItem('likedSongs');
@@ -35,7 +35,7 @@ export const useLikedSongs = () => {
     } catch {}
   }, [likedSongs]);
 
-  const toggleLikeSong = (songId: number) => {
+  const toggleLikeSong = (songId: string) => {
     const isLiked = likedSongs.includes(songId);
     likedSongsStore = isLiked
       ? likedSongsStore.filter((id) => id !== songId)
@@ -53,7 +53,7 @@ export const useLikedSongs = () => {
     });
   };
 
-  const isLiked = (songId: number) => likedSongs.includes(songId);
+  const isLiked = (songId: string) => likedSongs.includes(songId);
 
   return { likedSongs, toggleLikeSong, isLiked };
 };

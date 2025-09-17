@@ -13,22 +13,9 @@ import { PremiumFeature } from "./premium/PremiumFeature";
 import { usePremium } from "@/hooks/usePremium";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { useLikedSongs } from "@/hooks/useLikedSongs";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { useTracks, Track } from "@/hooks/useTracks";
 import { useGestures } from "@/hooks/useGestures";
-
-interface Track {
-  id: string;
-  title: string;
-  audio_file_url?: string;
-  duration_sec?: number;
-  explicit?: boolean;
-  lyrics?: string;
-  release?: {
-    title: string;
-    cover_url?: string;
-  };
-}
+import { useToast } from "@/hooks/use-toast";
 
 type RepeatMode = "none" | "all" | "one";
 
@@ -45,101 +32,164 @@ export const MusicPlayer = () => {
   const { checkFeatureAccess, limits } = usePremium();
   const { track: trackAnalytics } = useAnalytics();
   const { likedSongs, toggleLikeSong, isLiked } = useLikedSongs();
+  const { toast } = useToast();
   
   // Track skips for free users
   const [skipsThisHour, setSkipsThisHour] = useState(0);
   const [lastSkipReset, setLastSkipReset] = useState(Date.now());
 
-  // Fetch available tracks
-  const { data: tracks = [], isLoading } = useQuery({
-    queryKey: ['available-tracks'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('tracks')
-        .select(`
-          *,
-          release:releases!inner(title, cover_url, status)
-        `)
-        .eq('status', 'ready')
-        .eq('release.status', 'live')
-        .order('created_at', { ascending: false });
-      
-      if (error) throw error;
-      return data as Track[];
-    },
-  });
+  // Fetch available tracks using unified hook
+  const { data: tracks = [], isLoading } = useTracks();
 
   const currentTrack = tracks[currentTrackIndex];
 
   // Audio instance ref to persist across renders
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  // Handle audio playback
+  // Handle audio playback with robust error handling
   useEffect(() => {
-    if (!currentTrack?.audio_file_url) return;
+    if (!currentTrack?.audio_file_url) {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.src = '';
+      }
+      return;
+    }
 
     // Clean up previous audio
     if (audioRef.current) {
       audioRef.current.pause();
+      audioRef.current.removeEventListener('timeupdate', () => {});
+      audioRef.current.removeEventListener('loadedmetadata', () => {});
+      audioRef.current.removeEventListener('ended', () => {});
+      audioRef.current.removeEventListener('error', () => {});
       audioRef.current.src = '';
     }
 
-    // Create new audio instance
-    audioRef.current = new Audio(currentTrack.audio_file_url);
+    // Create new audio instance with validation
+    try {
+      audioRef.current = new Audio();
+      const audio = audioRef.current;
+      
+      const updateTime = () => setCurrentTime(audio.currentTime);
+      const updateDuration = () => setDuration(audio.duration || 0);
+      const handleEnded = () => {
+        setIsPlaying(false);
+        trackAnalytics({
+          name: 'play_completed',
+          properties: {
+            track_id: currentTrack.id,
+            pct_played: 100,
+          },
+        });
+        handleNext();
+      };
+      
+      const handleError = (e: Event) => {
+        console.error('Audio error for track:', currentTrack.title, e);
+        setIsPlaying(false);
+        toast({
+          title: "Playback Error",
+          description: `Unable to play "${currentTrack.title}". Trying next track...`,
+          variant: "destructive",
+          duration: 3000,
+        });
+        // Auto-skip to next track on error
+        setTimeout(() => handleNext(), 1000);
+      };
+
+      const handleLoadStart = () => {
+        console.log('Loading track:', currentTrack.title);
+      };
+
+      audio.addEventListener('timeupdate', updateTime);
+      audio.addEventListener('loadedmetadata', updateDuration);
+      audio.addEventListener('ended', handleEnded);
+      audio.addEventListener('error', handleError);
+      audio.addEventListener('loadstart', handleLoadStart);
+
+      audio.volume = volume[0] / 100;
+      audio.preload = 'metadata';
+      
+      // Set source after all listeners are attached
+      audio.src = currentTrack.audio_file_url;
+
+      return () => {
+        audio.removeEventListener('timeupdate', updateTime);
+        audio.removeEventListener('loadedmetadata', updateDuration);
+        audio.removeEventListener('ended', handleEnded);
+        audio.removeEventListener('error', handleError);
+        audio.removeEventListener('loadstart', handleLoadStart);
+        audio.pause();
+      };
+    } catch (error) {
+      console.error('Failed to create audio element:', error);
+      toast({
+        title: "Audio Error",
+        description: "Failed to initialize audio player",
+        variant: "destructive",
+      });
+    }
+  }, [currentTrack?.id, trackAnalytics, toast]);
+
+  // Handle play/pause state changes with retry logic
+  useEffect(() => {
+    if (!audioRef.current || !currentTrack) return;
+
     const audio = audioRef.current;
     
-    const updateTime = () => setCurrentTime(audio.currentTime);
-    const updateDuration = () => setDuration(audio.duration || 0);
-    const handleEnded = () => {
-      setIsPlaying(false);
-      trackAnalytics({
-        name: 'play_completed',
-        properties: {
-          track_id: currentTrack.id,
-          pct_played: 100,
-        },
-      });
-      handleNext();
-    };
-
-    audio.addEventListener('timeupdate', updateTime);
-    audio.addEventListener('loadedmetadata', updateDuration);
-    audio.addEventListener('ended', handleEnded);
-    audio.addEventListener('error', (e) => {
-      console.error('Audio error:', e);
-      setIsPlaying(false);
-    });
-
-    audio.volume = volume[0] / 100;
-
-    return () => {
-      audio.removeEventListener('timeupdate', updateTime);
-      audio.removeEventListener('loadedmetadata', updateDuration);
-      audio.removeEventListener('ended', handleEnded);
-      audio.pause();
-    };
-  }, [currentTrack?.id, trackAnalytics]);
-
-  // Handle play/pause state changes
-  useEffect(() => {
-    if (!audioRef.current) return;
-
     if (isPlaying) {
-      audioRef.current.play().catch((error) => {
-        console.error('Play failed:', error);
-        setIsPlaying(false);
-      });
-      trackAnalytics({
-        name: 'play_started',
-        properties: {
-          track_id: currentTrack?.id || '',
-          position_ms: Math.floor(currentTime * 1000),
-        },
-      });
+      // Check if audio is ready to play
+      const attemptPlay = async () => {
+        try {
+          if (audio.readyState >= 2) { // HAVE_CURRENT_DATA
+            await audio.play();
+            trackAnalytics({
+              name: 'play_started',
+              properties: {
+                track_id: currentTrack.id,
+                position_ms: Math.floor(currentTime * 1000),
+              },
+            });
+          } else {
+            // Wait for audio to be ready
+            const onCanPlay = async () => {
+              try {
+                await audio.play();
+                trackAnalytics({
+                  name: 'play_started',
+                  properties: {
+                    track_id: currentTrack.id,
+                    position_ms: Math.floor(currentTime * 1000),
+                  },
+                });
+              } catch (error) {
+                console.error('Play failed after canplay:', error);
+                setIsPlaying(false);
+              }
+              audio.removeEventListener('canplay', onCanPlay);
+            };
+            audio.addEventListener('canplay', onCanPlay);
+          }
+        } catch (error) {
+          console.error('Play failed:', error);
+          setIsPlaying(false);
+          if (error.name !== 'AbortError') {
+            toast({
+              title: "Playback Error",
+              description: "Unable to start playback. Please try again.",
+              variant: "destructive",
+              duration: 2000,
+            });
+          }
+        }
+      };
+      
+      attemptPlay();
     } else {
-      audioRef.current.pause();
+      audio.pause();
     }
-  }, [isPlaying, currentTrack?.id, trackAnalytics]);
+  }, [isPlaying, currentTrack?.id, trackAnalytics, currentTime, toast]);
 
   // Handle volume changes
   useEffect(() => {
@@ -149,7 +199,15 @@ export const MusicPlayer = () => {
   }, [volume]);
 
   const togglePlay = () => {
-    if (!currentTrack?.audio_file_url) return;
+    if (!currentTrack?.audio_file_url) {
+      toast({
+        title: "No Audio",
+        description: "This track doesn't have an audio file available",
+        variant: "destructive",
+        duration: 2000,
+      });
+      return;
+    }
     setIsPlaying(!isPlaying);
   };
 
@@ -169,13 +227,12 @@ export const MusicPlayer = () => {
 
   const handleLike = () => {
     if (!currentTrack) return;
-    const trackIdNumber = parseInt(currentTrack.id);
-    toggleLikeSong(trackIdNumber);
+    toggleLikeSong(currentTrack.id);
     trackAnalytics({
       name: 'like_action',
       properties: {
         track_id: currentTrack.id,
-        action: isLiked(trackIdNumber) ? 'unlike' : 'like',
+        action: isLiked(currentTrack.id) ? 'unlike' : 'like',
       },
     });
   };
@@ -360,10 +417,10 @@ export const MusicPlayer = () => {
                     size="sm"
                     onClick={handleLike}
                     className={`text-[#F2FCE2] hover:text-red-500 p-1 h-6 w-6 ${
-                      isLiked(parseInt(currentTrack.id)) ? 'text-red-500' : ''
+                      isLiked(currentTrack.id) ? 'text-red-500' : ''
                     }`}
                   >
-                    <Heart className={`h-4 w-4 ${isLiked(parseInt(currentTrack.id)) ? 'fill-current' : ''}`} />
+                    <Heart className={`h-4 w-4 ${isLiked(currentTrack.id) ? 'fill-current' : ''}`} />
                   </Button>
                 </p>
                 <p className="text-[#F2FCE2]/80 text-base">{currentTrack.release?.title || 'Unknown Album'}</p>
@@ -504,7 +561,7 @@ export const MusicPlayer = () => {
         onNext={handleNext}
         onPrevious={handlePrevious}
         currentSong={{
-          id: parseInt(currentTrack.id),
+          id: currentTrack.id,
           title: currentTrack.title,
           artist: currentTrack.release?.title || 'Unknown Album',
           artwork: currentTrack.release?.cover_url || "/lovable-uploads/74cb0a2d-58c7-4be3-a188-27a043b76a3d.png",

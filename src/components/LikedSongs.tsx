@@ -3,19 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useLikedSongs } from "@/hooks/useLikedSongs";
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-
-interface Track {
-  id: string;
-  title: string;
-  duration_sec?: number;
-  explicit?: boolean;
-  release?: {
-    title: string;
-    cover_url?: string;
-  };
-}
+import { useTracks } from "@/hooks/useTracks";
 
 export const LikedSongs = () => {
   const [isLikedPlaylistPlaying, setIsLikedPlaylistPlaying] = useState(false);
@@ -23,27 +11,11 @@ export const LikedSongs = () => {
   const [playingSongId, setPlayingSongId] = useState<string | null>(null);
   const { isLiked, toggleLikeSong } = useLikedSongs();
 
-  // Fetch all tracks from database
-  const { data: allTracks = [], isLoading } = useQuery({
-    queryKey: ['liked-songs-tracks'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('tracks')
-        .select(`
-          *,
-          release:releases!inner(title, cover_url, status)
-        `)
-        .eq('status', 'ready')
-        .eq('release.status', 'live')
-        .order('created_at', { ascending: false });
-      
-      if (error) throw error;
-      return data as Track[];
-    },
-  });
+  // Fetch all tracks using unified hook
+  const { data: allTracks = [], isLoading } = useTracks();
 
   // Filter tracks to only show liked ones
-  const likedList = allTracks.filter((track) => isLiked(parseInt(track.id)));
+  const likedList = allTracks.filter((track) => isLiked(track.id));
 
   const formatDuration = (seconds?: number) => {
     if (!seconds) return "0:00";
@@ -170,16 +142,16 @@ export const LikedSongs = () => {
                         variant="ghost"
                         size="icon"
                         className={`h-8 w-8 transition-all duration-300 opacity-30 group-hover:opacity-100 backdrop-blur-sm ${
-                          isLiked(parseInt(song.id))
+                          isLiked(song.id)
                             ? 'text-red-500 hover:text-red-600 !opacity-100'
                             : 'text-[#F2FCE2] hover:text-red-500'
                         }`}
                         onClick={(e) => {
                           e.stopPropagation();
-                          toggleLikeSong(parseInt(song.id));
+                          toggleLikeSong(song.id);
                         }}
                       >
-                        <Heart className={`h-4 w-4 ${isLiked(parseInt(song.id)) ? 'fill-current' : ''}`} />
+                        <Heart className={`h-4 w-4 ${isLiked(song.id) ? 'fill-current' : ''}`} />
                       </Button>
                     </div>
                   </div>

@@ -20,7 +20,7 @@ interface FullScreenPlayerProps {
   onNext: () => void;
   onPrevious: () => void;
   currentSong: {
-    id: number;
+    id: string;
     title: string;
     artist: string;
     artwork: string;
