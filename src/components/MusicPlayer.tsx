@@ -28,6 +28,10 @@ export const MusicPlayer = () => {
   const [currentPlaylist, setCurrentPlaylist] = useState<string[] | null>(null);
   const [isShuffleOn, setIsShuffleOn] = useState(false);
   const [repeatMode, setRepeatMode] = useState<RepeatMode>("none");
+  
+  // Debounce and race condition protection
+  const playLockRef = useRef(false);
+  const playRequestId = useRef(0);
   const [isFullScreen, setIsFullScreen] = useState(false);
   const { checkFeatureAccess, limits } = usePremium();
   const { track: trackAnalytics } = useAnalytics();
@@ -102,14 +106,20 @@ export const MusicPlayer = () => {
         console.log('Loading track:', currentTrack.title);
       };
 
+      // Sync UI state to audio state
+      const syncPlay = () => setIsPlaying(true);
+      const syncPause = () => setIsPlaying(false);
+
       audio.addEventListener('timeupdate', updateTime);
       audio.addEventListener('loadedmetadata', updateDuration);
       audio.addEventListener('ended', handleEnded);
       audio.addEventListener('error', handleError);
       audio.addEventListener('loadstart', handleLoadStart);
+      audio.addEventListener('play', syncPlay);
+      audio.addEventListener('pause', syncPause);
 
       audio.volume = volume[0] / 100;
-      audio.preload = 'metadata';
+      audio.preload = 'auto';
       
       // Set source after all listeners are attached
       audio.src = currentTrack.audio_file_url;
@@ -120,6 +130,8 @@ export const MusicPlayer = () => {
         audio.removeEventListener('ended', handleEnded);
         audio.removeEventListener('error', handleError);
         audio.removeEventListener('loadstart', handleLoadStart);
+        audio.removeEventListener('play', syncPlay);
+        audio.removeEventListener('pause', syncPause);
         audio.pause();
       };
     } catch (error) {
@@ -198,7 +210,12 @@ export const MusicPlayer = () => {
     }
   }, [volume]);
 
-  const togglePlay = () => {
+  const togglePlay = async () => {
+    // Debounce protection
+    if (playLockRef.current) return;
+    playLockRef.current = true;
+    setTimeout(() => (playLockRef.current = false), 350);
+
     if (!currentTrack?.audio_file_url) {
       toast({
         title: "No Audio",
@@ -208,7 +225,38 @@ export const MusicPlayer = () => {
       });
       return;
     }
-    setIsPlaying(!isPlaying);
+
+    if (!audioRef.current) return;
+    const audio = audioRef.current;
+
+    if (audio.paused) {
+      const id = ++playRequestId.current;
+      try {
+        if (audio.readyState >= 2) {
+          await audio.play();
+        } else {
+          const onCanPlay = async () => {
+            if (playRequestId.current !== id) return; // Stale request
+            try {
+              await audio.play();
+            } finally {
+              audio.removeEventListener('canplay', onCanPlay);
+            }
+          };
+          audio.addEventListener('canplay', onCanPlay);
+        }
+      } catch (error) {
+        console.error('Play failed:', error);
+        toast({
+          title: "Playback Error",
+          description: "Unable to start playback. Please try again.",
+          variant: "destructive",
+          duration: 2000,
+        });
+      }
+    } else {
+      audio.pause();
+    }
   };
 
   const handleProgressChange = (value: number) => {
@@ -557,6 +605,7 @@ export const MusicPlayer = () => {
         volume={volume}
         onVolumeChange={setVolume}
         progress={currentTime}
+        duration={duration}
         onProgressChange={handleProgressChange}
         onNext={handleNext}
         onPrevious={handlePrevious}
