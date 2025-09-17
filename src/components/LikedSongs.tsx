@@ -1,28 +1,76 @@
-import { Heart, Play, Pause, ChevronDown } from "lucide-react";
+import { Heart, Play, Pause, ChevronDown, PlayCircle } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useLikedSongs } from "@/hooks/useLikedSongs";
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
-const sampleSongs = [
-  { id: 1, title: "Afrobeat Fusion", duration: "3:45" },
-  { id: 2, title: "Lagos Nights", duration: "4:12" },
-  { id: 3, title: "Ancestral Voices", duration: "3:58" },
-  { id: 4, title: "Modern Traditions", duration: "4:23" },
-  { id: 5, title: "Unity Dance", duration: "3:41" },
-  { id: 6, title: "River Flow", duration: "4:07" },
-  { id: 7, title: "Rhythmic Soul", duration: "3:52" },
-  { id: 8, title: "Golden Dawn", duration: "4:18" }
-];
+interface Track {
+  id: string;
+  title: string;
+  duration_sec?: number;
+  explicit?: boolean;
+  release?: {
+    title: string;
+    cover_url?: string;
+  };
+}
 
 export const LikedSongs = () => {
   const [isLikedPlaylistPlaying, setIsLikedPlaylistPlaying] = useState(false);
   const [isExpanded, setIsExpanded] = useState(true);
+  const [playingSongId, setPlayingSongId] = useState<string | null>(null);
   const { isLiked, toggleLikeSong } = useLikedSongs();
-  const likedList = sampleSongs.filter((s) => isLiked(s.id));
+
+  // Fetch all tracks from database
+  const { data: allTracks = [], isLoading } = useQuery({
+    queryKey: ['liked-songs-tracks'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('tracks')
+        .select(`
+          *,
+          release:releases!inner(title, cover_url, status)
+        `)
+        .eq('status', 'ready')
+        .eq('release.status', 'live')
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      return data as Track[];
+    },
+  });
+
+  // Filter tracks to only show liked ones
+  const likedList = allTracks.filter((track) => isLiked(parseInt(track.id)));
+
+  const formatDuration = (seconds?: number) => {
+    if (!seconds) return "0:00";
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  const handlePlaySong = (trackId: string) => {
+    if ((window as any).musicPlayerControls?.playPlaylist) {
+      (window as any).musicPlayerControls.playPlaylist([trackId]);
+    }
+    setPlayingSongId(trackId);
+  };
 
   const handleLikedPlaylistPlayPause = () => {
     setIsLikedPlaylistPlaying(!isLikedPlaylistPlaying);
+    if (!isLikedPlaylistPlaying && likedList.length > 0) {
+      // Play the first liked track
+      const trackIds = likedList.map(track => track.id);
+      if ((window as any).musicPlayerControls?.playPlaylist) {
+        (window as any).musicPlayerControls.playPlaylist(trackIds);
+      }
+      setPlayingSongId(likedList[0].id);
+    } else {
+      setPlayingSongId(null);
+    }
   };
 
   return (
@@ -69,37 +117,69 @@ export const LikedSongs = () => {
           </div>
 
           {isExpanded && (
-            likedList.length === 0 ? (
-              <div className="text-[#F2FCE2]/70">You haven't liked any songs yet.</div>
+            isLoading ? (
+              <div className="text-center py-4">
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary mx-auto mb-2"></div>
+                <p className="text-[#F2FCE2]/60 text-sm">Loading liked songs...</p>
+              </div>
+            ) : likedList.length === 0 ? (
+              <div className="text-center py-8">
+                <Heart className="h-12 w-12 mx-auto mb-3 text-[#F2FCE2]/30" />
+                <div className="text-[#F2FCE2]/70 mb-1">You haven't liked any songs yet.</div>
+                <div className="text-[#F2FCE2]/50 text-sm">
+                  Like songs from the library to see them here
+                </div>
+              </div>
             ) : (
               <div className="space-y-2">
                 {likedList.map((song, index) => (
                   <div
                     key={song.id}
-                    className="glass-item group flex items-center justify-between p-3 rounded-lg gradient-mesh-2 animate-fade-in"
+                    className="glass-item group flex items-center justify-between p-3 rounded-lg gradient-mesh-2 animate-fade-in cursor-pointer"
                     style={{ animationDelay: `${index * 50}ms` }}
                   >
-                    <div className="flex items-center gap-3">
-                      <span className="text-[#F2FCE2] group-hover:text-[#FEF7CD] transition-colors duration-300">
-                        {song.title}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <span className="text-[#F2FCE2]/60 text-sm font-mono">{song.duration}</span>
+                    <div className="absolute inset-0 gradient-shimmer opacity-0 group-hover:opacity-100 rounded-lg" />
+                    
+                    <div className="flex items-center gap-3 relative z-10">
                       <Button
                         variant="ghost"
                         size="icon"
-                        className={`h-8 w-8 transition-all duration-300 backdrop-blur-sm ${
-                          isLiked(song.id)
-                            ? 'text-red-500 hover:text-red-600'
+                        className={`h-8 w-8 rounded-full transition-all duration-300 backdrop-blur-sm ${
+                          playingSongId === song.id 
+                            ? 'text-[#1EAEDB] bg-[#1EAEDB]/30 animate-pulse shadow-[0_0_15px_rgba(30,174,219,0.4)]' 
+                            : 'text-[#F2FCE2] hover:text-[#1EAEDB] hover:bg-[#1EAEDB]/20 opacity-0 group-hover:opacity-100'
+                        }`}
+                        onClick={() => handlePlaySong(song.id)}
+                      >
+                        <PlayCircle className="h-4 w-4" />
+                      </Button>
+                      <span className={`flex items-center gap-2 transition-all duration-300 ${
+                        playingSongId === song.id ? 'text-[#1EAEDB] font-medium' : 'text-[#F2FCE2] group-hover:text-[#FEF7CD]'
+                      }`}>
+                        {song.title}
+                        {song.explicit && (
+                          <span className="px-1 py-0.5 bg-red-600 text-white text-xs rounded">E</span>
+                        )}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-3 relative z-10">
+                      <span className="text-[#F2FCE2]/60 group-hover:text-[#F2FCE2]/90 transition-colors duration-300 text-sm font-mono">
+                        {formatDuration(song.duration_sec)}
+                      </span>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className={`h-8 w-8 transition-all duration-300 opacity-30 group-hover:opacity-100 backdrop-blur-sm ${
+                          isLiked(parseInt(song.id))
+                            ? 'text-red-500 hover:text-red-600 !opacity-100'
                             : 'text-[#F2FCE2] hover:text-red-500'
                         }`}
                         onClick={(e) => {
                           e.stopPropagation();
-                          toggleLikeSong(song.id);
+                          toggleLikeSong(parseInt(song.id));
                         }}
                       >
-                        <Heart className={`h-4 w-4 ${isLiked(song.id) ? 'fill-current' : ''}`} />
+                        <Heart className={`h-4 w-4 ${isLiked(parseInt(song.id)) ? 'fill-current' : ''}`} />
                       </Button>
                     </div>
                   </div>

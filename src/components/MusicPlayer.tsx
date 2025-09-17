@@ -6,7 +6,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { LyricsDisplay } from "./LyricsDisplay";
 import { FullScreenPlayer } from "./FullScreenPlayer";
 import { PremiumFeature } from "./premium/PremiumFeature";
@@ -71,11 +71,22 @@ export const MusicPlayer = () => {
 
   const currentTrack = tracks[currentTrackIndex];
 
+  // Audio instance ref to persist across renders
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
   // Handle audio playback
   useEffect(() => {
     if (!currentTrack?.audio_file_url) return;
 
-    const audio = new Audio(currentTrack.audio_file_url);
+    // Clean up previous audio
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.src = '';
+    }
+
+    // Create new audio instance
+    audioRef.current = new Audio(currentTrack.audio_file_url);
+    const audio = audioRef.current;
     
     const updateTime = () => setCurrentTime(audio.currentTime);
     const updateDuration = () => setDuration(audio.duration || 0);
@@ -94,19 +105,10 @@ export const MusicPlayer = () => {
     audio.addEventListener('timeupdate', updateTime);
     audio.addEventListener('loadedmetadata', updateDuration);
     audio.addEventListener('ended', handleEnded);
-
-    if (isPlaying) {
-      audio.play();
-      trackAnalytics({
-        name: 'play_started',
-        properties: {
-          track_id: currentTrack.id,
-          position_ms: Math.floor(currentTime * 1000),
-        },
-      });
-    } else {
-      audio.pause();
-    }
+    audio.addEventListener('error', (e) => {
+      console.error('Audio error:', e);
+      setIsPlaying(false);
+    });
 
     audio.volume = volume[0] / 100;
 
@@ -116,7 +118,35 @@ export const MusicPlayer = () => {
       audio.removeEventListener('ended', handleEnded);
       audio.pause();
     };
-  }, [currentTrack, isPlaying, volume, trackAnalytics, currentTime]);
+  }, [currentTrack?.id, trackAnalytics]);
+
+  // Handle play/pause state changes
+  useEffect(() => {
+    if (!audioRef.current) return;
+
+    if (isPlaying) {
+      audioRef.current.play().catch((error) => {
+        console.error('Play failed:', error);
+        setIsPlaying(false);
+      });
+      trackAnalytics({
+        name: 'play_started',
+        properties: {
+          track_id: currentTrack?.id || '',
+          position_ms: Math.floor(currentTime * 1000),
+        },
+      });
+    } else {
+      audioRef.current.pause();
+    }
+  }, [isPlaying, currentTrack?.id, trackAnalytics]);
+
+  // Handle volume changes
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.volume = volume[0] / 100;
+    }
+  }, [volume]);
 
   const togglePlay = () => {
     if (!currentTrack?.audio_file_url) return;
@@ -124,7 +154,11 @@ export const MusicPlayer = () => {
   };
 
   const handleProgressChange = (value: number) => {
-    setCurrentTime(value);
+    const newTime = value;
+    setCurrentTime(newTime);
+    if (audioRef.current) {
+      audioRef.current.currentTime = newTime;
+    }
   };
 
   const formatTime = (seconds: number) => {
@@ -345,13 +379,13 @@ export const MusicPlayer = () => {
                 )}
                 <div className="space-y-2">
                  <div className="space-y-2">
-                     <Slider
-                       value={[currentTime]}
-                       onValueChange={(vals) => handleProgressChange(vals[0])}
-                       max={duration}
-                       step={0.5}
-                       className="w-full [&>span[role=slider]]:h-6 [&>span[role=slider]]:w-6 md:[&>span[role=slider]]:h-4 md:[&>span[role=slider]]:w-4"
-                     />
+                      <Slider
+                        value={[currentTime]}
+                        onValueChange={(vals) => handleProgressChange(vals[0])}
+                        max={duration}
+                        step={0.5}
+                        className="w-full [&>span[role=slider]]:h-6 [&>span[role=slider]]:w-6 md:[&>span[role=slider]]:h-4 md:[&>span[role=slider]]:w-4"
+                      />
                      <div className="flex justify-between text-sm text-[#F2FCE2]">
                        <span>{formatTime(currentTime)}</span>
                        <span>{formatTime(duration)}</span>
