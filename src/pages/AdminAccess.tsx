@@ -21,6 +21,15 @@ export const AdminAccess = () => {
                   Administrative access and system management
                 </p>
               </div>
+
+              <div className="mb-6 flex justify-center">
+                <a 
+                  href="/admin/releases" 
+                  className="inline-flex items-center px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-medium"
+                >
+                  Go to Admin Dashboard →
+                </a>
+              </div>
               
               <AdminAccessInfo />
             </div>

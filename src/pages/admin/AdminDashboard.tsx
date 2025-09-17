@@ -7,36 +7,49 @@ import { AdminLayout } from "@/components/admin/AdminLayout";
 
 const AdminDashboard = () => {
   // Fetch dashboard metrics
-  const { data: metrics, isLoading } = useQuery({
+  const { data: metrics, isLoading, error } = useQuery({
     queryKey: ['admin-dashboard-metrics'],
     queryFn: async () => {
-      const [
-        { count: totalUsers },
-        { count: totalReleases },
-        { count: totalTracks },
-        { count: totalPlays },
-        { count: premiumUsers },
-        { data: recentUsers },
-        { data: recentReleases }
-      ] = await Promise.all([
-        supabase.from('profiles').select('*', { count: 'exact', head: true }),
-        supabase.from('releases').select('*', { count: 'exact', head: true }),
-        supabase.from('tracks').select('*', { count: 'exact', head: true }),
-        supabase.from('events').select('*', { count: 'exact', head: true }).eq('name', 'play_started'),
-        supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('is_premium', true),
-        supabase.from('profiles').select('display_name, created_at, is_premium').order('created_at', { ascending: false }).limit(5),
-        supabase.from('releases').select('title, status, created_at').order('created_at', { ascending: false }).limit(5)
-      ]);
+      try {
+        const [
+          profilesCount,
+          releasesCount,
+          tracksCount,
+          playsCount,
+          premiumCount,
+          recentUsersResult,
+          recentReleasesResult
+        ] = await Promise.all([
+          supabase.from('profiles').select('*', { count: 'exact', head: true }),
+          supabase.from('releases').select('*', { count: 'exact', head: true }),
+          supabase.from('tracks').select('*', { count: 'exact', head: true }),
+          supabase.from('events').select('*', { count: 'exact', head: true }).eq('name', 'play_started'),
+          supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('is_premium', true),
+          supabase.from('profiles').select('display_name, created_at, is_premium').order('created_at', { ascending: false }).limit(5),
+          supabase.from('releases').select('title, status, created_at').order('created_at', { ascending: false }).limit(5)
+        ]);
 
-      return {
-        totalUsers: totalUsers || 0,
-        totalReleases: totalReleases || 0,
-        totalTracks: totalTracks || 0,
-        totalPlays: totalPlays || 0,
-        premiumUsers: premiumUsers || 0,
-        recentUsers: recentUsers || [],
-        recentReleases: recentReleases || []
-      };
+        return {
+          totalUsers: profilesCount.count || 0,
+          totalReleases: releasesCount.count || 0,
+          totalTracks: tracksCount.count || 0,
+          totalPlays: playsCount.count || 0,
+          premiumUsers: premiumCount.count || 0,
+          recentUsers: recentUsersResult.data || [],
+          recentReleases: recentReleasesResult.data || []
+        };
+      } catch (err) {
+        console.error('Error fetching dashboard metrics:', err);
+        return {
+          totalUsers: 0,
+          totalReleases: 0,
+          totalTracks: 0,
+          totalPlays: 0,
+          premiumUsers: 0,
+          recentUsers: [],
+          recentReleases: []
+        };
+      }
     },
   });
 
@@ -61,6 +74,11 @@ const AdminDashboard = () => {
           <p className="text-muted-foreground">
             Overview of your AlkePlay platform
           </p>
+          {error && (
+            <div className="mt-2 p-2 bg-yellow-100 border border-yellow-400 text-yellow-700 rounded text-sm">
+              Some metrics may be limited due to data access restrictions.
+            </div>
+          )}
         </div>
 
         {/* KPI Cards */}
