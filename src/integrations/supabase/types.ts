@@ -758,6 +758,10 @@ export type Database = {
         Args: { user_email: string }
         Returns: string
       }
+      is_admin: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
       is_payment_field_update: {
         Args: Record<PropertyKey, never>
         Returns: boolean
