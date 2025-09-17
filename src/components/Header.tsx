@@ -151,6 +151,12 @@ export const Header = () => {
                   >
                     Admin Access
                   </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    onClick={() => navigate('/quick-upload')}
+                    className="text-white hover:bg-white/10 cursor-pointer"
+                  >
+                    Quick Upload
+                  </DropdownMenuItem>
                   {isAdmin && (
                     <DropdownMenuItem 
                       onClick={() => navigate('/admin')}
