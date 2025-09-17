@@ -737,6 +737,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      can_manage_admin_roles: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
       ensure_first_user_admin: {
         Args: Record<PropertyKey, never>
         Returns: undefined
@@ -765,6 +769,10 @@ export type Database = {
       is_payment_field_update: {
         Args: Record<PropertyKey, never>
         Returns: boolean
+      }
+      log_admin_action: {
+        Args: { action_type: string; details?: Json; target_user_id: string }
+        Returns: undefined
       }
       promote_first_user_to_admin: {
         Args: Record<PropertyKey, never>

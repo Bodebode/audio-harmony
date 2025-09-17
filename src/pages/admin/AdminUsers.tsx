@@ -54,15 +54,42 @@ const AdminUsers = () => {
 
   const handleMakeAdmin = async (userId: string, role: 'admin' | 'editor' | 'support') => {
     try {
+      // Security check - only existing admins can assign roles
+      const { data: canManage } = await supabase.rpc('can_manage_admin_roles');
+      
+      if (!canManage) {
+        toast({
+          title: "Access Denied",
+          description: "Only administrators can assign admin roles",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Additional confirmation for admin role assignments
+      if (role === 'admin') {
+        const confirmed = window.confirm(
+          `Are you sure you want to grant ADMIN privileges to this user? This will give them full system access including the ability to assign roles to other users.`
+        );
+        if (!confirmed) return;
+      }
+
       const { error } = await supabase
         .from('profiles')
         .update({ 
           role,
-          is_admin: true 
+          is_admin: role === 'admin' 
         })
         .eq('user_id', userId);
 
       if (error) throw error;
+
+      // Log the admin action for audit trail
+      await supabase.rpc('log_admin_action', {
+        action_type: 'role_assigned',
+        target_user_id: userId,
+        details: { new_role: role, assigned_at: new Date().toISOString() }
+      });
 
       toast({
         title: "Success",
@@ -81,6 +108,24 @@ const AdminUsers = () => {
 
   const handleRemoveAdmin = async (userId: string) => {
     try {
+      // Security check - only existing admins can remove roles
+      const { data: canManage } = await supabase.rpc('can_manage_admin_roles');
+      
+      if (!canManage) {
+        toast({
+          title: "Access Denied", 
+          description: "Only administrators can remove admin roles",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Confirmation dialog for role removal
+      const confirmed = window.confirm(
+        `Are you sure you want to remove admin privileges from this user? They will lose all administrative access.`
+      );
+      if (!confirmed) return;
+
       const { error } = await supabase
         .from('profiles')
         .update({ 
@@ -90,6 +135,13 @@ const AdminUsers = () => {
         .eq('user_id', userId);
 
       if (error) throw error;
+
+      // Log the admin action for audit trail
+      await supabase.rpc('log_admin_action', {
+        action_type: 'role_removed',
+        target_user_id: userId,
+        details: { previous_role: 'admin', removed_at: new Date().toISOString() }
+      });
 
       toast({
         title: "Success",
