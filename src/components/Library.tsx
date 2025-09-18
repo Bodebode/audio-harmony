@@ -11,7 +11,7 @@ import { PremiumFeature } from "./premium/PremiumFeature";
 
 export const Library = () => {
   const [playingSongId, setPlayingSongId] = useState<number | string | null>(null);
-  const [isExpanded, setIsExpanded] = useState(true);
+  const [isExpanded, setIsExpanded] = useState(false);
   const [isAlbumPlaying, setIsAlbumPlaying] = useState(false);
   const { toggleLikeSong, isLiked } = useLikedSongs();
   const { checkFeatureAccess, limits } = usePremium();
@@ -35,6 +35,8 @@ export const Library = () => {
 
   // Use real tracks if available, otherwise use sample songs
   const displaySongs = tracks.length > 0 ? tracks : sampleSongs;
+  const songsToShow = isExpanded ? displaySongs : displaySongs.slice(0, 8);
+  const hasMoreSongs = displaySongs.length > 8;
 
   if (loading) {
     return <SkeletonGrid />;
@@ -57,6 +59,14 @@ export const Library = () => {
     }
     
     setPlayingSongId(songId);
+    
+    // Use the global music player controls if available
+    if ((window as any).musicPlayerControls) {
+      const actualSong = tracks.find(t => t.id === songId || t.formattedId === songId);
+      if (actualSong) {
+        (window as any).musicPlayerControls.playSong(String(actualSong.id));
+      }
+    }
   };
 
   const handleAlbumPlayPause = () => {
@@ -65,6 +75,12 @@ export const Library = () => {
       const firstSong = displaySongs[0];
       const firstId = 'formattedId' in firstSong ? firstSong.formattedId : firstSong.id;
       setPlayingSongId(firstId);
+      
+      // Use the global music player controls for album playback
+      if ((window as any).musicPlayerControls && tracks.length > 0) {
+        const trackIds = tracks.map(t => String(t.id));
+        (window as any).musicPlayerControls.playPlaylist(trackIds);
+      }
     } else {
       setPlayingSongId(null);
     }
@@ -74,41 +90,29 @@ export const Library = () => {
     <section id="library" className="p-6">
       <Card className="bg-gradient-to-br from-[#222222]/90 to-[#1a1a1a]/90 border-white/10 backdrop-blur-lg shadow-2xl">
         <CardContent className="p-6">
-          {!loading && (
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold text-white">Music Library</h2>
-                <div className="flex items-center gap-3">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-white hover:text-[#1EAEDB] transition-colors group"
-                    onClick={handleAlbumPlayPause}
-                  >
-                    {isAlbumPlaying ? (
-                      <Pause className="h-5 w-5 group-hover:scale-110 transition-transform duration-200" />
-                    ) : (
-                      <Play className="h-5 w-5 group-hover:scale-110 transition-transform duration-200" />
-                    )}
-                    <span className="ml-2">{isAlbumPlaying ? 'Pause All' : 'Play All'}</span>
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-white hover:text-[#1EAEDB] transition-colors"
-                    onClick={() => setIsExpanded(!isExpanded)}
-                  >
-                    <ChevronDown 
-                      className={`h-4 w-4 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`} 
-                    />
-                  </Button>
-                </div>
-              </div>
-              
-              {isExpanded && (
-                <>
+              {!loading && (
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h2 className="text-2xl font-bold text-white">Music Library</h2>
+                    <div className="flex items-center gap-3">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-white hover:text-[#1EAEDB] transition-colors group"
+                        onClick={handleAlbumPlayPause}
+                      >
+                        {isAlbumPlaying ? (
+                          <Pause className="h-5 w-5 group-hover:scale-110 transition-transform duration-200" />
+                        ) : (
+                          <Play className="h-5 w-5 group-hover:scale-110 transition-transform duration-200" />
+                        )}
+                        <span className="ml-2">{isAlbumPlaying ? 'Pause All' : 'Play All'}</span>
+                      </Button>
+                    </div>
+                  </div>
+                  
                   <div className="space-y-2">
-                    {displaySongs.slice(0, 8).map((song) => {
+                    {songsToShow.map((song) => {
                       const songId = 'formattedId' in song ? song.formattedId : song.id;
                       const isPlaying = songId === playingSongId;
                       const canPlay = !song.isPremium || checkFeatureAccess('premiumContent');
@@ -173,19 +177,17 @@ export const Library = () => {
                     })}
                   </div>
 
-                  {displaySongs.length > 8 && (
+                  {hasMoreSongs && (
                     <Button
                       variant="ghost"
                       className="w-full text-white hover:text-[#1EAEDB] transition-colors"
                       onClick={() => setIsExpanded(!isExpanded)}
                     >
-                      Show All ({displaySongs.length} songs)
+                      {isExpanded ? 'Show Less' : `Show All (${displaySongs.length} songs)`}
                     </Button>
                   )}
-                </>
+                </div>
               )}
-            </div>
-          )}
         </CardContent>
       </Card>
     </section>
