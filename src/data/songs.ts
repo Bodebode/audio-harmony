@@ -17,4 +17,12 @@ export const songs: Song[] = [
     audioUrl: "/songs/Love-2.mp3",
     duration: "0:00" // Will be updated by audio element
   },
+  {
+    id: 2,
+    title: "Fire",
+    artist: "Bode Nathaniel",
+    artwork: "/lovable-uploads/fire-artwork.png",
+    audioUrl: "/songs/Fire.mp3",
+    duration: "0:00" // Will be updated by audio element
+  },
 ];
