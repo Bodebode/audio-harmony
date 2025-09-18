@@ -6,7 +6,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { LyricsDisplay } from "./LyricsDisplay";
 import { FullScreenPlayer } from "./FullScreenPlayer";
 import { PremiumFeature } from "./premium/PremiumFeature";
@@ -17,11 +17,11 @@ import { useGestures } from "@/hooks/useGestures";
 const songs = [
   {
     id: 1,
-    title: "Afrobeat Fusion",
+    title: "Love 2",
     artist: "Bode Nathaniel",
     artwork: "/lovable-uploads/74cb0a2d-58c7-4be3-a188-27a043b76a3d.png",
-    
-    duration: "3:45"
+    audioUrl: "/songs/Love-2.mp3",
+    duration: "0:00" // Will be updated by audio element
   },
 ];
 
@@ -37,44 +37,85 @@ export const MusicPlayer = () => {
   const [isShuffleOn, setIsShuffleOn] = useState(false);
   const [repeatMode, setRepeatMode] = useState<RepeatMode>("none");
   const [isFullScreen, setIsFullScreen] = useState(false);
+  const [duration, setDuration] = useState(0);
   const { checkFeatureAccess, limits } = usePremium();
   
   // Track skips for free users
   const [skipsThisHour, setSkipsThisHour] = useState(0);
   const [lastSkipReset, setLastSkipReset] = useState(Date.now());
 
+  const audioRef = useRef<HTMLAudioElement>(null);
   const currentSong = songs[currentSongIndex];
 
-  // Animate progress bar when playing
+  // Initialize audio element
   useEffect(() => {
-    let intervalId: NodeJS.Timeout;
-    
-    if (isPlaying) {
-      intervalId = setInterval(() => {
-        setSongProgress(prev => {
-          const newProgress = prev + (100 / (3.75 * 60)); // 3:45 song duration
-          return newProgress >= 100 ? 0 : newProgress;
-        });
-      }, 1000);
-    }
-    
-    return () => {
-      if (intervalId) {
-        clearInterval(intervalId);
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    const handleTimeUpdate = () => {
+      const currentTime = audio.currentTime;
+      const duration = audio.duration;
+      if (duration > 0) {
+        const progressPercent = (currentTime / duration) * 100;
+        setSongProgress(progressPercent);
       }
     };
+
+    const handleLoadedMetadata = () => {
+      setDuration(audio.duration);
+    };
+
+    const handleEnded = () => {
+      if (repeatMode === "one") {
+        audio.currentTime = 0;
+        audio.play();
+      } else {
+        handleNext();
+      }
+    };
+
+    audio.addEventListener('timeupdate', handleTimeUpdate);
+    audio.addEventListener('loadedmetadata', handleLoadedMetadata);
+    audio.addEventListener('ended', handleEnded);
+
+    return () => {
+      audio.removeEventListener('timeupdate', handleTimeUpdate);
+      audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
+      audio.removeEventListener('ended', handleEnded);
+    };
+  }, [currentSongIndex, repeatMode]);
+
+  // Handle play/pause state changes
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    if (isPlaying) {
+      audio.play().catch(console.error);
+    } else {
+      audio.pause();
+    }
   }, [isPlaying]);
+
+  // Handle volume changes
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (audio) {
+      audio.volume = volume[0] / 100;
+    }
+  }, [volume]);
 
   const togglePlay = () => {
     setIsPlaying(!isPlaying);
-    if (!isPlaying) {
-      setSongProgress(0); // Reset progress when starting
-    }
   };
 
   const handleProgressChange = (value: number) => {
-    setSongProgress(value);
-    setProgress([value]);
+    const audio = audioRef.current;
+    if (audio && duration > 0) {
+      const newTime = (value / 100) * duration;
+      audio.currentTime = newTime;
+      setSongProgress(value);
+    }
   };
 
   const toggleShuffle = () => {
@@ -188,6 +229,13 @@ export const MusicPlayer = () => {
 
   return (
     <>
+      {/* Hidden audio element */}
+      <audio
+        ref={audioRef}
+        src={currentSong.audioUrl}
+        preload="auto"
+      />
+      
       <section id="now-playing" className="p-4">
         <Card className="bg-black/40 backdrop-blur-lg border-[#1EAEDB]/10 animate-fade-in hover:border-[#1EAEDB]/20 transition-all duration-300">
           <CardContent className="p-4">
@@ -237,10 +285,10 @@ export const MusicPlayer = () => {
                        step={0.5}
                        className="w-full [&>span[role=slider]]:h-6 [&>span[role=slider]]:w-6 md:[&>span[role=slider]]:h-4 md:[&>span[role=slider]]:w-4"
                      />
-                     <div className="flex justify-between text-sm text-[#F2FCE2]">
-                       <span>{Math.floor((songProgress / 100) * 225)}s</span>
-                       <span>{currentSong.duration}</span>
-                     </div>
+                      <div className="flex justify-between text-sm text-[#F2FCE2]">
+                        <span>{Math.floor((songProgress / 100) * duration)}s</span>
+                        <span>{Math.floor(duration)}s</span>
+                      </div>
                    </div>
                    
                     {/* Mobile-optimized controls with larger touch targets */}
