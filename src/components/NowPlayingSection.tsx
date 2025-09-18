@@ -99,7 +99,7 @@ export const NowPlayingSection = () => {
   return (
     <section id="now-playing-section" className="p-6">
       <Card className="glass-card bg-gradient-to-br from-[#0A0A0A]/40 to-[#1A1A2E]/40 backdrop-blur-xl border border-white/10">
-        <CardContent className="p-6 md:p-8" ref={gestureRef as React.RefObject<HTMLDivElement>}>
+        <CardContent className="p-4 md:p-6" ref={gestureRef as React.RefObject<HTMLDivElement>}>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Left Side - Album Art and Song Info */}
             <div className="flex flex-col items-center">
@@ -116,8 +116,7 @@ export const NowPlayingSection = () => {
                 <h1 className="text-2xl md:text-3xl font-bold text-[#FEF7CD] mb-2">
                   {currentSong.title}
                 </h1>
-                <p className="text-lg text-[#F2FCE2]/70 mb-4">{currentSong.artist}</p>
-                <p className="text-sm text-[#F2FCE2]/50">Album • {new Date().getFullYear()}</p>
+                <p className="text-lg text-[#F2FCE2]/70">{currentSong.artist}</p>
               </div>
             </div>
 
@@ -144,8 +143,8 @@ export const NowPlayingSection = () => {
                   variant="ghost"
                   size="lg"
                   onClick={() => setIsShuffleOn(!isShuffleOn)}
-                  className={`h-12 w-12 p-0 ${
-                    isShuffleOn ? 'text-[#1EAEDB]' : 'text-[#F2FCE2]/70 hover:text-[#F2FCE2]'
+                  className={`h-12 w-12 p-0 hover:bg-[#1EAEDB]/20 hover:text-[#1EAEDB] ${
+                    isShuffleOn ? 'text-[#1EAEDB]' : 'text-[#F2FCE2]/70'
                   }`}
                 >
                   <Shuffle className="h-6 w-6" />
@@ -155,7 +154,7 @@ export const NowPlayingSection = () => {
                   variant="ghost"
                   size="lg"
                   onClick={previousSong}
-                  className="h-12 w-12 p-0 text-[#F2FCE2]/70 hover:text-[#F2FCE2]"
+                  className="h-12 w-12 p-0 text-[#F2FCE2]/70 hover:bg-[#1EAEDB]/20 hover:text-[#1EAEDB]"
                 >
                   <SkipBack className="h-6 w-6" />
                 </Button>
@@ -173,7 +172,7 @@ export const NowPlayingSection = () => {
                   variant="ghost"
                   size="lg"
                   onClick={nextSong}
-                  className="h-12 w-12 p-0 text-[#F2FCE2]/70 hover:text-[#F2FCE2]"
+                  className="h-12 w-12 p-0 text-[#F2FCE2]/70 hover:bg-[#1EAEDB]/20 hover:text-[#1EAEDB]"
                 >
                   <SkipForward className="h-6 w-6" />
                 </Button>
@@ -182,8 +181,8 @@ export const NowPlayingSection = () => {
                   variant="ghost"
                   size="lg"
                   onClick={cycleRepeatMode}
-                  className={`h-12 w-12 p-0 ${
-                    repeatMode !== "none" ? 'text-[#1EAEDB]' : 'text-[#F2FCE2]/70 hover:text-[#F2FCE2]'
+                  className={`h-12 w-12 p-0 hover:bg-[#1EAEDB]/20 hover:text-[#1EAEDB] ${
+                    repeatMode !== "none" ? 'text-[#1EAEDB]' : 'text-[#F2FCE2]/70'
                   }`}
                 >
                   {(() => {
@@ -199,8 +198,8 @@ export const NowPlayingSection = () => {
                   variant="ghost"
                   size="sm"
                   onClick={handleLike}
-                  className={`h-10 w-10 p-0 ${
-                    isLiked(currentSong.id) ? 'text-red-500' : 'text-[#F2FCE2]/70 hover:text-[#F2FCE2]'
+                  className={`h-10 w-10 p-0 hover:bg-[#1EAEDB]/20 hover:text-[#1EAEDB] ${
+                    isLiked(currentSong.id) ? 'text-red-500' : 'text-[#F2FCE2]/70'
                   }`}
                 >
                   <Heart className={`h-5 w-5 ${isLiked(currentSong.id) ? 'fill-current' : ''}`} />
@@ -209,7 +208,7 @@ export const NowPlayingSection = () => {
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="h-10 w-10 p-0 text-[#F2FCE2]/70 hover:text-[#F2FCE2]"
+                  className="h-10 w-10 p-0 text-[#F2FCE2]/70 hover:bg-[#1EAEDB]/20 hover:text-[#1EAEDB]"
                 >
                   <Download className="h-5 w-5" />
                 </Button>
@@ -217,7 +216,7 @@ export const NowPlayingSection = () => {
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="h-10 w-10 p-0 text-[#F2FCE2]/70 hover:text-[#F2FCE2]"
+                  className="h-10 w-10 p-0 text-[#F2FCE2]/70 hover:bg-[#1EAEDB]/20 hover:text-[#1EAEDB]"
                 >
                   <Share className="h-5 w-5" />
                 </Button>
@@ -225,7 +224,7 @@ export const NowPlayingSection = () => {
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="h-10 w-10 p-0 text-[#F2FCE2]/70 hover:text-[#F2FCE2]"
+                  className="h-10 w-10 p-0 text-[#F2FCE2]/70 hover:bg-[#1EAEDB]/20 hover:text-[#1EAEDB]"
                 >
                   <MoreHorizontal className="h-5 w-5" />
                 </Button>
@@ -237,7 +236,7 @@ export const NowPlayingSection = () => {
                   variant="ghost"
                   size="sm"
                   onClick={() => setVolume(volume[0] === 0 ? [75] : [0])}
-                  className="h-10 w-10 p-0 text-[#F2FCE2]/70 hover:text-[#F2FCE2]"
+                  className="h-10 w-10 p-0 text-[#F2FCE2]/70 hover:bg-[#1EAEDB]/20 hover:text-[#1EAEDB]"
                 >
                   {(() => {
                     const VolumeIcon = getVolumeIcon();
@@ -261,7 +260,7 @@ export const NowPlayingSection = () => {
                 <Button
                   variant="ghost"
                   onClick={() => setShowLyrics(!showLyrics)}
-                  className="text-[#F2FCE2]/70 hover:text-[#F2FCE2] gap-2"
+                  className="text-[#F2FCE2]/70 hover:bg-[#1EAEDB]/20 hover:text-[#1EAEDB] gap-2"
                 >
                   {showLyrics ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                   {showLyrics ? "Hide Lyrics" : "Show Lyrics"}

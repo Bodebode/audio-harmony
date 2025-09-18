@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useAudio } from "@/contexts/AudioContext";
 
 interface LyricsDisplayProps {
   isPlaying: boolean;
@@ -65,28 +66,14 @@ const sampleLyrics = [
 ];
 
 export const LyricsDisplay = ({ isPlaying, songId }: LyricsDisplayProps) => {
-  const [currentTime, setCurrentTime] = useState(0);
   const [currentLineIndex, setCurrentLineIndex] = useState(0);
+  const { songProgress, duration } = useAudio();
 
+  // Calculate real current time from audio progress
+  const currentTime = (songProgress * duration) / 100;
+
+  // Reset when song changes
   useEffect(() => {
-    let intervalId: NodeJS.Timeout;
-    
-    if (isPlaying) {
-      intervalId = setInterval(() => {
-        setCurrentTime(prev => prev + 0.1);
-      }, 100);
-    }
-
-    return () => {
-      if (intervalId) {
-        clearInterval(intervalId);
-      }
-    };
-  }, [isPlaying]);
-
-  useEffect(() => {
-    // Reset when song changes
-    setCurrentTime(0);
     setCurrentLineIndex(0);
   }, [songId]);
 
@@ -105,7 +92,7 @@ export const LyricsDisplay = ({ isPlaying, songId }: LyricsDisplayProps) => {
   }, [currentTime, currentLineIndex]);
 
   return (
-    <div className="h-40 overflow-hidden bg-black/20 rounded p-4 relative">
+    <div className="h-32 overflow-hidden bg-black/20 rounded p-4 relative">
       <div 
         className="transition-transform duration-1000 ease-in-out space-y-2"
         style={{
