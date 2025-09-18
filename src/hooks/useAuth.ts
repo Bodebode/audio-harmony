@@ -10,6 +10,12 @@ interface Profile {
   avatar_url: string | null;
   is_premium: boolean;
   premium_expires_at: string | null;
+  stripe_customer_id: string | null;
+  stripe_subscription_id: string | null;
+  stripe_subscription_status: string | null;
+  payment_method: string | null;
+  paypal_subscription_id: string | null;
+  paypal_subscription_status: string | null;
   created_at: string;
   updated_at: string;
 }

@@ -26,6 +26,8 @@ export type Database = {
           paypal_subscription_status: string | null
           premium_expires_at: string | null
           stripe_customer_id: string | null
+          stripe_subscription_id: string | null
+          stripe_subscription_status: string | null
           updated_at: string
           user_id: string
         }
@@ -40,6 +42,8 @@ export type Database = {
           paypal_subscription_status?: string | null
           premium_expires_at?: string | null
           stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          stripe_subscription_status?: string | null
           updated_at?: string
           user_id: string
         }
@@ -54,6 +58,8 @@ export type Database = {
           paypal_subscription_status?: string | null
           premium_expires_at?: string | null
           stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          stripe_subscription_status?: string | null
           updated_at?: string
           user_id?: string
         }
