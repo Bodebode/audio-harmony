@@ -192,7 +192,10 @@ export const MusicPlayer = () => {
                     repeatMode !== "none" ? 'text-[#1EAEDB]' : 'text-[#F2FCE2]/70 hover:text-[#F2FCE2]'
                   }`}
                 >
-                  {getRepeatIcon()({ className: "h-4 w-4" })}
+                  {(() => {
+                    const RepeatIcon = getRepeatIcon();
+                    return <RepeatIcon className="h-4 w-4" />;
+                  })()}
                 </Button>
 
                 {/* Volume - Hidden on mobile */}
