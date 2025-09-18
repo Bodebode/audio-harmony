@@ -38,6 +38,12 @@ export const MusicPlayer = () => {
   const { likedSongs, toggleLikeSong, isLiked } = useLikedSongs();
   const { toast } = useToast();
   
+  // Stabilize external refs to avoid effect re-runs
+  const analyticsRef = useRef(trackAnalytics);
+  const toastRef = useRef(toast);
+  useEffect(() => { analyticsRef.current = trackAnalytics; }, [trackAnalytics]);
+  useEffect(() => { toastRef.current = toast; }, [toast]);
+  
   // Track skips for free users
   const [skipsThisHour, setSkipsThisHour] = useState(0);
   const [lastSkipReset, setLastSkipReset] = useState(Date.now());
