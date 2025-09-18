@@ -85,7 +85,7 @@ export const MusicPlayer = () => {
       const updateDuration = () => setDuration(audio.duration || 0);
       const handleEnded = () => {
         setIsPlaying(false);
-        trackAnalytics({
+        analyticsRef.current({
           name: 'play_completed',
           properties: {
             track_id: currentTrack.id,
@@ -98,7 +98,7 @@ export const MusicPlayer = () => {
       const handleError = (e: Event) => {
         console.error('Audio error for track:', currentTrack.title, e);
         setIsPlaying(false);
-        toast({
+        toastRef.current({
           title: "Playback Error",
           description: `Unable to play "${currentTrack.title}". Trying next track...`,
           variant: "destructive",
@@ -112,17 +112,11 @@ export const MusicPlayer = () => {
         console.log('Loading track:', currentTrack.title);
       };
 
-      // Sync UI state to audio state
-      const syncPlay = () => setIsPlaying(true);
-      const syncPause = () => setIsPlaying(false);
-
       audio.addEventListener('timeupdate', updateTime);
       audio.addEventListener('loadedmetadata', updateDuration);
       audio.addEventListener('ended', handleEnded);
       audio.addEventListener('error', handleError);
       audio.addEventListener('loadstart', handleLoadStart);
-      audio.addEventListener('play', syncPlay);
-      audio.addEventListener('pause', syncPause);
 
       audio.volume = volume[0] / 100;
       audio.preload = 'auto';
@@ -136,78 +130,19 @@ export const MusicPlayer = () => {
         audio.removeEventListener('ended', handleEnded);
         audio.removeEventListener('error', handleError);
         audio.removeEventListener('loadstart', handleLoadStart);
-        audio.removeEventListener('play', syncPlay);
-        audio.removeEventListener('pause', syncPause);
         audio.pause();
       };
     } catch (error) {
       console.error('Failed to create audio element:', error);
-      toast({
+      toastRef.current({
         title: "Audio Error",
         description: "Failed to initialize audio player",
         variant: "destructive",
       });
     }
-  }, [currentTrack?.id, trackAnalytics, toast]);
+  }, [currentTrack?.id]);
 
-  // Handle play/pause state changes with retry logic
-  useEffect(() => {
-    if (!audioRef.current || !currentTrack) return;
-
-    const audio = audioRef.current;
-    
-    if (isPlaying) {
-      // Check if audio is ready to play
-      const attemptPlay = async () => {
-        try {
-          if (audio.readyState >= 2) { // HAVE_CURRENT_DATA
-            await audio.play();
-            trackAnalytics({
-              name: 'play_started',
-              properties: {
-                track_id: currentTrack.id,
-                position_ms: Math.floor(currentTime * 1000),
-              },
-            });
-          } else {
-            // Wait for audio to be ready
-            const onCanPlay = async () => {
-              try {
-                await audio.play();
-                trackAnalytics({
-                  name: 'play_started',
-                  properties: {
-                    track_id: currentTrack.id,
-                    position_ms: Math.floor(currentTime * 1000),
-                  },
-                });
-              } catch (error) {
-                console.error('Play failed after canplay:', error);
-                setIsPlaying(false);
-              }
-              audio.removeEventListener('canplay', onCanPlay);
-            };
-            audio.addEventListener('canplay', onCanPlay);
-          }
-        } catch (error) {
-          console.error('Play failed:', error);
-          setIsPlaying(false);
-          if (error.name !== 'AbortError') {
-            toast({
-              title: "Playback Error",
-              description: "Unable to start playback. Please try again.",
-              variant: "destructive",
-              duration: 2000,
-            });
-          }
-        }
-      };
-      
-      attemptPlay();
-    } else {
-      audio.pause();
-    }
-  }, [isPlaying, currentTrack?.id, trackAnalytics, currentTime, toast]);
+  // Removed conflicting play/pause effect - togglePlay is now the single source of truth
 
   // Handle volume changes
   useEffect(() => {
@@ -223,7 +158,7 @@ export const MusicPlayer = () => {
     setTimeout(() => (playLockRef.current = false), 350);
 
     if (!currentTrack?.audio_file_url) {
-      toast({
+      toastRef.current({
         title: "No Audio",
         description: "This track doesn't have an audio file available",
         variant: "destructive",
@@ -238,13 +173,30 @@ export const MusicPlayer = () => {
     if (audio.paused) {
       const id = ++playRequestId.current;
       try {
+        setIsPlaying(true);
         if (audio.readyState >= 2) {
           await audio.play();
+          analyticsRef.current({
+            name: 'play_started',
+            properties: {
+              track_id: currentTrack.id,
+              position_ms: Math.floor(currentTime * 1000),
+            },
+          });
         } else {
           const onCanPlay = async () => {
             if (playRequestId.current !== id) return; // Stale request
             try {
               await audio.play();
+              analyticsRef.current({
+                name: 'play_started',
+                properties: {
+                  track_id: currentTrack.id,
+                  position_ms: Math.floor(currentTime * 1000),
+                },
+              });
+            } catch (error) {
+              setIsPlaying(false);
             } finally {
               audio.removeEventListener('canplay', onCanPlay);
             }
@@ -253,7 +205,8 @@ export const MusicPlayer = () => {
         }
       } catch (error) {
         console.error('Play failed:', error);
-        toast({
+        setIsPlaying(false);
+        toastRef.current({
           title: "Playback Error",
           description: "Unable to start playback. Please try again.",
           variant: "destructive",
@@ -262,6 +215,7 @@ export const MusicPlayer = () => {
       }
     } else {
       audio.pause();
+      setIsPlaying(false);
     }
   };
 
