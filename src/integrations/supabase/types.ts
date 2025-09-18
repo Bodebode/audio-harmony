@@ -10,122 +10,17 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "13.0.4"
+    PostgrestVersion: "13.0.5"
   }
   public: {
     Tables: {
-      profiles: {
-        Row: {
-          avatar_url: string | null
-          created_at: string
-          display_name: string | null
-          id: string
-          is_premium: boolean
-          payment_method: string | null
-          paypal_subscription_id: string | null
-          paypal_subscription_status: string | null
-          premium_expires_at: string | null
-          stripe_customer_id: string | null
-          stripe_subscription_id: string | null
-          stripe_subscription_status: string | null
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          avatar_url?: string | null
-          created_at?: string
-          display_name?: string | null
-          id?: string
-          is_premium?: boolean
-          payment_method?: string | null
-          paypal_subscription_id?: string | null
-          paypal_subscription_status?: string | null
-          premium_expires_at?: string | null
-          stripe_customer_id?: string | null
-          stripe_subscription_id?: string | null
-          stripe_subscription_status?: string | null
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          avatar_url?: string | null
-          created_at?: string
-          display_name?: string | null
-          id?: string
-          is_premium?: boolean
-          payment_method?: string | null
-          paypal_subscription_id?: string | null
-          paypal_subscription_status?: string | null
-          premium_expires_at?: string | null
-          stripe_customer_id?: string | null
-          stripe_subscription_id?: string | null
-          stripe_subscription_status?: string | null
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
-      tips: {
-        Row: {
-          amount: number
-          created_at: string
-          currency: string
-          id: string
-          message: string | null
-          payment_method: string
-          paypal_order_id: string | null
-          status: string
-          stripe_payment_intent_id: string | null
-          supporter_email: string | null
-          supporter_name: string | null
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          amount: number
-          created_at?: string
-          currency?: string
-          id?: string
-          message?: string | null
-          payment_method?: string
-          paypal_order_id?: string | null
-          status?: string
-          stripe_payment_intent_id?: string | null
-          supporter_email?: string | null
-          supporter_name?: string | null
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          amount?: number
-          created_at?: string
-          currency?: string
-          id?: string
-          message?: string | null
-          payment_method?: string
-          paypal_order_id?: string | null
-          status?: string
-          stripe_payment_intent_id?: string | null
-          supporter_email?: string | null
-          supporter_name?: string | null
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      is_payment_field_update: {
-        Args: Record<PropertyKey, never>
-        Returns: boolean
-      }
-      validate_tip_access: {
-        Args: { tip_user_id: string }
-        Returns: boolean
-      }
+      [_ in never]: never
     }
     Enums: {
       [_ in never]: never
