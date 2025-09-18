@@ -48,7 +48,7 @@ const Auth = () => {
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    await signIn(email, password);
+    const { error } = await signIn(email, password);
     setIsLoading(false);
   };
 
@@ -121,7 +121,7 @@ const Auth = () => {
             <div className="relative mb-6">
               <Separator className="bg-white/20" />
               <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-gradient-to-br from-[#0FA0CE] via-[#222222] to-[#1EAEDB] px-3">
-                <span className="text-white/70 text-sm">or sign in with account</span>
+                <span className="text-white/70 text-xs sm:text-sm">or sign in with account</span>
               </div>
             </div>
 

@@ -137,7 +137,12 @@ export const useAuth = () => {
       password
     });
 
-    // Silent - let UI handle auth state changes
+    if (error) {
+      toast({
+        description: "Invalid email or password. Please try again.",
+        variant: "destructive",
+      });
+    }
 
     return { error };
   };
