@@ -1,7 +1,6 @@
 import { 
   Play, Pause, SkipBack, SkipForward, Volume2, Volume1, VolumeX, 
-  Shuffle, Repeat, Repeat1, Heart, Download, Share, MoreHorizontal,
-  ChevronDown, ChevronUp
+  Repeat, Repeat1, Heart, ChevronDown, ChevronUp
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -31,8 +30,6 @@ export const NowPlayingSection = () => {
     togglePlay, 
     nextSong, 
     previousSong, 
-    isShuffleOn, 
-    setIsShuffleOn, 
     repeatMode, 
     setRepeatMode
   } = useAudio();
@@ -142,12 +139,12 @@ export const NowPlayingSection = () => {
                 <Button
                   variant="ghost"
                   size="lg"
-                  onClick={() => setIsShuffleOn(!isShuffleOn)}
+                  onClick={handleLike}
                   className={`h-12 w-12 p-0 hover:bg-[#1EAEDB]/20 hover:text-[#1EAEDB] ${
-                    isShuffleOn ? 'text-[#1EAEDB]' : 'text-[#F2FCE2]/70'
+                    isLiked(currentSong.id) ? 'text-red-500' : 'text-[#F2FCE2]/70'
                   }`}
                 >
-                  <Shuffle className="h-6 w-6" />
+                  <Heart className={`h-6 w-6 ${isLiked(currentSong.id) ? 'fill-current' : ''}`} />
                 </Button>
 
                 <Button
@@ -189,44 +186,6 @@ export const NowPlayingSection = () => {
                     const RepeatIcon = getRepeatIcon();
                     return <RepeatIcon className="h-6 w-6" />;
                   })()}
-                </Button>
-              </div>
-
-              {/* Secondary Controls */}
-              <div className="flex items-center justify-center gap-6">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleLike}
-                  className={`h-10 w-10 p-0 hover:bg-[#1EAEDB]/20 hover:text-[#1EAEDB] ${
-                    isLiked(currentSong.id) ? 'text-red-500' : 'text-[#F2FCE2]/70'
-                  }`}
-                >
-                  <Heart className={`h-5 w-5 ${isLiked(currentSong.id) ? 'fill-current' : ''}`} />
-                </Button>
-
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-10 w-10 p-0 text-[#F2FCE2]/70 hover:bg-[#1EAEDB]/20 hover:text-[#1EAEDB]"
-                >
-                  <Download className="h-5 w-5" />
-                </Button>
-
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-10 w-10 p-0 text-[#F2FCE2]/70 hover:bg-[#1EAEDB]/20 hover:text-[#1EAEDB]"
-                >
-                  <Share className="h-5 w-5" />
-                </Button>
-
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-10 w-10 p-0 text-[#F2FCE2]/70 hover:bg-[#1EAEDB]/20 hover:text-[#1EAEDB]"
-                >
-                  <MoreHorizontal className="h-5 w-5" />
                 </Button>
               </div>
 

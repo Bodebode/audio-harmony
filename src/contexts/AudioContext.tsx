@@ -27,9 +27,7 @@ interface AudioContextType {
   setVolume: (volume: number[]) => void;
   handleProgressChange: (value: number[]) => void;
   
-  // Shuffle and repeat
-  isShuffleOn: boolean;
-  setIsShuffleOn: (shuffle: boolean) => void;
+  // Repeat mode
   repeatMode: RepeatMode;
   setRepeatMode: (mode: RepeatMode) => void;
   
@@ -45,7 +43,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [songProgress, setSongProgress] = useState(0);
   const [currentSongIndex, setCurrentSongIndex] = useState(0);
   const [currentPlaylist, setCurrentPlaylist] = useState<number[] | null>(null);
-  const [isShuffleOn, setIsShuffleOn] = useState(false);
+  
   const [repeatMode, setRepeatMode] = useState<RepeatMode>("none");
   const [duration, setDuration] = useState(0);
   const { checkFeatureAccess } = usePremium();
@@ -158,18 +156,10 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const getNextSongIndex = useCallback((): number => {
     if (!currentPlaylist) return currentSongIndex;
     
-    if (isShuffleOn) {
-      let nextIndex;
-      do {
-        nextIndex = Math.floor(Math.random() * currentPlaylist.length);
-      } while (nextIndex === currentSongIndex && currentPlaylist.length > 1);
-      return songs.findIndex(song => song.id === currentPlaylist[nextIndex]);
-    }
-    
     const currentPlaylistIndex = currentPlaylist.findIndex(id => id === currentSong.id);
     const nextPlaylistIndex = (currentPlaylistIndex + 1) % currentPlaylist.length;
     return songs.findIndex(song => song.id === currentPlaylist[nextPlaylistIndex]);
-  }, [currentPlaylist, isShuffleOn, currentSongIndex, currentSong]);
+  }, [currentPlaylist, currentSongIndex, currentSong]);
 
   const nextSong = useCallback(() => {
     const nextIndex = getNextSongIndex();
@@ -225,8 +215,6 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     volume,
     setVolume,
     handleProgressChange,
-    isShuffleOn,
-    setIsShuffleOn,
     repeatMode,
     setRepeatMode,
     audioRef

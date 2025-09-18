@@ -1,6 +1,6 @@
 import { 
   Play, Pause, SkipBack, SkipForward, Volume2, Volume1, VolumeX, 
-  Shuffle, Repeat, Repeat1, Maximize2, Crown, Download 
+  Repeat, Repeat1, Maximize2, Crown
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -27,8 +27,6 @@ export const MiniMusicPlayer = () => {
     togglePlay, 
     nextSong, 
     previousSong, 
-    isShuffleOn, 
-    setIsShuffleOn, 
     repeatMode, 
     setRepeatMode,
     audioRef
@@ -190,17 +188,6 @@ export const MiniMusicPlayer = () => {
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => setIsShuffleOn(!isShuffleOn)}
-                  className={`h-7 w-7 p-0 ${
-                    isShuffleOn ? 'text-[#1EAEDB]' : 'text-[#F2FCE2]/70 hover:text-[#F2FCE2]'
-                  }`}
-                >
-                  <Shuffle className="h-3.5 w-3.5" />
-                </Button>
-                
-                <Button
-                  variant="ghost"
-                  size="sm"
                   onClick={cycleRepeatMode}
                   className={`h-7 w-7 p-0 ${
                     repeatMode !== "none" ? 'text-[#1EAEDB]' : 'text-[#F2FCE2]/70 hover:text-[#F2FCE2]'
@@ -235,15 +222,8 @@ export const MiniMusicPlayer = () => {
                 />
               </div>
 
-              {/* Right side controls */}
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-7 w-7 p-0 text-[#F2FCE2]/70 hover:text-[#F2FCE2]"
-                >
-                  <Download className="h-3.5 w-3.5" />
-                </Button>
+              {/* Right side controls - now empty for balance */}
+              <div className="flex items-center gap-2 w-7">
               </div>
             </div>
           </CardContent>
