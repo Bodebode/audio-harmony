@@ -206,7 +206,10 @@ export const MusicPlayer = () => {
                     onClick={() => setVolume(volume[0] === 0 ? [75] : [0])}
                     className="h-8 w-8 p-0 text-[#F2FCE2]/70 hover:text-[#F2FCE2]"
                   >
-                    {getVolumeIcon()({ className: "h-4 w-4" })}
+                    {(() => {
+                      const VolumeIcon = getVolumeIcon();
+                      return <VolumeIcon className="h-4 w-4" />;
+                    })()}
                   </Button>
                   <Slider
                     value={volume}
