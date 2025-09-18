@@ -2,51 +2,49 @@ import { PlayCircle, Heart, ChevronDown, Play, Pause, Crown, Lock } from "lucide
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { SkeletonGrid } from "@/components/ui/skeleton-loader";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useLikedSongs } from "@/hooks/useLikedSongs";
 import { usePremium } from "@/hooks/usePremium";
 import { useAuth } from "@/hooks/useAuth";
+import { useTracks } from "@/hooks/useTracks";
 import { PremiumFeature } from "./premium/PremiumFeature";
 
-
-const sampleSongs = [
-  { id: 1, title: "Afrobeat Fusion", duration: "3:45" },
-  { id: 2, title: "Lagos Nights", duration: "4:12" },
-  { id: 3, title: "Ancestral Voices", duration: "3:58" },
-  { id: 4, title: "Modern Traditions", duration: "4:23" },
-  { id: 5, title: "Unity Dance", duration: "3:41" },
-  { id: 6, title: "River Flow", duration: "4:07" },
-  { id: 7, title: "Rhythmic Soul", duration: "3:52" },
-  { id: 8, title: "Golden Dawn", duration: "4:18" },
-  // Premium-only content
-  { id: 9, title: "Exclusive Melody", duration: "3:33", isPremium: true },
-  { id: 10, title: "VIP Session", duration: "4:55", isPremium: true }
-] as Array<{ id: number; title: string; duration: string; isPremium?: boolean }>;
-
 export const Library = () => {
-  const [playingSongId, setPlayingSongId] = useState<number | null>(null);
+  const [playingSongId, setPlayingSongId] = useState<number | string | null>(null);
   const [isExpanded, setIsExpanded] = useState(true);
   const [isAlbumPlaying, setIsAlbumPlaying] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
   const { toggleLikeSong, isLiked } = useLikedSongs();
   const { checkFeatureAccess, limits } = usePremium();
   const { isGuest } = useAuth();
+  const { tracks, loading, error } = useTracks();
 
-  // Show all songs in main list, premium users can access all
-  const displaySongs = sampleSongs;
+  // Fallback to sample songs if no tracks loaded
+  const sampleSongs = [
+    { id: 1, title: "Afrobeat Fusion", duration: "3:45" },
+    { id: 2, title: "Lagos Nights", duration: "4:12" },
+    { id: 3, title: "Ancestral Voices", duration: "3:58" },
+    { id: 4, title: "Modern Traditions", duration: "4:23" },
+    { id: 5, title: "Unity Dance", duration: "3:41" },
+    { id: 6, title: "River Flow", duration: "4:07" },
+    { id: 7, title: "Rhythmic Soul", duration: "3:52" },
+    { id: 8, title: "Golden Dawn", duration: "4:18" },
+    // Premium-only content
+    { id: 9, title: "Exclusive Melody", duration: "3:33", isPremium: true },
+    { id: 10, title: "VIP Session", duration: "4:55", isPremium: true }
+  ];
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
-    
-    return () => {
-      clearTimeout(timer);
-    };
-  }, []);
+  // Use real tracks if available, otherwise use sample songs
+  const displaySongs = tracks.length > 0 ? tracks : sampleSongs;
 
-  const handlePlaySong = (songId: number) => {
-    const song = sampleSongs.find(s => s.id === songId);
+  if (loading) {
+    return <SkeletonGrid />;
+  }
+
+  const handlePlaySong = (songId: number | string) => {
+    const song = displaySongs.find(s => 
+      s.id === songId || 
+      ('formattedId' in s && s.formattedId === songId)
+    );
     
     // Check if it's a premium song and user doesn't have access
     if (song?.isPremium && !checkFeatureAccess('premiumContent')) {
@@ -64,7 +62,9 @@ export const Library = () => {
   const handleAlbumPlayPause = () => {
     setIsAlbumPlaying(!isAlbumPlaying);
     if (!isAlbumPlaying) {
-      setPlayingSongId(sampleSongs[0].id);
+      const firstSong = displaySongs[0];
+      const firstId = 'formattedId' in firstSong ? firstSong.formattedId : firstSong.id;
+      setPlayingSongId(firstId);
     } else {
       setPlayingSongId(null);
     }
@@ -72,117 +72,116 @@ export const Library = () => {
 
   return (
     <section id="library" className="p-6">
-      <Card className="glass-card gradient-mesh-1 relative overflow-hidden">
-        <div className="absolute inset-0 gradient-aurora opacity-50 animate-gentle-pulse pointer-events-none" />
-        
-        <CardContent className="p-6 relative z-10">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-3">
-              <h2 className="text-2xl font-bold text-[#FEF7CD] relative flex items-center gap-2">
-                Alkebulan
-                <div className="absolute -inset-1 bg-gradient-to-r from-[#1EAEDB]/20 via-transparent to-[#FEF7CD]/10 blur-sm -z-10 opacity-50" />
-              </h2>
-              <div className="flex items-center gap-1 text-xs">
-                {/* Audio quality indicator removed */}
-              </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={handleAlbumPlayPause}
-                disabled={isLoading}
-                className={`h-8 w-8 rounded-full transition-all duration-300 backdrop-blur-sm ${
-                  isAlbumPlaying 
-                    ? 'text-[#1EAEDB] bg-[#1EAEDB]/30 shadow-[0_0_20px_rgba(30,174,219,0.3)]' 
-                    : 'text-[#FEF7CD] hover:text-[#1EAEDB] hover:bg-[#1EAEDB]/20 hover:shadow-[0_0_15px_rgba(30,174,219,0.2)]'
-                }`}
-              >
-                {isAlbumPlaying ? (
-                  <Pause className="h-4 w-4" />
-                ) : (
-                  <Play className="h-4 w-4" />
-                )}
-              </Button>
-            </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setIsExpanded(!isExpanded)}
-              className="h-8 w-8 text-[#FEF7CD] hover:text-[#1EAEDB] hover:bg-[#1EAEDB]/20 transition-all duration-300 backdrop-blur-sm"
-            >
-              <ChevronDown 
-                className={`h-5 w-5 transition-transform duration-300 ${
-                  isExpanded ? 'rotate-180' : 'rotate-0'
-                }`} 
-              />
-            </Button>
-          </div>
-          
-          {isExpanded && (
-            <div className="space-y-2 animate-accordion-down">
-              {isLoading ? (
-                <SkeletonGrid count={8} className="animate-fade-in" />
-              ) : (
-                <>
-                  {displaySongs.map((song, index) => (
-                  <div
-                    key={song.id}
-                    className="glass-item group flex items-center justify-between p-3 rounded-lg cursor-pointer transform animate-fade-in gradient-mesh-2"
-                    style={{ animationDelay: `${index * 50}ms` }}
+      <Card className="bg-gradient-to-br from-[#222222]/90 to-[#1a1a1a]/90 border-white/10 backdrop-blur-lg shadow-2xl">
+        <CardContent className="p-6">
+          {!loading && (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h2 className="text-2xl font-bold text-white">Music Library</h2>
+                <div className="flex items-center gap-3">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-white hover:text-[#1EAEDB] transition-colors group"
+                    onClick={handleAlbumPlayPause}
                   >
-                    <div className="absolute inset-0 gradient-shimmer opacity-0 group-hover:opacity-100 rounded-lg" />
-                    
-                    <div className="flex items-center gap-3 relative z-10">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className={`h-8 w-8 rounded-full transition-all duration-300 backdrop-blur-sm ${
-                          playingSongId === song.id 
-                            ? 'text-[#1EAEDB] bg-[#1EAEDB]/30 animate-pulse shadow-[0_0_15px_rgba(30,174,219,0.4)]' 
-                            : 'text-[#F2FCE2] hover:text-[#1EAEDB] hover:bg-[#1EAEDB]/20 opacity-0 group-hover:opacity-100'
-                        }`}
-                        onClick={() => handlePlaySong(song.id)}
-                      >
-                        {song.isPremium && !checkFeatureAccess('premiumContent') ? (
-                          <Lock className="h-4 w-4" />
-                        ) : (
-                          <PlayCircle className="h-4 w-4" />
-                        )}
-                      </Button>
-                      <span className={`flex items-center gap-2 transition-all duration-300 ${
-                        playingSongId === song.id ? 'text-[#1EAEDB] font-medium' : 'text-[#F2FCE2] group-hover:text-[#FEF7CD]'
-                      }`}>
-                        {song.title}
-                        {song.isPremium && !checkFeatureAccess('premiumContent') && (
-                          <Crown className="h-3 w-3 text-yellow-500" />
-                        )}
-                      </span>
-                    </div>
-                    
-                    <div className="flex items-center gap-3 relative z-10">
-                      <span className="text-[#F2FCE2]/60 group-hover:text-[#F2FCE2]/90 transition-colors duration-300 text-sm font-mono">
-                        {song.duration}
-                      </span>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className={`h-8 w-8 transition-all duration-300 opacity-30 group-hover:opacity-100 backdrop-blur-sm ${
-                          isLiked(song.id) 
-                            ? 'text-red-500 hover:text-red-600 !opacity-100' 
-                            : 'text-[#F2FCE2] hover:text-red-500'
-                        }`}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          toggleLikeSong(song.id);
-                        }}
-                      >
-                        <Heart 
-                          className={`h-4 w-4 ${isLiked(song.id) ? 'fill-current' : ''}`} 
-                        />
-                      </Button>
-                    </div>
+                    {isAlbumPlaying ? (
+                      <Pause className="h-5 w-5 group-hover:scale-110 transition-transform duration-200" />
+                    ) : (
+                      <Play className="h-5 w-5 group-hover:scale-110 transition-transform duration-200" />
+                    )}
+                    <span className="ml-2">{isAlbumPlaying ? 'Pause All' : 'Play All'}</span>
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-white hover:text-[#1EAEDB] transition-colors"
+                    onClick={() => setIsExpanded(!isExpanded)}
+                  >
+                    <ChevronDown 
+                      className={`h-4 w-4 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`} 
+                    />
+                  </Button>
+                </div>
+              </div>
+              
+              {isExpanded && (
+                <>
+                  <div className="space-y-2">
+                    {displaySongs.slice(0, 8).map((song) => {
+                      const songId = 'formattedId' in song ? song.formattedId : song.id;
+                      const isPlaying = songId === playingSongId;
+                      const canPlay = !song.isPremium || checkFeatureAccess('premiumContent');
+                      
+                      return (
+                        <div 
+                          key={songId} 
+                          className="flex items-center justify-between p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-all duration-300 group border border-white/5"
+                        >
+                          <div className="flex items-center gap-3">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="p-2 h-auto text-white hover:text-[#1EAEDB] transition-colors group/play"
+                              onClick={() => canPlay ? handlePlaySong(songId) : null}
+                              disabled={!canPlay}
+                            >
+                              {!canPlay ? (
+                                <Lock className="h-4 w-4" />
+                              ) : isPlaying ? (
+                                <Pause 
+                                  className={`h-4 w-4 group-hover/play:scale-110 transition-transform duration-200 ${isPlaying ? 'animate-pulse' : ''}`}
+                                />
+                              ) : (
+                                <PlayCircle 
+                                  className="h-4 w-4 group-hover/play:scale-110 transition-transform duration-200"
+                                />
+                              )}
+                            </Button>
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <span className="text-white font-medium">{song.title}</span>
+                                {song.isPremium && <Crown className="h-3 w-3 text-yellow-500" />}
+                              </div>
+                              {song.isPremium && !checkFeatureAccess('premiumContent') && (
+                                <PremiumFeature feature="premiumContent">
+                                  <span className="text-xs text-yellow-500">Premium Only</span>
+                                </PremiumFeature>
+                              )}
+                            </div>
+                          </div>
+                          
+                          <div className="flex items-center gap-3">
+                            <span className="text-white/70 text-sm">{song.duration}</span>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className={`p-2 h-auto transition-colors ${
+                                isLiked(typeof songId === 'string' ? parseInt(songId) : songId) 
+                                  ? 'text-red-500 hover:text-red-400' 
+                                  : 'text-white/70 hover:text-red-400'
+                              }`}
+                              onClick={() => toggleLikeSong(typeof songId === 'string' ? parseInt(songId) : songId)}
+                            >
+                              <Heart 
+                                className={`h-4 w-4 ${isLiked(typeof songId === 'string' ? parseInt(songId) : songId) ? 'fill-current' : ''}`} 
+                              />
+                            </Button>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
-                  ))}
 
+                  {displaySongs.length > 8 && (
+                    <Button
+                      variant="ghost"
+                      className="w-full text-white hover:text-[#1EAEDB] transition-colors"
+                      onClick={() => setIsExpanded(!isExpanded)}
+                    >
+                      Show All ({displaySongs.length} songs)
+                    </Button>
+                  )}
                 </>
               )}
             </div>

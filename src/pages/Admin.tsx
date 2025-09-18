@@ -164,6 +164,28 @@ const Admin = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
+                {/* Quick Upload for Love.mp3 */}
+                <div className="p-4 border rounded-lg bg-blue-50 dark:bg-blue-900/20">
+                  <h3 className="font-semibold mb-2">Upload "Love.mp3" from uploads folder</h3>
+                  <Button
+                    onClick={async () => {
+                      try {
+                        const response = await fetch('/uploads/Love.mp3');
+                        if (!response.ok) throw new Error('File not found');
+                        
+                        const blob = await response.blob();
+                        const file = new File([blob], 'Love.mp3', { type: 'audio/mpeg' });
+                        
+                        await handleFileUpload(file);
+                      } catch (error) {
+                        console.error('Failed to upload Love.mp3:', error);
+                      }
+                    }}
+                  >
+                    Upload Love.mp3
+                  </Button>
+                </div>
+
                 {/* Release Information */}
                 <div className="space-y-4">
                   <h3 className="text-lg font-semibold">Release Information</h3>
