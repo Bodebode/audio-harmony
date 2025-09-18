@@ -1,5 +1,5 @@
 
-import { PlayCircle, User, Mail, Library, Heart, Crown, ChevronDown, Settings } from "lucide-react";
+import { PlayCircle, User, Mail, Library, Heart, Crown, ChevronDown } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { PremiumBadge } from "./premium/PremiumBadge";
@@ -50,11 +50,9 @@ const sidebarItems = [
 
 export const AppSidebar = () => {
   const { isPremiumActive } = usePremium();
-  const { isGuest, profile } = useAuth();
+  const { isGuest } = useAuth();
   const navigate = useNavigate();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  
-  const isAdmin = profile?.is_admin || profile?.role === 'admin';
 
   const handlePremiumClick = () => {
     navigate('/premium');
@@ -91,7 +89,7 @@ export const AppSidebar = () => {
             <SidebarMenu>
               {sidebarItems.map((item, index) => (
                 <SidebarMenuItem key={item.title} className="animate-fade-in" style={{ animationDelay: `${index * 0.1}s` }}>
-                  <SidebarMenuButton asChild className="hover:bg-[#1EAEDB]/20 hover-scale transition-all duration-300 group">
+                  <SidebarMenuButton className="hover:bg-[#1EAEDB]/20 hover-scale transition-all duration-300 group">
                     {item.isRoute ? (
                       <Link 
                         to={item.url} 
@@ -111,23 +109,8 @@ export const AppSidebar = () => {
                     )}
                   </SidebarMenuButton>
                 </SidebarMenuItem>
-               ))}
-               
-               {/* Admin Access */}
-               {isAdmin && (
-                 <SidebarMenuItem className="animate-fade-in" style={{ animationDelay: `${sidebarItems.length * 0.1}s` }}>
-                  <SidebarMenuButton asChild className="hover:bg-red-500/20 transition-all duration-300 group">
-                     <Link 
-                       to="/admin" 
-                       className="flex items-center gap-2 text-red-400 hover:text-red-300 font-medium w-full transition-all duration-300"
-                     >
-                       <Settings className="h-5 w-5 group-hover:scale-110 transition-transform duration-200" />
-                       <span className="group-hover:translate-x-1 transition-transform duration-200">Admin Panel</span>
-                     </Link>
-                   </SidebarMenuButton>
-                 </SidebarMenuItem>
-               )}
-               
+              ))}
+              
               {isGuest ? (
                 <SidebarMenuItem className="animate-fade-in" style={{ animationDelay: `${sidebarItems.length * 0.1}s` }}>
                   <SidebarMenuButton className="hover:bg-gradient-to-r hover:from-[#1EAEDB]/20 hover:to-[#0FA0CE]/20 transition-all duration-300 group">

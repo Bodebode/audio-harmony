@@ -6,13 +6,24 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { LyricsDisplay } from "./LyricsDisplay";
 import { FullScreenPlayer } from "./FullScreenPlayer";
 import { PremiumFeature } from "./premium/PremiumFeature";
 import { usePremium } from "@/hooks/usePremium";
-import { useTracks } from "@/hooks/useTracks";
+
 import { useGestures } from "@/hooks/useGestures";
+
+const songs = [
+  {
+    id: 1,
+    title: "Afrobeat Fusion",
+    artist: "Bode Nathaniel",
+    artwork: "/lovable-uploads/74cb0a2d-58c7-4be3-a188-27a043b76a3d.png",
+    
+    duration: "3:45"
+  },
+];
 
 type RepeatMode = "none" | "all" | "one";
 
@@ -22,41 +33,66 @@ export const MusicPlayer = () => {
   const [progress, setProgress] = useState([0]);
   const [songProgress, setSongProgress] = useState(0);
   const [currentSongIndex, setCurrentSongIndex] = useState(0);
-  const [currentPlaylist, setCurrentPlaylist] = useState<string[] | null>(null);
+  const [currentPlaylist, setCurrentPlaylist] = useState<number[] | null>(null);
   const [isShuffleOn, setIsShuffleOn] = useState(false);
   const [repeatMode, setRepeatMode] = useState<RepeatMode>("none");
   const [isFullScreen, setIsFullScreen] = useState(false);
-  const [audioLoading, setAudioLoading] = useState(false);
-  const [audioError, setAudioError] = useState(false);
   const { checkFeatureAccess, limits } = usePremium();
-  const { tracks, loading } = useTracks();
-  const audioRef = useRef<HTMLAudioElement>(null);
   
   // Track skips for free users
   const [skipsThisHour, setSkipsThisHour] = useState(0);
   const [lastSkipReset, setLastSkipReset] = useState(Date.now());
 
-  const currentSong = tracks[currentSongIndex] || {
-    id: "fallback",
-    title: "No Track Available",
-    duration: "0:00",
-    audio_file_url: null,
-    formattedId: 0
+  const currentSong = songs[currentSongIndex];
+
+  // Animate progress bar when playing
+  useEffect(() => {
+    let intervalId: NodeJS.Timeout;
+    
+    if (isPlaying) {
+      intervalId = setInterval(() => {
+        setSongProgress(prev => {
+          const newProgress = prev + (100 / (3.75 * 60)); // 3:45 song duration
+          return newProgress >= 100 ? 0 : newProgress;
+        });
+      }, 1000);
+    }
+    
+    return () => {
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
+    };
+  }, [isPlaying]);
+
+  const togglePlay = () => {
+    setIsPlaying(!isPlaying);
+    if (!isPlaying) {
+      setSongProgress(0); // Reset progress when starting
+    }
   };
 
-  const currentSongDisplay = {
-    id: currentSong.formattedId || 0,
-    title: currentSong.title,
-    artist: "Bode Nathaniel",
-    artwork: "/lovable-uploads/74cb0a2d-58c7-4be3-a188-27a043b76a3d.png",
-    duration: currentSong.duration
+  const handleProgressChange = (value: number) => {
+    setSongProgress(value);
+    setProgress([value]);
+  };
+
+  const toggleShuffle = () => {
+    setIsShuffleOn(!isShuffleOn);
+  };
+
+  const cycleRepeatMode = () => {
+    const modes: RepeatMode[] = ["none", "all", "one"];
+    const currentIndex = modes.indexOf(repeatMode);
+    const nextMode = modes[(currentIndex + 1) % modes.length];
+    setRepeatMode(nextMode);
   };
 
   const getNextSongIndex = useCallback(() => {
     if (repeatMode === "one") return currentSongIndex;
     
     if (!currentPlaylist) {
-      if (currentSongIndex === tracks.length - 1) {
+      if (currentSongIndex === songs.length - 1) {
         return repeatMode === "all" ? 0 : currentSongIndex;
       }
       return currentSongIndex + 1;
@@ -65,15 +101,28 @@ export const MusicPlayer = () => {
     const currentIndex = currentPlaylist.indexOf(currentSong.id);
     if (currentIndex < currentPlaylist.length - 1) {
       const nextSongId = currentPlaylist[currentIndex + 1];
-      const nextSongIndex = tracks.findIndex(song => song.id === nextSongId);
+      const nextSongIndex = songs.findIndex(song => song.id === nextSongId);
       return nextSongIndex !== -1 ? nextSongIndex : currentSongIndex;
     }
     
     return repeatMode === "all" ? 0 : currentSongIndex;
-  }, [currentSongIndex, currentPlaylist, currentSong.id, repeatMode, tracks]);
+  }, [currentSongIndex, currentPlaylist, currentSong.id, repeatMode]);
 
-  // Handle next song function with useCallback to prevent dependency loops
-  const handleNext = useCallback(() => {
+  const handlePrevious = () => {
+    if (!currentPlaylist) {
+      setCurrentSongIndex((prev) => (prev === 0 ? songs.length - 1 : prev - 1));
+      return;
+    }
+    
+    const currentIndex = currentPlaylist.indexOf(currentSong.id);
+    if (currentIndex > 0) {
+      const prevSongId = currentPlaylist[currentIndex - 1];
+      const prevSongIndex = songs.findIndex(song => song.id === prevSongId);
+      setCurrentSongIndex(prevSongIndex !== -1 ? prevSongIndex : 0);
+    }
+  };
+
+  const handleNext = () => {
     // Check skip limit for free users
     if (!checkFeatureAccess('unlimitedSkips')) {
       const now = Date.now();
@@ -94,7 +143,7 @@ export const MusicPlayer = () => {
       if (availableSongs.length > 0) {
         const randomIndex = Math.floor(Math.random() * availableSongs.length);
         const nextSongId = availableSongs[randomIndex];
-        const nextSongIndex = tracks.findIndex(song => song.id === nextSongId);
+        const nextSongIndex = songs.findIndex(song => song.id === nextSongId);
         if (nextSongIndex !== -1) {
           setCurrentSongIndex(nextSongIndex);
           return;
@@ -104,139 +153,7 @@ export const MusicPlayer = () => {
     
     const nextIndex = getNextSongIndex();
     setCurrentSongIndex(nextIndex);
-  }, [
-    checkFeatureAccess, 
-    lastSkipReset, 
-    skipsThisHour, 
-    limits.skipsPerHour, 
-    isShuffleOn, 
-    currentPlaylist, 
-    currentSong.id, 
-    tracks, 
-    getNextSongIndex
-  ]);
-
-  // Real audio playback management
-  useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio || !currentSong?.audio_file_url) return;
-
-    setAudioLoading(true);
-    setAudioError(false);
-
-    const updateProgress = () => {
-      if (audio.duration) {
-        const progress = (audio.currentTime / audio.duration) * 100;
-        setSongProgress(progress);
-      }
-    };
-
-    const handleEnded = () => {
-      handleNext();
-    };
-
-    const handleCanPlay = () => {
-      setAudioLoading(false);
-    };
-
-    const handleError = () => {
-      setAudioError(true);
-      setAudioLoading(false);
-      console.error('Audio failed to load:', currentSong.audio_file_url);
-      // Skip broken track automatically
-      handleNext();
-    };
-
-    const handleLoadStart = () => {
-      setAudioLoading(true);
-    };
-
-    // Add event listeners
-    audio.addEventListener('timeupdate', updateProgress);
-    audio.addEventListener('ended', handleEnded);
-    audio.addEventListener('canplay', handleCanPlay);
-    audio.addEventListener('error', handleError);
-    audio.addEventListener('loadstart', handleLoadStart);
-    
-    // Load new track
-    audio.src = currentSong.audio_file_url;
-    audio.volume = volume[0] / 100;
-
-    return () => {
-      audio.removeEventListener('timeupdate', updateProgress);
-      audio.removeEventListener('ended', handleEnded);
-      audio.removeEventListener('canplay', handleCanPlay);
-      audio.removeEventListener('error', handleError);
-      audio.removeEventListener('loadstart', handleLoadStart);
-    };
-  }, [currentSongIndex, handleNext]);
-
-  // Handle play/pause changes with loading check
-  useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio || !currentSong?.audio_file_url || audioLoading || audioError) return;
-
-    if (isPlaying) {
-      const playPromise = audio.play();
-      if (playPromise !== undefined) {
-        playPromise.catch((error) => {
-          console.error('Play failed:', error);
-          setIsPlaying(false);
-        });
-      }
-    } else {
-      audio.pause();
-    }
-  }, [isPlaying, currentSong, audioLoading, audioError]);
-
-  // Handle volume changes
-  useEffect(() => {
-    const audio = audioRef.current;
-    if (audio) {
-      audio.volume = volume[0] / 100;
-    }
-  }, [volume]);
-
-  const togglePlay = () => {
-    if (!currentSong?.audio_file_url || audioLoading || audioError) return;
-    setIsPlaying(!isPlaying);
   };
-
-  const handleProgressChange = (value: number) => {
-    const audio = audioRef.current;
-    if (audio && audio.duration) {
-      const newTime = (value / 100) * audio.duration;
-      audio.currentTime = newTime;
-      setSongProgress(value);
-    }
-  };
-
-  const toggleShuffle = () => {
-    setIsShuffleOn(!isShuffleOn);
-  };
-
-  const cycleRepeatMode = () => {
-    const modes: RepeatMode[] = ["none", "all", "one"];
-    const currentIndex = modes.indexOf(repeatMode);
-    const nextMode = modes[(currentIndex + 1) % modes.length];
-    setRepeatMode(nextMode);
-  };
-
-
-  const handlePrevious = () => {
-    if (!currentPlaylist) {
-      setCurrentSongIndex((prev) => (prev === 0 ? tracks.length - 1 : prev - 1));
-      return;
-    }
-    
-    const currentIndex = currentPlaylist.indexOf(currentSong.id);
-    if (currentIndex > 0) {
-      const prevSongId = currentPlaylist[currentIndex - 1];
-      const prevSongIndex = tracks.findIndex(song => song.id === prevSongId);
-      setCurrentSongIndex(prevSongIndex !== -1 ? prevSongIndex : 0);
-    }
-  };
-
 
   // Gesture controls for mobile
   const gestureRef = useGestures({
@@ -256,21 +173,14 @@ export const MusicPlayer = () => {
 
   // Export these methods to be used by other components
   (window as any).musicPlayerControls = {
-    playPlaylist: (songIds: string[]) => {
+    playPlaylist: (songIds: number[]) => {
       if (songIds.length === 0) return;
       const firstSongId = songIds[0];
-      const firstSongIndex = tracks.findIndex(song => song.id === firstSongId);
+      const firstSongIndex = songs.findIndex(song => song.id === firstSongId);
       if (firstSongIndex !== -1) {
         setCurrentSongIndex(firstSongIndex);
         setCurrentPlaylist(songIds);
-        setIsPlaying(true);
-      }
-    },
-    playSong: (songId: string) => {
-      const songIndex = tracks.findIndex(song => song.id === songId);
-      if (songIndex !== -1) {
-        setCurrentSongIndex(songIndex);
-        setCurrentPlaylist(null);
+        
         setIsPlaying(true);
       }
     }
@@ -278,7 +188,6 @@ export const MusicPlayer = () => {
 
   return (
     <>
-      <audio ref={audioRef} preload="metadata" />
       <section id="now-playing" className="p-4">
         <Card className="bg-black/40 backdrop-blur-lg border-[#1EAEDB]/10 animate-fade-in hover:border-[#1EAEDB]/20 transition-all duration-300">
           <CardContent className="p-4">
@@ -288,13 +197,13 @@ export const MusicPlayer = () => {
             >
               {/* Mobile-first album art - smaller on mobile */}
               <div className="flex flex-col justify-center">
-                 <div className="w-full max-w-48 mx-auto md:max-w-none aspect-square bg-[#222222] rounded-lg shadow-2xl overflow-hidden group relative">
-                   <img 
-                     src={currentSongDisplay.artwork}
-                     alt={`Album Art - ${currentSongDisplay.artist}`}
-                     className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 cursor-pointer"
-                     onClick={() => setIsFullScreen(true)}
-                   />
+                <div className="w-full max-w-48 mx-auto md:max-w-none aspect-square bg-[#222222] rounded-lg shadow-2xl overflow-hidden group relative">
+                  <img 
+                    src={currentSong.artwork}
+                    alt={`Album Art - ${currentSong.artist}`}
+                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 cursor-pointer"
+                    onClick={() => setIsFullScreen(true)}
+                  />
                   <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                   
                   {/* Fullscreen button overlay - larger touch target */}
@@ -314,11 +223,11 @@ export const MusicPlayer = () => {
                   <div className="flex items-center justify-between mb-2">
                     <h2 className="text-2xl font-bold text-[#FEF7CD]">Now Playing</h2>
                   </div>
-                 <p className="text-[#F2FCE2] text-lg mb-1">{currentSongDisplay.title}</p>
-                 <p className="text-[#F2FCE2]/80 text-base">{currentSongDisplay.artist}</p>
+                <p className="text-[#F2FCE2] text-lg mb-1">{currentSong.title}</p>
+                <p className="text-[#F2FCE2]/80 text-base">{currentSong.artist}</p>
               </div>
-               <div className="space-y-2">
-                 <LyricsDisplay isPlaying={isPlaying} songId={currentSongDisplay.id} />
+              <div className="space-y-2">
+                <LyricsDisplay isPlaying={isPlaying} songId={currentSong.id} />
                 <div className="space-y-2">
                  <div className="space-y-2">
                      <Slider
@@ -328,10 +237,10 @@ export const MusicPlayer = () => {
                        step={0.5}
                        className="w-full [&>span[role=slider]]:h-6 [&>span[role=slider]]:w-6 md:[&>span[role=slider]]:h-4 md:[&>span[role=slider]]:w-4"
                      />
-                      <div className="flex justify-between text-sm text-[#F2FCE2]">
-                        <span>{Math.floor((songProgress / 100) * (audioRef.current?.duration || 225))}s</span>
-                        <span>{currentSongDisplay.duration}</span>
-                      </div>
+                     <div className="flex justify-between text-sm text-[#F2FCE2]">
+                       <span>{Math.floor((songProgress / 100) * 225)}s</span>
+                       <span>{currentSong.duration}</span>
+                     </div>
                    </div>
                    
                     {/* Mobile-optimized controls with larger touch targets */}
@@ -356,23 +265,18 @@ export const MusicPlayer = () => {
                        <SkipBack className="h-7 w-7 md:h-6 md:w-6" />
                      </Button>
 
-                      {/* Play/pause button - largest touch target */}
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="text-[#F2FCE2] hover:text-[#1EAEDB] transition-all duration-200 hover:scale-125 active:scale-110 hover:shadow-lg hover:shadow-[#1EAEDB]/20 h-14 w-14 md:h-12 md:w-12"
-                        onClick={togglePlay}
-                        disabled={audioLoading || audioError}
-                      >
-                        {audioLoading ? (
-                          <div className="h-8 w-8 md:h-7 md:w-7 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                        ) : audioError ? (
-                          <div className="h-8 w-8 md:h-7 md:w-7 text-red-500">⚠</div>
-                        ) : isPlaying ? 
-                          <Pause className="h-8 w-8 md:h-7 md:w-7" /> : 
-                          <Play className="h-8 w-8 md:h-7 md:w-7" />
-                        }
-                      </Button>
+                     {/* Play/pause button - largest touch target */}
+                     <Button
+                       variant="ghost"
+                       size="icon"
+                       className="text-[#F2FCE2] hover:text-[#1EAEDB] transition-all duration-200 hover:scale-125 active:scale-110 hover:shadow-lg hover:shadow-[#1EAEDB]/20 h-14 w-14 md:h-12 md:w-12"
+                       onClick={togglePlay}
+                     >
+                       {isPlaying ? 
+                         <Pause className="h-8 w-8 md:h-7 md:w-7" /> : 
+                         <Play className="h-8 w-8 md:h-7 md:w-7" />
+                       }
+                     </Button>
 
                      <Button
                        variant="ghost"
@@ -450,7 +354,7 @@ export const MusicPlayer = () => {
         onProgressChange={handleProgressChange}
         onNext={handleNext}
         onPrevious={handlePrevious}
-        currentSong={currentSongDisplay}
+        currentSong={currentSong}
       />
     </>
   );
