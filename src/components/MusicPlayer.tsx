@@ -143,6 +143,8 @@ export const MusicPlayer = () => {
       setAudioError(true);
       setAudioLoading(false);
       console.error('Audio failed to load:', currentSong.audio_file_url);
+      // Skip broken track automatically
+      handleNext();
     };
 
     const handleLoadStart = () => {
@@ -167,7 +169,7 @@ export const MusicPlayer = () => {
       audio.removeEventListener('error', handleError);
       audio.removeEventListener('loadstart', handleLoadStart);
     };
-  }, [currentSongIndex, handleNext, volume]);
+  }, [currentSongIndex, handleNext]);
 
   // Handle play/pause changes with loading check
   useEffect(() => {

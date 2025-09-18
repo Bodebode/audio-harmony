@@ -91,7 +91,7 @@ export const AppSidebar = () => {
             <SidebarMenu>
               {sidebarItems.map((item, index) => (
                 <SidebarMenuItem key={item.title} className="animate-fade-in" style={{ animationDelay: `${index * 0.1}s` }}>
-                  <SidebarMenuButton className="hover:bg-[#1EAEDB]/20 hover-scale transition-all duration-300 group">
+                  <SidebarMenuButton asChild className="hover:bg-[#1EAEDB]/20 hover-scale transition-all duration-300 group">
                     {item.isRoute ? (
                       <Link 
                         to={item.url} 
@@ -116,7 +116,7 @@ export const AppSidebar = () => {
                {/* Admin Access */}
                {isAdmin && (
                  <SidebarMenuItem className="animate-fade-in" style={{ animationDelay: `${sidebarItems.length * 0.1}s` }}>
-                   <SidebarMenuButton className="hover:bg-red-500/20 transition-all duration-300 group">
+                  <SidebarMenuButton asChild className="hover:bg-red-500/20 transition-all duration-300 group">
                      <Link 
                        to="/admin" 
                        className="flex items-center gap-2 text-red-400 hover:text-red-300 font-medium w-full transition-all duration-300"
