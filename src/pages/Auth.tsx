@@ -24,17 +24,12 @@ const Auth = () => {
   const { signIn, signUp, signInWithSocial, continueAsGuest, user, isAuthenticated, loading, isGuest } = useAuth();
   const navigate = useNavigate();
 
-  // Redirect if already authenticated or is guest
-  if ((user || isGuest) && !loading) {
-    return <Navigate to="/" replace />;
-  }
-
   // Watch for guest state changes and redirect
   useEffect(() => {
-    if (isGuest && !loading) {
+    if ((user || isGuest) && !loading) {
       navigate('/', { replace: true });
     }
-  }, [isGuest, loading, navigate]);
+  }, [user, isGuest, loading, navigate]);
 
   // Show loading spinner while checking auth state
   if (loading) {
@@ -43,6 +38,11 @@ const Auth = () => {
         <Loader2 className="h-8 w-8 animate-spin text-white" />
       </div>
     );
+  }
+
+  // Redirect if already authenticated or is guest (after all hooks are called)
+  if ((user || isGuest) && !loading) {
+    return <Navigate to="/" replace />;
   }
 
   const handleSignIn = async (e: React.FormEvent) => {
@@ -82,7 +82,7 @@ const Auth = () => {
 
   const handleGuestAccess = () => {
     continueAsGuest();
-    navigate('/', { replace: true });
+    // Navigation will be handled by useEffect
   };
 
   return (
