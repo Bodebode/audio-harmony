@@ -14,7 +14,90 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          display_name: string | null
+          id: string
+          is_premium: boolean
+          payment_method: string | null
+          paypal_subscription_id: string | null
+          paypal_subscription_status: string | null
+          premium_expires_at: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          is_premium?: boolean
+          payment_method?: string | null
+          paypal_subscription_id?: string | null
+          paypal_subscription_status?: string | null
+          premium_expires_at?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          is_premium?: boolean
+          payment_method?: string | null
+          paypal_subscription_id?: string | null
+          paypal_subscription_status?: string | null
+          premium_expires_at?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      support_submissions: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string
+          id: string
+          message: string | null
+          payment_method: string
+          paypal_order_id: string | null
+          status: string
+          supporter_email: string
+          supporter_name: string
+          user_id: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          currency?: string
+          id?: string
+          message?: string | null
+          payment_method?: string
+          paypal_order_id?: string | null
+          status?: string
+          supporter_email: string
+          supporter_name: string
+          user_id?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          message?: string | null
+          payment_method?: string
+          paypal_order_id?: string | null
+          status?: string
+          supporter_email?: string
+          supporter_name?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
