@@ -18,6 +18,7 @@ import { Avatar, AvatarFallback } from "./ui/avatar";
 
 export const Header = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isSigningOut, setIsSigningOut] = useState(false);
   const navigate = useNavigate();
   const { user, profile, isGuest, signOut } = useAuth();
 
@@ -28,8 +29,19 @@ export const Header = () => {
   const handleSignOut = async () => {
     if (isGuest) {
       navigate('/auth');
-    } else {
-      await signOut();
+      return;
+    }
+    
+    setIsSigningOut(true);
+    try {
+      const { error } = await signOut();
+      if (!error) {
+        navigate('/auth');
+      }
+    } catch (err) {
+      console.error('Sign out error:', err);
+    } finally {
+      setIsSigningOut(false);
     }
   };
 
@@ -148,8 +160,9 @@ export const Header = () => {
               <DropdownMenuItem 
                 onClick={handleSignOut}
                 className="text-white hover:bg-white/10"
+                disabled={isSigningOut}
               >
-                {isGuest ? 'Sign Up' : 'Sign Out'}
+                {isSigningOut ? 'Signing out...' : isGuest ? 'Sign Up' : 'Sign Out'}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

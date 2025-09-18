@@ -158,15 +158,39 @@ export const useAuth = () => {
   };
 
   const signOut = async () => {
-    const { error } = await supabase.auth.signOut();
-    
-    // Clear guest mode
-    localStorage.removeItem('guestMode');
-    setIsGuest(false);
-    
-    // Silent sign out
-
-    return { error };
+    try {
+      const { error } = await supabase.auth.signOut();
+      
+      // Clear guest mode
+      localStorage.removeItem('guestMode');
+      setIsGuest(false);
+      
+      if (error) {
+        console.error('Sign out error:', error);
+        toast({
+          title: "Sign out failed",
+          description: error.message || "An unexpected error occurred during sign out",
+          variant: "destructive",
+        });
+        return { error };
+      }
+      
+      toast({
+        title: "Signed out successfully",
+        description: "You have been signed out of your account",
+      });
+      
+      return { error: null };
+    } catch (err) {
+      console.error('Unexpected sign out error:', err);
+      const error = { message: 'An unexpected error occurred' };
+      toast({
+        title: "Sign out failed", 
+        description: "An unexpected error occurred during sign out",
+        variant: "destructive",
+      });
+      return { error };
+    }
   };
 
   return {
