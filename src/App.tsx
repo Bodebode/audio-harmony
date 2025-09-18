@@ -12,15 +12,6 @@ import Profile from "./pages/Profile";
 import Merch from "./pages/Merch";
 import NotFound from "./pages/NotFound";
 import ErrorBoundary from "./components/ErrorBoundary";
-import AdminDashboard from "./pages/admin/AdminDashboard";
-import AdminUsers from "./pages/admin/AdminUsers";
-import AdminReleases from "./pages/admin/AdminReleases";
-import AdminAnalytics from "./pages/admin/AdminAnalytics";
-import AdminSettings from "./pages/admin/AdminSettings";
-import AdminAudit from "./pages/admin/AdminAudit";
-import AdminMarketing from "./pages/admin/AdminMarketing";
-import { AdminAccess } from "./pages/AdminAccess";
-import { QuickUpload } from "./pages/QuickUpload";
 
 const queryClient = new QueryClient();
 
@@ -39,15 +30,6 @@ const App = () => (
             <Route path="/auth" element={<Auth />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/merch" element={<Merch />} />
-            <Route path="/quick-upload" element={<QuickUpload />} />
-            <Route path="/admin-access" element={<AdminAccess />} />
-            <Route path="/admin" element={<AdminDashboard />} />
-            <Route path="/admin/users" element={<AdminUsers />} />
-            <Route path="/admin/releases" element={<AdminReleases />} />
-            <Route path="/admin/analytics" element={<AdminAnalytics />} />
-            <Route path="/admin/marketing" element={<AdminMarketing />} />
-            <Route path="/admin/settings" element={<AdminSettings />} />
-            <Route path="/admin/audit" element={<AdminAudit />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

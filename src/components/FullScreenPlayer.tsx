@@ -1,7 +1,7 @@
 import { X, Play, Pause, SkipBack, SkipForward, Volume2, Volume1, VolumeX, Heart, MoreHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 
 import { LyricsDisplay } from "./LyricsDisplay";
 import { useGestures } from "@/hooks/useGestures";
@@ -16,12 +16,11 @@ interface FullScreenPlayerProps {
   volume: number[];
   onVolumeChange: (value: number[]) => void;
   progress: number;
-  duration: number;
   onProgressChange: (value: number) => void;
   onNext: () => void;
   onPrevious: () => void;
   currentSong: {
-    id: string;
+    id: number;
     title: string;
     artist: string;
     artwork: string;
@@ -37,7 +36,6 @@ export const FullScreenPlayer = ({
   volume,
   onVolumeChange,
   progress,
-  duration,
   onProgressChange,
   onNext,
   onPrevious,
@@ -47,17 +45,7 @@ export const FullScreenPlayer = ({
   const { likedSongs, toggleLikeSong, isLiked: checkIsLiked } = useLikedSongs();
   const { toast } = useToast();
   
-  // Debounce protection
-  const playLockRef = useRef(false);
-  
   const isLiked = checkIsLiked(currentSong.id);
-
-  const debouncedTogglePlay = () => {
-    if (playLockRef.current) return;
-    playLockRef.current = true;
-    setTimeout(() => (playLockRef.current = false), 350);
-    onTogglePlay();
-  };
 
   // Gesture controls
   const gestureRef = useGestures({
@@ -88,13 +76,10 @@ export const FullScreenPlayer = ({
     if (!isOpen) return;
 
     const handleKeyPress = (e: KeyboardEvent) => {
-      // Prevent keyboard auto-repeat spam
-      if (e.repeat) return;
-      
       switch (e.code) {
         case 'Space':
           e.preventDefault();
-          debouncedTogglePlay();
+          onTogglePlay();
           break;
         case 'ArrowLeft':
           e.preventDefault();
@@ -188,7 +173,7 @@ export const FullScreenPlayer = ({
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={debouncedTogglePlay}
+                  onClick={onTogglePlay}
                   className="w-20 h-20 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white hover:bg-white/30 hover:scale-110 transition-all duration-300"
                 >
                   {isPlaying ? (
@@ -219,13 +204,13 @@ export const FullScreenPlayer = ({
               <Slider
                 value={[progress]}
                 onValueChange={(vals) => onProgressChange(vals[0])}
-                max={duration}
+                max={100}
                 step={0.5}
                 className="mb-4"
               />
               <div className="flex justify-between text-sm text-white/60">
-                <span>{Math.floor(progress / 60)}:{Math.floor(progress % 60).toString().padStart(2, '0')}</span>
-                <span>{Math.floor(duration / 60)}:{Math.floor(duration % 60).toString().padStart(2, '0')}</span>
+                <span>{Math.floor((progress / 100) * 225)}s</span>
+                <span>{currentSong.duration}</span>
               </div>
             </div>
 
@@ -243,7 +228,7 @@ export const FullScreenPlayer = ({
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={debouncedTogglePlay}
+                onClick={onTogglePlay}
                 className="w-16 h-16 rounded-full bg-white text-black hover:bg-white/90 hover:scale-110 transition-all duration-300 shadow-lg"
               >
                 {isPlaying ? (

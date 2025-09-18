@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 
 interface LyricsDisplayProps {
   isPlaying: boolean;
-  songId: string;
+  songId: number;
 }
 
 // Sample lyrics for testing - replace with actual lyrics data later

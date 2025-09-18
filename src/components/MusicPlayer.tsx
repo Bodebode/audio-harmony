@@ -1,248 +1,80 @@
 
 import { 
   Play, Pause, SkipBack, SkipForward, Volume2, Volume1, VolumeX, 
-  Shuffle, Repeat, Repeat1, Maximize2, Crown, Sliders, Download, Heart
+  Shuffle, Repeat, Repeat1, Maximize2, Crown, Sliders, Download 
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { LyricsDisplay } from "./LyricsDisplay";
 import { FullScreenPlayer } from "./FullScreenPlayer";
 import { PremiumFeature } from "./premium/PremiumFeature";
 import { usePremium } from "@/hooks/usePremium";
-import { useAnalytics } from "@/hooks/useAnalytics";
-import { useLikedSongs } from "@/hooks/useLikedSongs";
-import { useTracks, Track } from "@/hooks/useTracks";
+
 import { useGestures } from "@/hooks/useGestures";
-import { useToast } from "@/hooks/use-toast";
+
+const songs = [
+  {
+    id: 1,
+    title: "Afrobeat Fusion",
+    artist: "Bode Nathaniel",
+    artwork: "/lovable-uploads/74cb0a2d-58c7-4be3-a188-27a043b76a3d.png",
+    
+    duration: "3:45"
+  },
+];
 
 type RepeatMode = "none" | "all" | "one";
 
 export const MusicPlayer = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState([75]);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(0);
-  const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
-  const [currentPlaylist, setCurrentPlaylist] = useState<string[] | null>(null);
+  const [progress, setProgress] = useState([0]);
+  const [songProgress, setSongProgress] = useState(0);
+  const [currentSongIndex, setCurrentSongIndex] = useState(0);
+  const [currentPlaylist, setCurrentPlaylist] = useState<number[] | null>(null);
   const [isShuffleOn, setIsShuffleOn] = useState(false);
   const [repeatMode, setRepeatMode] = useState<RepeatMode>("none");
-  
-  // Debounce and race condition protection
-  const playLockRef = useRef(false);
-  const playRequestId = useRef(0);
   const [isFullScreen, setIsFullScreen] = useState(false);
   const { checkFeatureAccess, limits } = usePremium();
-  const { track: trackAnalytics } = useAnalytics();
-  const { likedSongs, toggleLikeSong, isLiked } = useLikedSongs();
-  const { toast } = useToast();
-  
-  // Stabilize external refs to avoid effect re-runs
-  const analyticsRef = useRef(trackAnalytics);
-  const toastRef = useRef(toast);
-  useEffect(() => { analyticsRef.current = trackAnalytics; }, [trackAnalytics]);
-  useEffect(() => { toastRef.current = toast; }, [toast]);
   
   // Track skips for free users
   const [skipsThisHour, setSkipsThisHour] = useState(0);
   const [lastSkipReset, setLastSkipReset] = useState(Date.now());
 
-  // Fetch available tracks using unified hook
-  const { data: tracks = [], isLoading } = useTracks();
+  const currentSong = songs[currentSongIndex];
 
-  const currentTrack = tracks[currentTrackIndex];
-
-  // Audio instance ref to persist across renders
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-
-  // Handle audio playback with robust error handling
+  // Animate progress bar when playing
   useEffect(() => {
-    if (!currentTrack?.audio_file_url) {
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current.src = '';
+    let intervalId: NodeJS.Timeout;
+    
+    if (isPlaying) {
+      intervalId = setInterval(() => {
+        setSongProgress(prev => {
+          const newProgress = prev + (100 / (3.75 * 60)); // 3:45 song duration
+          return newProgress >= 100 ? 0 : newProgress;
+        });
+      }, 1000);
+    }
+    
+    return () => {
+      if (intervalId) {
+        clearInterval(intervalId);
       }
-      return;
-    }
+    };
+  }, [isPlaying]);
 
-    // Clean up previous audio
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current.removeEventListener('timeupdate', () => {});
-      audioRef.current.removeEventListener('loadedmetadata', () => {});
-      audioRef.current.removeEventListener('ended', () => {});
-      audioRef.current.removeEventListener('error', () => {});
-      audioRef.current.src = '';
-    }
-
-    // Create new audio instance with validation
-    try {
-      audioRef.current = new Audio();
-      const audio = audioRef.current;
-      
-      const updateTime = () => setCurrentTime(audio.currentTime);
-      const updateDuration = () => setDuration(audio.duration || 0);
-      const handleEnded = () => {
-        setIsPlaying(false);
-        analyticsRef.current({
-          name: 'play_completed',
-          properties: {
-            track_id: currentTrack.id,
-            pct_played: 100,
-          },
-        });
-        handleNext();
-      };
-      
-      const handleError = (e: Event) => {
-        console.error('Audio error for track:', currentTrack.title, e);
-        setIsPlaying(false);
-        toastRef.current({
-          title: "Playback Error",
-          description: `Unable to play "${currentTrack.title}". Trying next track...`,
-          variant: "destructive",
-          duration: 3000,
-        });
-        // Auto-skip to next track on error
-        setTimeout(() => handleNext(), 1000);
-      };
-
-      const handleLoadStart = () => {
-        console.log('Loading track:', currentTrack.title);
-      };
-
-      audio.addEventListener('timeupdate', updateTime);
-      audio.addEventListener('loadedmetadata', updateDuration);
-      audio.addEventListener('ended', handleEnded);
-      audio.addEventListener('error', handleError);
-      audio.addEventListener('loadstart', handleLoadStart);
-
-      audio.volume = volume[0] / 100;
-      audio.preload = 'auto';
-      
-      // Set source after all listeners are attached
-      audio.src = currentTrack.audio_file_url;
-
-      return () => {
-        audio.removeEventListener('timeupdate', updateTime);
-        audio.removeEventListener('loadedmetadata', updateDuration);
-        audio.removeEventListener('ended', handleEnded);
-        audio.removeEventListener('error', handleError);
-        audio.removeEventListener('loadstart', handleLoadStart);
-        audio.pause();
-      };
-    } catch (error) {
-      console.error('Failed to create audio element:', error);
-      toastRef.current({
-        title: "Audio Error",
-        description: "Failed to initialize audio player",
-        variant: "destructive",
-      });
-    }
-  }, [currentTrack?.id]);
-
-  // Removed conflicting play/pause effect - togglePlay is now the single source of truth
-
-  // Handle volume changes
-  useEffect(() => {
-    if (audioRef.current) {
-      audioRef.current.volume = volume[0] / 100;
-    }
-  }, [volume]);
-
-  const togglePlay = async () => {
-    // Debounce protection
-    if (playLockRef.current) return;
-    playLockRef.current = true;
-    setTimeout(() => (playLockRef.current = false), 350);
-
-    if (!currentTrack?.audio_file_url) {
-      toastRef.current({
-        title: "No Audio",
-        description: "This track doesn't have an audio file available",
-        variant: "destructive",
-        duration: 2000,
-      });
-      return;
-    }
-
-    if (!audioRef.current) return;
-    const audio = audioRef.current;
-
-    if (audio.paused) {
-      const id = ++playRequestId.current;
-      try {
-        setIsPlaying(true);
-        if (audio.readyState >= 2) {
-          await audio.play();
-          analyticsRef.current({
-            name: 'play_started',
-            properties: {
-              track_id: currentTrack.id,
-              position_ms: Math.floor(currentTime * 1000),
-            },
-          });
-        } else {
-          const onCanPlay = async () => {
-            if (playRequestId.current !== id) return; // Stale request
-            try {
-              await audio.play();
-              analyticsRef.current({
-                name: 'play_started',
-                properties: {
-                  track_id: currentTrack.id,
-                  position_ms: Math.floor(currentTime * 1000),
-                },
-              });
-            } catch (error) {
-              setIsPlaying(false);
-            } finally {
-              audio.removeEventListener('canplay', onCanPlay);
-            }
-          };
-          audio.addEventListener('canplay', onCanPlay);
-        }
-      } catch (error) {
-        console.error('Play failed:', error);
-        setIsPlaying(false);
-        toastRef.current({
-          title: "Playback Error",
-          description: "Unable to start playback. Please try again.",
-          variant: "destructive",
-          duration: 2000,
-        });
-      }
-    } else {
-      audio.pause();
-      setIsPlaying(false);
+  const togglePlay = () => {
+    setIsPlaying(!isPlaying);
+    if (!isPlaying) {
+      setSongProgress(0); // Reset progress when starting
     }
   };
 
   const handleProgressChange = (value: number) => {
-    const newTime = value;
-    setCurrentTime(newTime);
-    if (audioRef.current) {
-      audioRef.current.currentTime = newTime;
-    }
-  };
-
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
-  };
-
-  const handleLike = () => {
-    if (!currentTrack) return;
-    toggleLikeSong(currentTrack.id);
-    trackAnalytics({
-      name: 'like_action',
-      properties: {
-        track_id: currentTrack.id,
-        action: isLiked(currentTrack.id) ? 'unlike' : 'like',
-      },
-    });
+    setSongProgress(value);
+    setProgress([value]);
   };
 
   const toggleShuffle = () => {
@@ -256,37 +88,37 @@ export const MusicPlayer = () => {
     setRepeatMode(nextMode);
   };
 
-  const getNextTrackIndex = useCallback(() => {
-    if (repeatMode === "one") return currentTrackIndex;
+  const getNextSongIndex = useCallback(() => {
+    if (repeatMode === "one") return currentSongIndex;
     
     if (!currentPlaylist) {
-      if (currentTrackIndex === tracks.length - 1) {
-        return repeatMode === "all" ? 0 : currentTrackIndex;
+      if (currentSongIndex === songs.length - 1) {
+        return repeatMode === "all" ? 0 : currentSongIndex;
       }
-      return currentTrackIndex + 1;
+      return currentSongIndex + 1;
     }
     
-    const currentIndex = currentPlaylist.indexOf(currentTrack?.id || '');
+    const currentIndex = currentPlaylist.indexOf(currentSong.id);
     if (currentIndex < currentPlaylist.length - 1) {
-      const nextTrackId = currentPlaylist[currentIndex + 1];
-      const nextTrackIndex = tracks.findIndex(track => track.id === nextTrackId);
-      return nextTrackIndex !== -1 ? nextTrackIndex : currentTrackIndex;
+      const nextSongId = currentPlaylist[currentIndex + 1];
+      const nextSongIndex = songs.findIndex(song => song.id === nextSongId);
+      return nextSongIndex !== -1 ? nextSongIndex : currentSongIndex;
     }
     
-    return repeatMode === "all" ? 0 : currentTrackIndex;
-  }, [currentTrackIndex, currentPlaylist, currentTrack?.id, repeatMode, tracks]);
+    return repeatMode === "all" ? 0 : currentSongIndex;
+  }, [currentSongIndex, currentPlaylist, currentSong.id, repeatMode]);
 
   const handlePrevious = () => {
     if (!currentPlaylist) {
-      setCurrentTrackIndex((prev) => (prev === 0 ? tracks.length - 1 : prev - 1));
+      setCurrentSongIndex((prev) => (prev === 0 ? songs.length - 1 : prev - 1));
       return;
     }
     
-    const currentIndex = currentPlaylist.indexOf(currentTrack?.id || '');
+    const currentIndex = currentPlaylist.indexOf(currentSong.id);
     if (currentIndex > 0) {
-      const prevTrackId = currentPlaylist[currentIndex - 1];
-      const prevTrackIndex = tracks.findIndex(track => track.id === prevTrackId);
-      setCurrentTrackIndex(prevTrackIndex !== -1 ? prevTrackIndex : 0);
+      const prevSongId = currentPlaylist[currentIndex - 1];
+      const prevSongIndex = songs.findIndex(song => song.id === prevSongId);
+      setCurrentSongIndex(prevSongIndex !== -1 ? prevSongIndex : 0);
     }
   };
 
@@ -307,20 +139,20 @@ export const MusicPlayer = () => {
     }
     
     if (isShuffleOn && currentPlaylist) {
-      const availableTracks = currentPlaylist.filter(id => id !== currentTrack?.id);
-      if (availableTracks.length > 0) {
-        const randomIndex = Math.floor(Math.random() * availableTracks.length);
-        const nextTrackId = availableTracks[randomIndex];
-        const nextTrackIndex = tracks.findIndex(track => track.id === nextTrackId);
-        if (nextTrackIndex !== -1) {
-          setCurrentTrackIndex(nextTrackIndex);
+      const availableSongs = currentPlaylist.filter(id => id !== currentSong.id);
+      if (availableSongs.length > 0) {
+        const randomIndex = Math.floor(Math.random() * availableSongs.length);
+        const nextSongId = availableSongs[randomIndex];
+        const nextSongIndex = songs.findIndex(song => song.id === nextSongId);
+        if (nextSongIndex !== -1) {
+          setCurrentSongIndex(nextSongIndex);
           return;
         }
       }
     }
     
-    const nextIndex = getNextTrackIndex();
-    setCurrentTrackIndex(nextIndex);
+    const nextIndex = getNextSongIndex();
+    setCurrentSongIndex(nextIndex);
   };
 
   // Gesture controls for mobile
@@ -341,43 +173,18 @@ export const MusicPlayer = () => {
 
   // Export these methods to be used by other components
   (window as any).musicPlayerControls = {
-    playPlaylist: (trackIds: string[]) => {
-      if (trackIds.length === 0) return;
-      const firstTrackId = trackIds[0];
-      const firstTrackIndex = tracks.findIndex(track => track.id === firstTrackId);
-      if (firstTrackIndex !== -1) {
-        setCurrentTrackIndex(firstTrackIndex);
-        setCurrentPlaylist(trackIds);
+    playPlaylist: (songIds: number[]) => {
+      if (songIds.length === 0) return;
+      const firstSongId = songIds[0];
+      const firstSongIndex = songs.findIndex(song => song.id === firstSongId);
+      if (firstSongIndex !== -1) {
+        setCurrentSongIndex(firstSongIndex);
+        setCurrentPlaylist(songIds);
+        
         setIsPlaying(true);
       }
     }
   };
-
-  if (isLoading) {
-    return (
-      <section id="now-playing" className="p-4">
-        <Card className="bg-black/40 backdrop-blur-lg border-[#1EAEDB]/10">
-          <CardContent className="p-4 text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-            <p className="text-[#F2FCE2]">Loading tracks...</p>
-          </CardContent>
-        </Card>
-      </section>
-    );
-  }
-
-  if (!currentTrack) {
-    return (
-      <section id="now-playing" className="p-4">
-        <Card className="bg-black/40 backdrop-blur-lg border-[#1EAEDB]/10">
-          <CardContent className="p-4 text-center">
-            <Play className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-            <p className="text-[#F2FCE2]">No tracks available</p>
-          </CardContent>
-        </Card>
-      </section>
-    );
-  }
 
   return (
     <>
@@ -388,11 +195,12 @@ export const MusicPlayer = () => {
               className="flex flex-col gap-4 md:grid md:grid-cols-2 md:gap-6"
               ref={gestureRef as React.RefObject<HTMLDivElement>}
             >
+              {/* Mobile-first album art - smaller on mobile */}
               <div className="flex flex-col justify-center">
                 <div className="w-full max-w-48 mx-auto md:max-w-none aspect-square bg-[#222222] rounded-lg shadow-2xl overflow-hidden group relative">
                   <img 
-                    src={currentTrack.release?.cover_url || "/lovable-uploads/74cb0a2d-58c7-4be3-a188-27a043b76a3d.png"}
-                    alt={`Album Art - ${currentTrack.release?.title || 'Unknown Album'}`}
+                    src={currentSong.artwork}
+                    alt={`Album Art - ${currentSong.artist}`}
                     className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 cursor-pointer"
                     onClick={() => setIsFullScreen(true)}
                   />
@@ -415,45 +223,23 @@ export const MusicPlayer = () => {
                   <div className="flex items-center justify-between mb-2">
                     <h2 className="text-2xl font-bold text-[#FEF7CD]">Now Playing</h2>
                   </div>
-                <p className="text-[#F2FCE2] text-lg mb-1 flex items-center gap-2">
-                  {currentTrack.title}
-                  {currentTrack.explicit && (
-                    <span className="px-1 py-0.5 bg-red-600 text-white text-xs rounded">E</span>
-                  )}
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={handleLike}
-                    className={`text-[#F2FCE2] hover:text-red-500 p-1 h-6 w-6 ${
-                      isLiked(currentTrack.id) ? 'text-red-500' : ''
-                    }`}
-                  >
-                    <Heart className={`h-4 w-4 ${isLiked(currentTrack.id) ? 'fill-current' : ''}`} />
-                  </Button>
-                </p>
-                <p className="text-[#F2FCE2]/80 text-base">{currentTrack.release?.title || 'Unknown Album'}</p>
+                <p className="text-[#F2FCE2] text-lg mb-1">{currentSong.title}</p>
+                <p className="text-[#F2FCE2]/80 text-base">{currentSong.artist}</p>
               </div>
               <div className="space-y-2">
-                {currentTrack.lyrics && (
-                  <div className="mb-4 p-3 bg-muted/30 rounded-lg">
-                    <h4 className="text-sm font-medium text-[#FEF7CD] mb-2">Lyrics</h4>
-                    <div className="text-xs text-[#F2FCE2]/80 whitespace-pre-line max-h-20 overflow-y-auto">
-                      {currentTrack.lyrics}
-                    </div>
-                  </div>
-                )}
+                <LyricsDisplay isPlaying={isPlaying} songId={currentSong.id} />
                 <div className="space-y-2">
                  <div className="space-y-2">
-                      <Slider
-                        value={[currentTime]}
-                        onValueChange={(vals) => handleProgressChange(vals[0])}
-                        max={duration}
-                        step={0.5}
-                        className="w-full [&>span[role=slider]]:h-6 [&>span[role=slider]]:w-6 md:[&>span[role=slider]]:h-4 md:[&>span[role=slider]]:w-4"
-                      />
+                     <Slider
+                       value={[songProgress]}
+                       onValueChange={(vals) => handleProgressChange(vals[0])}
+                       max={100}
+                       step={0.5}
+                       className="w-full [&>span[role=slider]]:h-6 [&>span[role=slider]]:w-6 md:[&>span[role=slider]]:h-4 md:[&>span[role=slider]]:w-4"
+                     />
                      <div className="flex justify-between text-sm text-[#F2FCE2]">
-                       <span>{formatTime(currentTime)}</span>
-                       <span>{formatTime(duration)}</span>
+                       <span>{Math.floor((songProgress / 100) * 225)}s</span>
+                       <span>{currentSong.duration}</span>
                      </div>
                    </div>
                    
@@ -564,18 +350,11 @@ export const MusicPlayer = () => {
         onTogglePlay={togglePlay}
         volume={volume}
         onVolumeChange={setVolume}
-        progress={currentTime}
-        duration={duration}
+        progress={songProgress}
         onProgressChange={handleProgressChange}
         onNext={handleNext}
         onPrevious={handlePrevious}
-        currentSong={{
-          id: currentTrack.id,
-          title: currentTrack.title,
-          artist: currentTrack.release?.title || 'Unknown Album',
-          artwork: currentTrack.release?.cover_url || "/lovable-uploads/74cb0a2d-58c7-4be3-a188-27a043b76a3d.png",
-          duration: formatTime(duration)
-        }}
+        currentSong={currentSong}
       />
     </>
   );

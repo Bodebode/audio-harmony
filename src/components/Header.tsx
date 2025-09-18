@@ -6,7 +6,6 @@ import { useState } from "react";
 import { SearchModal } from "./SearchModal";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { useAdmin } from "@/hooks/useAdmin";
 import { PremiumBadge } from "./premium/PremiumBadge";
 import { 
   DropdownMenu,
@@ -20,8 +19,7 @@ import { Avatar, AvatarFallback } from "./ui/avatar";
 export const Header = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const navigate = useNavigate();
-  const { user, profile, isGuest, signOut, exitGuestMode } = useAuth();
-  const { isAdmin } = useAdmin();
+  const { user, profile, isGuest, signOut } = useAuth();
 
   const handleCartClick = () => {
     navigate('/merch');
@@ -29,7 +27,6 @@ export const Header = () => {
 
   const handleSignOut = async () => {
     if (isGuest) {
-      exitGuestMode();
       navigate('/auth');
     } else {
       await signOut();
@@ -145,26 +142,6 @@ export const Header = () => {
                   >
                     {profile?.is_premium ? 'Manage Subscription' : 'Upgrade to Premium'}
                   </DropdownMenuItem>
-                  <DropdownMenuItem 
-                    onClick={() => navigate('/admin-access')}
-                    className="text-white hover:bg-white/10 cursor-pointer"
-                  >
-                    Admin Access
-                  </DropdownMenuItem>
-                  <DropdownMenuItem 
-                    onClick={() => navigate('/quick-upload')}
-                    className="text-white hover:bg-white/10 cursor-pointer"
-                  >
-                    Quick Upload
-                  </DropdownMenuItem>
-                  {isAdmin && (
-                    <DropdownMenuItem 
-                      onClick={() => navigate('/admin')}
-                      className="text-white hover:bg-white/10 cursor-pointer"
-                    >
-                      Admin Dashboard
-                    </DropdownMenuItem>
-                  )}
                   <DropdownMenuSeparator className="bg-white/10" />
                 </>
               )}
