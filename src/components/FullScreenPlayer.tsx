@@ -24,7 +24,7 @@ interface FullScreenPlayerProps {
     title: string;
     artist: string;
     artwork: string;
-    duration: string;
+    duration?: string;
   };
 }
 
@@ -210,7 +210,7 @@ export const FullScreenPlayer = ({
               />
               <div className="flex justify-between text-sm text-white/60">
                 <span>{Math.floor((progress / 100) * 225)}s</span>
-                <span>{currentSong.duration}</span>
+                <span>{currentSong.duration || "0:00"}</span>
               </div>
             </div>
 

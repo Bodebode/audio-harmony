@@ -13,17 +13,7 @@ import { PremiumFeature } from "./premium/PremiumFeature";
 import { usePremium } from "@/hooks/usePremium";
 
 import { useGestures } from "@/hooks/useGestures";
-
-const songs = [
-  {
-    id: 1,
-    title: "Love 2",
-    artist: "Bode Nathaniel",
-    artwork: "/lovable-uploads/74cb0a2d-58c7-4be3-a188-27a043b76a3d.png",
-    audioUrl: "/songs/Love-2.mp3",
-    duration: "0:00" // Will be updated by audio element
-  },
-];
+import { songs } from "@/data/songs";
 
 type RepeatMode = "none" | "all" | "one";
 

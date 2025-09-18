@@ -7,33 +7,19 @@ import { useLikedSongs } from "@/hooks/useLikedSongs";
 import { usePremium } from "@/hooks/usePremium";
 import { useAuth } from "@/hooks/useAuth";
 import { PremiumFeature } from "./premium/PremiumFeature";
-
-
-const sampleSongs = [
-  { id: 1, title: "Afrobeat Fusion", duration: "3:45" },
-  { id: 2, title: "Lagos Nights", duration: "4:12" },
-  { id: 3, title: "Ancestral Voices", duration: "3:58" },
-  { id: 4, title: "Modern Traditions", duration: "4:23" },
-  { id: 5, title: "Unity Dance", duration: "3:41" },
-  { id: 6, title: "River Flow", duration: "4:07" },
-  { id: 7, title: "Rhythmic Soul", duration: "3:52" },
-  { id: 8, title: "Golden Dawn", duration: "4:18" },
-  // Premium-only content
-  { id: 9, title: "Exclusive Melody", duration: "3:33", isPremium: true },
-  { id: 10, title: "VIP Session", duration: "4:55", isPremium: true }
-] as Array<{ id: number; title: string; duration: string; isPremium?: boolean }>;
+import { songs } from "@/data/songs";
 
 export const Library = () => {
-  const [playingSongId, setPlayingSongId] = useState<number | null>(null);
   const [isExpanded, setIsExpanded] = useState(true);
   const [isAlbumPlaying, setIsAlbumPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [currentPlayingSongId, setCurrentPlayingSongId] = useState<number | null>(null);
   const { toggleLikeSong, isLiked } = useLikedSongs();
   const { checkFeatureAccess, limits } = usePremium();
   const { isGuest } = useAuth();
 
-  // Show all songs in main list, premium users can access all
-  const displaySongs = sampleSongs;
+  // Use real songs from shared data
+  const displaySongs = songs;
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -46,7 +32,7 @@ export const Library = () => {
   }, []);
 
   const handlePlaySong = (songId: number) => {
-    const song = sampleSongs.find(s => s.id === songId);
+    const song = songs.find(s => s.id === songId);
     
     // Check if it's a premium song and user doesn't have access
     if (song?.isPremium && !checkFeatureAccess('premiumContent')) {
@@ -58,15 +44,27 @@ export const Library = () => {
       return;
     }
     
-    setPlayingSongId(songId);
+    // Use the global music player controls to actually play the song
+    if ((window as any).musicPlayerControls) {
+      (window as any).musicPlayerControls.playPlaylist([songId]);
+      setCurrentPlayingSongId(songId);
+      setIsAlbumPlaying(true);
+    }
   };
 
   const handleAlbumPlayPause = () => {
-    setIsAlbumPlaying(!isAlbumPlaying);
-    if (!isAlbumPlaying) {
-      setPlayingSongId(sampleSongs[0].id);
+    if (!isAlbumPlaying && songs.length > 0) {
+      // Start playing the album
+      const songIds = songs.map(song => song.id);
+      if ((window as any).musicPlayerControls) {
+        (window as any).musicPlayerControls.playPlaylist(songIds);
+        setCurrentPlayingSongId(songs[0].id);
+        setIsAlbumPlaying(true);
+      }
     } else {
-      setPlayingSongId(null);
+      // This would require additional controls to pause/resume
+      setIsAlbumPlaying(false);
+      setCurrentPlayingSongId(null);
     }
   };
 
@@ -136,8 +134,8 @@ export const Library = () => {
                         variant="ghost"
                         size="icon"
                         className={`h-8 w-8 rounded-full transition-all duration-300 backdrop-blur-sm ${
-                          playingSongId === song.id 
-                            ? 'text-[#1EAEDB] bg-[#1EAEDB]/30 animate-pulse shadow-[0_0_15px_rgba(30,174,219,0.4)]' 
+                          currentPlayingSongId === song.id 
+                            ? 'text-[#1EAEDB] bg-[#1EAEDB]/30 shadow-[0_0_15px_rgba(30,174,219,0.4)]' 
                             : 'text-[#F2FCE2] hover:text-[#1EAEDB] hover:bg-[#1EAEDB]/20 opacity-0 group-hover:opacity-100'
                         }`}
                         onClick={() => handlePlaySong(song.id)}
@@ -149,7 +147,7 @@ export const Library = () => {
                         )}
                       </Button>
                       <span className={`flex items-center gap-2 transition-all duration-300 ${
-                        playingSongId === song.id ? 'text-[#1EAEDB] font-medium' : 'text-[#F2FCE2] group-hover:text-[#FEF7CD]'
+                        currentPlayingSongId === song.id ? 'text-[#1EAEDB] font-medium' : 'text-[#F2FCE2] group-hover:text-[#FEF7CD]'
                       }`}>
                         {song.title}
                         {song.isPremium && !checkFeatureAccess('premiumContent') && (
@@ -160,7 +158,7 @@ export const Library = () => {
                     
                     <div className="flex items-center gap-3 relative z-10">
                       <span className="text-[#F2FCE2]/60 group-hover:text-[#F2FCE2]/90 transition-colors duration-300 text-sm font-mono">
-                        {song.duration}
+                        {song.duration || "0:00"}
                       </span>
                       <Button
                         variant="ghost"
