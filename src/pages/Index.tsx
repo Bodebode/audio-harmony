@@ -3,7 +3,8 @@ import { Navigate } from "react-router-dom";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/Sidebar";
 import { Header } from "@/components/Header";
-import { MusicPlayer } from "@/components/MusicPlayer";
+import { NowPlayingSection } from "@/components/NowPlayingSection";
+import { MiniMusicPlayer } from "@/components/MiniMusicPlayer";
 import { Library } from "@/components/Library";
 import { LikedSongs } from "@/components/LikedSongs";
 import { AboutArtist } from "@/components/AboutArtist";
@@ -46,7 +47,7 @@ const Index = () => {
         <AppSidebar />
         <div className="flex-1 overflow-auto pb-20 md:pb-16">
           <Header />
-          <MusicPlayer />
+          <NowPlayingSection />
           <Library />
           <AboutArtist />
           <LikedSongs />
@@ -57,6 +58,9 @@ const Index = () => {
           )}
           <Footer />
         </div>
+        
+        {/* Mini Music Player with scroll-based visibility */}
+        <MiniMusicPlayer />
         
         {/* Mobile bottom navigation */}
         {isMobile && <BottomNavigation />}
