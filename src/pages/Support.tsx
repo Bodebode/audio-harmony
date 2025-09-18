@@ -46,7 +46,7 @@ const Support = () => {
       };
 
       const { error } = await supabase
-        .from('tips')
+        .from('support_submissions')
         .insert([tipData]);
 
       if (error) {
