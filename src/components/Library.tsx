@@ -1,4 +1,4 @@
-import { PlayCircle, Heart, ChevronDown, Play, Pause, Crown, Lock } from "lucide-react";
+import { Heart, ChevronDown, Play, Pause, Crown, Lock } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { SkeletonGrid } from "@/components/ui/skeleton-loader";
@@ -16,7 +16,7 @@ export const Library = () => {
   const { toggleLikeSong, isLiked } = useLikedSongs();
   const { checkFeatureAccess, limits } = usePremium();
   const { isGuest } = useAuth();
-  const { isPlaying, currentSong, playSong, playPlaylist } = useAudio();
+  const { isPlaying, currentSong, playSong, playPlaylist, togglePlay } = useAudio();
 
   // Use real songs from shared data
   const displaySongs = songs;
@@ -34,12 +34,18 @@ export const Library = () => {
     };
   }, []);
 
-  const handlePlaySong = (songId: number) => {
-    playSong(songId);
+  const handleSongPlayPause = (songId: number) => {
+    if (currentSong?.id === songId && isPlaying) {
+      togglePlay();
+    } else {
+      playSong(songId);
+    }
   };
 
   const handleAlbumPlayPause = () => {
-    if (!isAlbumPlaying && songs.length > 0) {
+    if (isAlbumPlaying) {
+      togglePlay();
+    } else if (songs.length > 0) {
       // Start playing the album
       const songIds = songs.map(song => song.id);
       playPlaylist(songIds);
@@ -116,12 +122,14 @@ export const Library = () => {
                             ? 'text-[#1EAEDB] bg-[#1EAEDB]/30 shadow-[0_0_15px_rgba(30,174,219,0.4)]' 
                             : 'text-[#F2FCE2] hover:text-[#1EAEDB] hover:bg-[#1EAEDB]/20 opacity-0 group-hover:opacity-100'
                         }`}
-                        onClick={() => handlePlaySong(song.id)}
+                        onClick={() => handleSongPlayPause(song.id)}
                       >
                         {song.isPremium && !checkFeatureAccess('premiumContent') ? (
                           <Lock className="h-4 w-4" />
+                        ) : currentSong?.id === song.id && isPlaying ? (
+                          <Pause className="h-4 w-4" />
                         ) : (
-                          <PlayCircle className="h-4 w-4" />
+                          <Play className="h-4 w-4" />
                         )}
                       </Button>
                       <span className={`flex items-center gap-2 transition-all duration-300 ${
