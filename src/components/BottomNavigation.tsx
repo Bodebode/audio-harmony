@@ -76,7 +76,7 @@ export const BottomNavigation = () => {
               className={`flex flex-col items-center gap-1 h-auto py-2 px-3 min-w-0 flex-1 max-w-20 ${
                 active 
                   ? 'text-[#1EAEDB]' 
-                  : 'text-white/70 hover:text-white'
+                  : 'text-white/70 hover:bg-[#1EAEDB]/20 hover:text-[#1EAEDB]'
               }`}
             >
               <div className="relative">

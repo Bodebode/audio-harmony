@@ -1,5 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useAudio } from "@/contexts/AudioContext";
+import { Button } from "@/components/ui/button";
+import { ScrollText, Play } from "lucide-react";
 
 interface LyricsDisplayProps {
   isPlaying: boolean;
@@ -53,7 +55,9 @@ const sampleLyrics = [
 
 export const LyricsDisplay = ({ isPlaying, songId }: LyricsDisplayProps) => {
   const [currentLineIndex, setCurrentLineIndex] = useState(0);
+  const [followLyrics, setFollowLyrics] = useState(false);
   const { songProgress, duration } = useAudio();
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   // Calculate real current time from audio progress
   const currentTime = (songProgress * duration) / 100;
@@ -77,21 +81,65 @@ export const LyricsDisplay = ({ isPlaying, songId }: LyricsDisplayProps) => {
     }
   }, [currentTime, currentLineIndex]);
 
+  // Auto-scroll to current line when follow lyrics is enabled
+  useEffect(() => {
+    if (followLyrics && scrollContainerRef.current) {
+      const container = scrollContainerRef.current;
+      const currentLineElement = container.children[0]?.children[currentLineIndex] as HTMLElement;
+      
+      if (currentLineElement) {
+        const containerHeight = container.clientHeight;
+        const lineTop = currentLineElement.offsetTop;
+        const lineHeight = currentLineElement.clientHeight;
+        
+        // Scroll to center the current line
+        const scrollTo = lineTop - (containerHeight / 2) + (lineHeight / 2);
+        container.scrollTo({
+          top: scrollTo,
+          behavior: 'smooth'
+        });
+      }
+    }
+  }, [currentLineIndex, followLyrics]);
+
   return (
-    <div className="h-32 overflow-y-auto bg-black/20 rounded p-4 scrollbar-thin scrollbar-thumb-[#1EAEDB]/50 scrollbar-track-transparent">
-      <div className="space-y-3">
-        {sampleLyrics.map((line, index) => (
-          <p
-            key={index}
-            className={`text-center transition-all duration-300 leading-8 ${
-              index === currentLineIndex 
-                ? 'text-[#1EAEDB] font-semibold text-lg scale-105' 
-                : 'text-[#F2FCE2] opacity-70'
-            }`}
-          >
-            {line.text}
-          </p>
-        ))}
+    <div className="space-y-3">
+      {/* Follow Lyrics Toggle */}
+      <div className="flex justify-center">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => setFollowLyrics(!followLyrics)}
+          className={`flex items-center gap-2 text-xs ${
+            followLyrics 
+              ? 'text-[#1EAEDB] hover:text-[#1EAEDB] hover:bg-[#1EAEDB]/10' 
+              : 'text-[#F2FCE2]/70 hover:text-[#F2FCE2] hover:bg-[#F2FCE2]/10'
+          }`}
+        >
+          {followLyrics ? <Play className="h-3 w-3" /> : <ScrollText className="h-3 w-3" />}
+          Follow Lyrics
+        </Button>
+      </div>
+
+      {/* Lyrics Container */}
+      <div 
+        ref={scrollContainerRef}
+        className="h-32 overflow-y-auto bg-black/20 rounded p-4 scrollbar-thin scrollbar-thumb-[#1EAEDB]/50 scrollbar-track-transparent"
+      >
+        <div className="space-y-3">
+          {sampleLyrics.map((line, index) => (
+            <p
+              key={index}
+              className={`text-center transition-all duration-300 leading-8 ${
+                index === currentLineIndex 
+                  ? 'text-[#1EAEDB] font-semibold text-lg scale-105' 
+                  : 'text-[#F2FCE2] opacity-70'
+              }`}
+            >
+              {line.text}
+            </p>
+          ))}
+        </div>
       </div>
     </div>
   );
