@@ -149,7 +149,6 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const songIndex = songs.findIndex(s => s.id === songId);
     if (songIndex !== -1) {
       setCurrentSongIndex(songIndex);
-      setCurrentPlaylist(songs.map(s => s.id)); // Set album as current playlist
       setIsPlaying(true);
     }
   }, [checkFeatureAccess]);
