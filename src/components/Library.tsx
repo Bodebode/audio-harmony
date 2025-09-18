@@ -58,6 +58,11 @@ export const Library = () => {
       return;
     }
     
+    // Prevent rapid clicking while audio is loading
+    if (playingSongId === songId) {
+      return;
+    }
+    
     setPlayingSongId(songId);
     
     // Use the global music player controls if available

@@ -26,6 +26,8 @@ export const MusicPlayer = () => {
   const [isShuffleOn, setIsShuffleOn] = useState(false);
   const [repeatMode, setRepeatMode] = useState<RepeatMode>("none");
   const [isFullScreen, setIsFullScreen] = useState(false);
+  const [audioLoading, setAudioLoading] = useState(false);
+  const [audioError, setAudioError] = useState(false);
   const { checkFeatureAccess, limits } = usePremium();
   const { tracks, loading } = useTracks();
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -50,80 +52,6 @@ export const MusicPlayer = () => {
     duration: currentSong.duration
   };
 
-  // Real audio playback management
-  useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio || !currentSong?.audio_file_url) return;
-
-    const updateProgress = () => {
-      if (audio.duration) {
-        const progress = (audio.currentTime / audio.duration) * 100;
-        setSongProgress(progress);
-      }
-    };
-
-    const handleEnded = () => {
-      handleNext();
-    };
-
-    audio.addEventListener('timeupdate', updateProgress);
-    audio.addEventListener('ended', handleEnded);
-    
-    // Load new track
-    audio.src = currentSong.audio_file_url;
-    audio.volume = volume[0] / 100;
-
-    return () => {
-      audio.removeEventListener('timeupdate', updateProgress);
-      audio.removeEventListener('ended', handleEnded);
-    };
-  }, [currentSongIndex, tracks]);
-
-  // Handle play/pause changes
-  useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio || !currentSong?.audio_file_url) return;
-
-    if (isPlaying) {
-      audio.play().catch(console.error);
-    } else {
-      audio.pause();
-    }
-  }, [isPlaying, currentSong]);
-
-  // Handle volume changes
-  useEffect(() => {
-    const audio = audioRef.current;
-    if (audio) {
-      audio.volume = volume[0] / 100;
-    }
-  }, [volume]);
-
-  const togglePlay = () => {
-    if (!currentSong?.audio_file_url) return;
-    setIsPlaying(!isPlaying);
-  };
-
-  const handleProgressChange = (value: number) => {
-    const audio = audioRef.current;
-    if (audio && audio.duration) {
-      const newTime = (value / 100) * audio.duration;
-      audio.currentTime = newTime;
-      setSongProgress(value);
-    }
-  };
-
-  const toggleShuffle = () => {
-    setIsShuffleOn(!isShuffleOn);
-  };
-
-  const cycleRepeatMode = () => {
-    const modes: RepeatMode[] = ["none", "all", "one"];
-    const currentIndex = modes.indexOf(repeatMode);
-    const nextMode = modes[(currentIndex + 1) % modes.length];
-    setRepeatMode(nextMode);
-  };
-
   const getNextSongIndex = useCallback(() => {
     if (repeatMode === "one") return currentSongIndex;
     
@@ -144,21 +72,8 @@ export const MusicPlayer = () => {
     return repeatMode === "all" ? 0 : currentSongIndex;
   }, [currentSongIndex, currentPlaylist, currentSong.id, repeatMode, tracks]);
 
-  const handlePrevious = () => {
-    if (!currentPlaylist) {
-      setCurrentSongIndex((prev) => (prev === 0 ? tracks.length - 1 : prev - 1));
-      return;
-    }
-    
-    const currentIndex = currentPlaylist.indexOf(currentSong.id);
-    if (currentIndex > 0) {
-      const prevSongId = currentPlaylist[currentIndex - 1];
-      const prevSongIndex = tracks.findIndex(song => song.id === prevSongId);
-      setCurrentSongIndex(prevSongIndex !== -1 ? prevSongIndex : 0);
-    }
-  };
-
-  const handleNext = () => {
+  // Handle next song function with useCallback to prevent dependency loops
+  const handleNext = useCallback(() => {
     // Check skip limit for free users
     if (!checkFeatureAccess('unlimitedSkips')) {
       const now = Date.now();
@@ -189,7 +104,137 @@ export const MusicPlayer = () => {
     
     const nextIndex = getNextSongIndex();
     setCurrentSongIndex(nextIndex);
+  }, [
+    checkFeatureAccess, 
+    lastSkipReset, 
+    skipsThisHour, 
+    limits.skipsPerHour, 
+    isShuffleOn, 
+    currentPlaylist, 
+    currentSong.id, 
+    tracks, 
+    getNextSongIndex
+  ]);
+
+  // Real audio playback management
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio || !currentSong?.audio_file_url) return;
+
+    setAudioLoading(true);
+    setAudioError(false);
+
+    const updateProgress = () => {
+      if (audio.duration) {
+        const progress = (audio.currentTime / audio.duration) * 100;
+        setSongProgress(progress);
+      }
+    };
+
+    const handleEnded = () => {
+      handleNext();
+    };
+
+    const handleCanPlay = () => {
+      setAudioLoading(false);
+    };
+
+    const handleError = () => {
+      setAudioError(true);
+      setAudioLoading(false);
+      console.error('Audio failed to load:', currentSong.audio_file_url);
+    };
+
+    const handleLoadStart = () => {
+      setAudioLoading(true);
+    };
+
+    // Add event listeners
+    audio.addEventListener('timeupdate', updateProgress);
+    audio.addEventListener('ended', handleEnded);
+    audio.addEventListener('canplay', handleCanPlay);
+    audio.addEventListener('error', handleError);
+    audio.addEventListener('loadstart', handleLoadStart);
+    
+    // Load new track
+    audio.src = currentSong.audio_file_url;
+    audio.volume = volume[0] / 100;
+
+    return () => {
+      audio.removeEventListener('timeupdate', updateProgress);
+      audio.removeEventListener('ended', handleEnded);
+      audio.removeEventListener('canplay', handleCanPlay);
+      audio.removeEventListener('error', handleError);
+      audio.removeEventListener('loadstart', handleLoadStart);
+    };
+  }, [currentSongIndex, handleNext, volume]);
+
+  // Handle play/pause changes with loading check
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio || !currentSong?.audio_file_url || audioLoading || audioError) return;
+
+    if (isPlaying) {
+      const playPromise = audio.play();
+      if (playPromise !== undefined) {
+        playPromise.catch((error) => {
+          console.error('Play failed:', error);
+          setIsPlaying(false);
+        });
+      }
+    } else {
+      audio.pause();
+    }
+  }, [isPlaying, currentSong, audioLoading, audioError]);
+
+  // Handle volume changes
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (audio) {
+      audio.volume = volume[0] / 100;
+    }
+  }, [volume]);
+
+  const togglePlay = () => {
+    if (!currentSong?.audio_file_url || audioLoading || audioError) return;
+    setIsPlaying(!isPlaying);
   };
+
+  const handleProgressChange = (value: number) => {
+    const audio = audioRef.current;
+    if (audio && audio.duration) {
+      const newTime = (value / 100) * audio.duration;
+      audio.currentTime = newTime;
+      setSongProgress(value);
+    }
+  };
+
+  const toggleShuffle = () => {
+    setIsShuffleOn(!isShuffleOn);
+  };
+
+  const cycleRepeatMode = () => {
+    const modes: RepeatMode[] = ["none", "all", "one"];
+    const currentIndex = modes.indexOf(repeatMode);
+    const nextMode = modes[(currentIndex + 1) % modes.length];
+    setRepeatMode(nextMode);
+  };
+
+
+  const handlePrevious = () => {
+    if (!currentPlaylist) {
+      setCurrentSongIndex((prev) => (prev === 0 ? tracks.length - 1 : prev - 1));
+      return;
+    }
+    
+    const currentIndex = currentPlaylist.indexOf(currentSong.id);
+    if (currentIndex > 0) {
+      const prevSongId = currentPlaylist[currentIndex - 1];
+      const prevSongIndex = tracks.findIndex(song => song.id === prevSongId);
+      setCurrentSongIndex(prevSongIndex !== -1 ? prevSongIndex : 0);
+    }
+  };
+
 
   // Gesture controls for mobile
   const gestureRef = useGestures({
@@ -309,18 +354,23 @@ export const MusicPlayer = () => {
                        <SkipBack className="h-7 w-7 md:h-6 md:w-6" />
                      </Button>
 
-                     {/* Play/pause button - largest touch target */}
-                     <Button
-                       variant="ghost"
-                       size="icon"
-                       className="text-[#F2FCE2] hover:text-[#1EAEDB] transition-all duration-200 hover:scale-125 active:scale-110 hover:shadow-lg hover:shadow-[#1EAEDB]/20 h-14 w-14 md:h-12 md:w-12"
-                       onClick={togglePlay}
-                     >
-                       {isPlaying ? 
-                         <Pause className="h-8 w-8 md:h-7 md:w-7" /> : 
-                         <Play className="h-8 w-8 md:h-7 md:w-7" />
-                       }
-                     </Button>
+                      {/* Play/pause button - largest touch target */}
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-[#F2FCE2] hover:text-[#1EAEDB] transition-all duration-200 hover:scale-125 active:scale-110 hover:shadow-lg hover:shadow-[#1EAEDB]/20 h-14 w-14 md:h-12 md:w-12"
+                        onClick={togglePlay}
+                        disabled={audioLoading || audioError}
+                      >
+                        {audioLoading ? (
+                          <div className="h-8 w-8 md:h-7 md:w-7 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                        ) : audioError ? (
+                          <div className="h-8 w-8 md:h-7 md:w-7 text-red-500">⚠</div>
+                        ) : isPlaying ? 
+                          <Pause className="h-8 w-8 md:h-7 md:w-7" /> : 
+                          <Play className="h-8 w-8 md:h-7 md:w-7" />
+                        }
+                      </Button>
 
                      <Button
                        variant="ghost"
