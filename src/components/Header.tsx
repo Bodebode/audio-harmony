@@ -27,9 +27,7 @@ export const Header = () => {
   };
 
   const handleSignOut = async () => {
-    console.log('handleSignOut called, isGuest:', isGuest);
     if (isGuest) {
-      console.log('Navigating to /auth for guest');
       navigate('/auth');
       return;
     }

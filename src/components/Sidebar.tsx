@@ -117,7 +117,6 @@ export const AppSidebar = () => {
                      <Link 
                        to="/auth" 
                        className="flex items-center gap-2 text-[#1EAEDB] font-medium w-full"
-                       onClick={() => console.log('Sidebar Sign Up link clicked')}
                      >
                       <User className="h-5 w-5 group-hover:scale-110 transition-transform duration-200" />
                       <span className="group-hover:translate-x-1 transition-transform duration-200">Sign Up for Free</span>

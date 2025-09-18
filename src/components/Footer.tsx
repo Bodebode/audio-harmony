@@ -31,10 +31,7 @@ export const Footer = () => {
           </div>
           
            <Button
-             onClick={() => {
-               console.log('Footer Sign Up button clicked, navigating to /auth');
-               navigate('/auth');
-             }}
+             onClick={() => navigate('/auth')}
              size="lg"
              className="bg-gradient-to-r from-[#1EAEDB] to-[#0FA0CE] text-white font-semibold text-lg px-8 py-3 hover:from-[#1EAEDB]/90 hover:to-[#0FA0CE]/90 transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl"
            >
