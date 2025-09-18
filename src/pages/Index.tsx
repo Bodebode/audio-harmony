@@ -45,7 +45,7 @@ const Index = () => {
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-gradient-to-br from-[#0FA0CE] via-[#222222] to-[#1EAEDB]">
         <AppSidebar />
-        <div className="flex-1 overflow-auto pb-20 md:pb-16">
+        <div className="flex-1 overflow-auto pb-32 md:pb-28">
           <Header />
           <NowPlayingSection />
           <Library />

@@ -102,7 +102,8 @@ export const MiniMusicPlayer = () => {
         style={{ transform: `translateY(${isVisible ? '0' : '100%'})`, transition: 'transform 0.3s ease-in-out' }}
       >
         <Card className="glass-card bg-gradient-to-r from-[#0A0A0A]/90 to-[#1A1A2E]/90 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)]">
-          <CardContent className="p-4">
+          <CardContent className="p-4 space-y-3">
+            {/* Row 1: Album Art + Song Info + Main Playback Controls */}
             <div className="flex items-center justify-between gap-4">
               {/* Song Info & Album Art */}
               <div className="flex items-center gap-3 flex-1 min-w-0">
@@ -131,37 +132,8 @@ export const MiniMusicPlayer = () => {
                 </div>
               </div>
 
-              {/* Progress Bar - Now visible on mobile too */}
-              <div className="flex items-center gap-2 flex-1 max-w-md">
-                <span className="text-xs text-[#F2FCE2]/70 min-w-[32px]">
-                  {formatTime((duration * songProgress) / 100)}
-                </span>
-                <Slider
-                  value={[songProgress]}
-                  onValueChange={handleProgressChange}
-                  max={100}
-                  step={1}
-                  className="flex-1 h-2"
-                />
-                <span className="text-xs text-[#F2FCE2]/70 min-w-[32px]">
-                  {formatTime(duration)}
-                </span>
-              </div>
-
-              {/* Controls */}
+              {/* Main Playback Controls */}
               <div className="flex items-center gap-2">
-                {/* Shuffle - Hidden on mobile */}
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setIsShuffleOn(!isShuffleOn)}
-                  className={`h-8 w-8 p-0 hidden sm:flex ${
-                    isShuffleOn ? 'text-[#1EAEDB]' : 'text-[#F2FCE2]/70 hover:text-[#F2FCE2]'
-                  }`}
-                >
-                  <Shuffle className="h-4 w-4" />
-                </Button>
-
                 {/* Previous */}
                 <Button
                   variant="ghost"
@@ -191,90 +163,88 @@ export const MiniMusicPlayer = () => {
                 >
                   <SkipForward className="h-4 w-4" />
                 </Button>
-
-                {/* Repeat - Hidden on mobile */}
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={cycleRepeatMode}
-                  className={`h-8 w-8 p-0 hidden sm:flex ${
-                    repeatMode !== "none" ? 'text-[#1EAEDB]' : 'text-[#F2FCE2]/70 hover:text-[#F2FCE2]'
-                  }`}
-                >
-                  {(() => {
-                    const RepeatIcon = getRepeatIcon();
-                    return <RepeatIcon className="h-4 w-4" />;
-                  })()}
-                </Button>
-
-                {/* Volume - Now visible on mobile too */}
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setVolume(volume[0] === 0 ? [75] : [0])}
-                    className="h-8 w-8 p-0 text-[#F2FCE2]/70 hover:text-[#F2FCE2]"
-                  >
-                    {(() => {
-                      const VolumeIcon = getVolumeIcon();
-                      return <VolumeIcon className="h-4 w-4" />;
-                    })()}
-                  </Button>
-                  <Slider
-                    value={volume}
-                    onValueChange={setVolume}
-                    max={100}
-                    step={1}
-                    className="w-20 h-2"
-                  />
-                </div>
-
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-8 w-8 p-0 text-[#F2FCE2]/70 hover:text-[#F2FCE2] hidden sm:flex"
-                  >
-                    <Download className="h-4 w-4" />
-                  </Button>
               </div>
             </div>
 
-            {/* Mobile Additional Controls Row */}
-            <div className="flex sm:hidden items-center justify-between mt-3 px-2">
+            {/* Row 2: Progress Bar (Full Width) */}
+            <div className="flex items-center gap-3">
+              <span className="text-xs text-[#F2FCE2]/70 min-w-[35px] text-right">
+                {formatTime((duration * songProgress) / 100)}
+              </span>
+              <Slider
+                value={[songProgress]}
+                onValueChange={handleProgressChange}
+                max={100}
+                step={1}
+                className="flex-1 h-2"
+              />
+              <span className="text-xs text-[#F2FCE2]/70 min-w-[35px]">
+                {formatTime(duration)}
+              </span>
+            </div>
+
+            {/* Row 3: Secondary Controls */}
+            <div className="flex items-center justify-between">
+              {/* Left side controls */}
               <div className="flex items-center gap-2">
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => setIsShuffleOn(!isShuffleOn)}
-                  className={`h-6 w-6 p-0 ${
-                    isShuffleOn ? 'text-[#1EAEDB]' : 'text-[#F2FCE2]/70'
+                  className={`h-7 w-7 p-0 ${
+                    isShuffleOn ? 'text-[#1EAEDB]' : 'text-[#F2FCE2]/70 hover:text-[#F2FCE2]'
                   }`}
                 >
-                  <Shuffle className="h-3 w-3" />
+                  <Shuffle className="h-3.5 w-3.5" />
                 </Button>
                 
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={cycleRepeatMode}
-                  className={`h-6 w-6 p-0 ${
-                    repeatMode !== "none" ? 'text-[#1EAEDB]' : 'text-[#F2FCE2]/70'
+                  className={`h-7 w-7 p-0 ${
+                    repeatMode !== "none" ? 'text-[#1EAEDB]' : 'text-[#F2FCE2]/70 hover:text-[#F2FCE2]'
                   }`}
                 >
                   {(() => {
                     const RepeatIcon = getRepeatIcon();
-                    return <RepeatIcon className="h-3 w-3" />;
+                    return <RepeatIcon className="h-3.5 w-3.5" />;
                   })()}
                 </Button>
               </div>
 
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-6 w-6 p-0 text-[#F2FCE2]/70"
-              >
-                <Download className="h-3 w-3" />
-              </Button>
+              {/* Center - Volume Controls */}
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setVolume(volume[0] === 0 ? [75] : [0])}
+                  className="h-7 w-7 p-0 text-[#F2FCE2]/70 hover:text-[#F2FCE2]"
+                >
+                  {(() => {
+                    const VolumeIcon = getVolumeIcon();
+                    return <VolumeIcon className="h-3.5 w-3.5" />;
+                  })()}
+                </Button>
+                <Slider
+                  value={volume}
+                  onValueChange={setVolume}
+                  max={100}
+                  step={1}
+                  className="w-20 h-2"
+                />
+              </div>
+
+              {/* Right side controls */}
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-7 w-7 p-0 text-[#F2FCE2]/70 hover:text-[#F2FCE2]"
+                >
+                  <Download className="h-3.5 w-3.5" />
+                </Button>
+              </div>
             </div>
           </CardContent>
         </Card>
