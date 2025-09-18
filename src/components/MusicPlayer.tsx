@@ -1,4 +1,3 @@
-
 import { 
   Play, Pause, SkipBack, SkipForward, Volume2, Volume1, VolumeX, 
   Shuffle, Repeat, Repeat1, Maximize2, Crown, Sliders, Download 
@@ -6,190 +5,49 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState } from "react";
 import { LyricsDisplay } from "./LyricsDisplay";
 import { FullScreenPlayer } from "./FullScreenPlayer";
 import { PremiumFeature } from "./premium/PremiumFeature";
 import { usePremium } from "@/hooks/usePremium";
-
 import { useGestures } from "@/hooks/useGestures";
-import { songs } from "@/data/songs";
-
-type RepeatMode = "none" | "all" | "one";
+import { useAudio } from "@/contexts/AudioContext";
+import { formatDuration } from "@/utils/formatDuration";
 
 export const MusicPlayer = () => {
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [volume, setVolume] = useState([75]);
-  const [progress, setProgress] = useState([0]);
-  const [songProgress, setSongProgress] = useState(0);
-  const [currentSongIndex, setCurrentSongIndex] = useState(0);
-  const [currentPlaylist, setCurrentPlaylist] = useState<number[] | null>(null);
-  const [isShuffleOn, setIsShuffleOn] = useState(false);
-  const [repeatMode, setRepeatMode] = useState<RepeatMode>("none");
   const [isFullScreen, setIsFullScreen] = useState(false);
-  const [duration, setDuration] = useState(0);
-  const { checkFeatureAccess, limits } = usePremium();
-  
-  // Track skips for free users
-  const [skipsThisHour, setSkipsThisHour] = useState(0);
-  const [lastSkipReset, setLastSkipReset] = useState(Date.now());
+  const { checkFeatureAccess } = usePremium();
 
-  const audioRef = useRef<HTMLAudioElement>(null);
-  const currentSong = songs[currentSongIndex];
-
-  // Initialize audio element
-  useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
-
-    const handleTimeUpdate = () => {
-      const currentTime = audio.currentTime;
-      const duration = audio.duration;
-      if (duration > 0) {
-        const progressPercent = (currentTime / duration) * 100;
-        setSongProgress(progressPercent);
-      }
-    };
-
-    const handleLoadedMetadata = () => {
-      setDuration(audio.duration);
-    };
-
-    const handleEnded = () => {
-      if (repeatMode === "one") {
-        audio.currentTime = 0;
-        audio.play();
-      } else {
-        handleNext();
-      }
-    };
-
-    audio.addEventListener('timeupdate', handleTimeUpdate);
-    audio.addEventListener('loadedmetadata', handleLoadedMetadata);
-    audio.addEventListener('ended', handleEnded);
-
-    return () => {
-      audio.removeEventListener('timeupdate', handleTimeUpdate);
-      audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
-      audio.removeEventListener('ended', handleEnded);
-    };
-  }, [currentSongIndex, repeatMode]);
-
-  // Handle play/pause state changes
-  useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
-
-    if (isPlaying) {
-      audio.play().catch(console.error);
-    } else {
-      audio.pause();
-    }
-  }, [isPlaying]);
-
-  // Handle volume changes
-  useEffect(() => {
-    const audio = audioRef.current;
-    if (audio) {
-      audio.volume = volume[0] / 100;
-    }
-  }, [volume]);
-
-  const togglePlay = () => {
-    setIsPlaying(!isPlaying);
-  };
-
-  const handleProgressChange = (value: number) => {
-    const audio = audioRef.current;
-    if (audio && duration > 0) {
-      const newTime = (value / 100) * duration;
-      audio.currentTime = newTime;
-      setSongProgress(value);
-    }
-  };
-
-  const toggleShuffle = () => {
-    setIsShuffleOn(!isShuffleOn);
-  };
+  // Get all audio state from context
+  const { 
+    isPlaying, 
+    currentSong, 
+    duration, 
+    songProgress, 
+    volume, 
+    setVolume, 
+    handleProgressChange, 
+    togglePlay, 
+    nextSong, 
+    previousSong, 
+    isShuffleOn, 
+    setIsShuffleOn, 
+    repeatMode, 
+    setRepeatMode,
+    audioRef
+  } = useAudio();
 
   const cycleRepeatMode = () => {
-    const modes: RepeatMode[] = ["none", "all", "one"];
+    const modes = ["none", "all", "one"] as const;
     const currentIndex = modes.indexOf(repeatMode);
     const nextMode = modes[(currentIndex + 1) % modes.length];
     setRepeatMode(nextMode);
   };
 
-  const getNextSongIndex = useCallback(() => {
-    if (repeatMode === "one") return currentSongIndex;
-    
-    if (!currentPlaylist) {
-      if (currentSongIndex === songs.length - 1) {
-        return repeatMode === "all" ? 0 : currentSongIndex;
-      }
-      return currentSongIndex + 1;
-    }
-    
-    const currentIndex = currentPlaylist.indexOf(currentSong.id);
-    if (currentIndex < currentPlaylist.length - 1) {
-      const nextSongId = currentPlaylist[currentIndex + 1];
-      const nextSongIndex = songs.findIndex(song => song.id === nextSongId);
-      return nextSongIndex !== -1 ? nextSongIndex : currentSongIndex;
-    }
-    
-    return repeatMode === "all" ? 0 : currentSongIndex;
-  }, [currentSongIndex, currentPlaylist, currentSong.id, repeatMode]);
-
-  const handlePrevious = () => {
-    if (!currentPlaylist) {
-      setCurrentSongIndex((prev) => (prev === 0 ? songs.length - 1 : prev - 1));
-      return;
-    }
-    
-    const currentIndex = currentPlaylist.indexOf(currentSong.id);
-    if (currentIndex > 0) {
-      const prevSongId = currentPlaylist[currentIndex - 1];
-      const prevSongIndex = songs.findIndex(song => song.id === prevSongId);
-      setCurrentSongIndex(prevSongIndex !== -1 ? prevSongIndex : 0);
-    }
-  };
-
-  const handleNext = () => {
-    // Check skip limit for free users
-    if (!checkFeatureAccess('unlimitedSkips')) {
-      const now = Date.now();
-      if (now - lastSkipReset > 3600000) { // 1 hour
-        setSkipsThisHour(0);
-        setLastSkipReset(now);
-      }
-      
-      if (skipsThisHour >= limits.skipsPerHour) {
-        return; // Skip limit reached
-      }
-      
-      setSkipsThisHour(prev => prev + 1);
-    }
-    
-    if (isShuffleOn && currentPlaylist) {
-      const availableSongs = currentPlaylist.filter(id => id !== currentSong.id);
-      if (availableSongs.length > 0) {
-        const randomIndex = Math.floor(Math.random() * availableSongs.length);
-        const nextSongId = availableSongs[randomIndex];
-        const nextSongIndex = songs.findIndex(song => song.id === nextSongId);
-        if (nextSongIndex !== -1) {
-          setCurrentSongIndex(nextSongIndex);
-          return;
-        }
-      }
-    }
-    
-    const nextIndex = getNextSongIndex();
-    setCurrentSongIndex(nextIndex);
-  };
-
   // Gesture controls for mobile
   const gestureRef = useGestures({
-    onSwipeLeft: handleNext,
-    onSwipeRight: handlePrevious,
+    onSwipeLeft: nextSong,
+    onSwipeRight: previousSong,
     onSwipeUp: () => {
       const newVolume = Math.min(100, volume[0] + 10);
       setVolume([newVolume]);
@@ -197,204 +55,209 @@ export const MusicPlayer = () => {
     onSwipeDown: () => {
       const newVolume = Math.max(0, volume[0] - 10);
       setVolume([newVolume]);
-    },
-    threshold: 60,
-    velocityThreshold: 0.3
+    }
   });
 
-  // Export these methods to be used by other components
-  (window as any).musicPlayerControls = {
-    playPlaylist: (songIds: number[]) => {
-      if (songIds.length === 0) return;
-      const firstSongId = songIds[0];
-      const firstSongIndex = songs.findIndex(song => song.id === firstSongId);
-      if (firstSongIndex !== -1) {
-        setCurrentSongIndex(firstSongIndex);
-        setCurrentPlaylist(songIds);
-        
-        setIsPlaying(true);
-      }
-    }
+  const formatTime = (seconds: number) => {
+    if (isNaN(seconds)) return "0:00";
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
+
+  const getVolumeIcon = () => {
+    const vol = volume[0];
+    if (vol === 0) return VolumeX;
+    if (vol < 50) return Volume1;
+    return Volume2;
+  };
+
+  const getRepeatIcon = () => {
+    if (repeatMode === "one") return Repeat1;
+    return Repeat;
+  };
+
+  if (!currentSong) {
+    return (
+      <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/80 backdrop-blur-sm border-t">
+        <div className="text-center text-muted-foreground">
+          No song selected
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
-      {/* Hidden audio element */}
-      <audio
-        ref={audioRef}
-        src={currentSong.audioUrl}
-        preload="auto"
-      />
-      
-      <section id="now-playing" className="p-4">
-        <Card className="bg-black/40 backdrop-blur-lg border-[#1EAEDB]/10 animate-fade-in hover:border-[#1EAEDB]/20 transition-all duration-300">
+      <div 
+        className="fixed bottom-0 left-0 right-0 z-50 p-4"
+      >
+        <Card className="glass-card bg-gradient-to-r from-[#0A0A0A]/90 to-[#1A1A2E]/90 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)]">
           <CardContent className="p-4">
-            <div 
-              className="flex flex-col gap-4 md:grid md:grid-cols-2 md:gap-6"
-              ref={gestureRef as React.RefObject<HTMLDivElement>}
-            >
-              {/* Mobile-first album art - smaller on mobile */}
-              <div className="flex flex-col justify-center">
-                <div className="w-full max-w-48 mx-auto md:max-w-none aspect-square bg-[#222222] rounded-lg shadow-2xl overflow-hidden group relative">
-                  <img 
+            <div className="flex items-center justify-between gap-4">
+              {/* Song Info & Album Art */}
+              <div className="flex items-center gap-3 flex-1 min-w-0">
+                <div 
+                  className="relative group cursor-pointer"
+                  onClick={() => setIsFullScreen(true)}
+                >
+                  <img
                     src={currentSong.artwork}
-                    alt={`Album Art - ${currentSong.artist}`}
-                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 cursor-pointer"
-                    onClick={() => setIsFullScreen(true)}
+                    alt={currentSong.title}
+                    className="w-12 h-12 rounded-lg object-cover transition-transform group-hover:scale-105"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                  
-                  {/* Fullscreen button overlay - larger touch target */}
+                  <div className="absolute inset-0 bg-black/20 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-200 flex items-center justify-center">
+                    <Maximize2 className="h-4 w-4 text-white" />
+                  </div>
+                </div>
+                
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-semibold text-[#FEF7CD] truncate text-sm">
+                      {currentSong.title}
+                    </h3>
+                    {currentSong.isPremium && <Crown className="h-3 w-3 text-[#1EAEDB] flex-shrink-0" />}
+                  </div>
+                  <p className="text-xs text-[#F2FCE2]/70 truncate">{currentSong.artist}</p>
+                </div>
+              </div>
+
+              {/* Progress Bar */}
+              <div className="hidden sm:flex items-center gap-2 flex-1 max-w-md">
+                <span className="text-xs text-[#F2FCE2]/70 min-w-[32px]">
+                  {formatTime((duration * songProgress) / 100)}
+                </span>
+                <Slider
+                  value={[songProgress]}
+                  onValueChange={handleProgressChange}
+                  max={100}
+                  step={1}
+                  className="flex-1 h-2"
+                />
+                <span className="text-xs text-[#F2FCE2]/70 min-w-[32px]">
+                  {formatTime(duration)}
+                </span>
+              </div>
+
+              {/* Controls */}
+              <div className="flex items-center gap-2">
+                {/* Shuffle - Hidden on mobile */}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setIsShuffleOn(!isShuffleOn)}
+                  className={`h-8 w-8 p-0 hidden sm:flex ${
+                    isShuffleOn ? 'text-[#1EAEDB]' : 'text-[#F2FCE2]/70 hover:text-[#F2FCE2]'
+                  }`}
+                >
+                  <Shuffle className="h-4 w-4" />
+                </Button>
+
+                {/* Previous */}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={previousSong}
+                  className="h-8 w-8 p-0 text-[#F2FCE2]/70 hover:text-[#F2FCE2]"
+                >
+                  <SkipBack className="h-4 w-4" />
+                </Button>
+
+                {/* Play/Pause */}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={togglePlay}
+                  className="h-10 w-10 p-0 bg-[#1EAEDB]/20 hover:bg-[#1EAEDB]/30 text-[#1EAEDB] rounded-full transition-all duration-300"
+                >
+                  {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
+                </Button>
+
+                {/* Next */}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={nextSong}
+                  className="h-8 w-8 p-0 text-[#F2FCE2]/70 hover:text-[#F2FCE2]"
+                >
+                  <SkipForward className="h-4 w-4" />
+                </Button>
+
+                {/* Repeat - Hidden on mobile */}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={cycleRepeatMode}
+                  className={`h-8 w-8 p-0 hidden sm:flex ${
+                    repeatMode !== "none" ? 'text-[#1EAEDB]' : 'text-[#F2FCE2]/70 hover:text-[#F2FCE2]'
+                  }`}
+                >
+                  {getRepeatIcon()({ className: "h-4 w-4" })}
+                </Button>
+
+                {/* Volume - Hidden on mobile */}
+                <div className="hidden md:flex items-center gap-2">
                   <Button
                     variant="ghost"
-                    size="icon"
-                    onClick={() => setIsFullScreen(true)}
-                    className="absolute top-4 right-4 text-white/80 hover:text-white hover:bg-black/50 opacity-0 group-hover:opacity-100 transition-all duration-300 h-12 w-12 md:h-10 md:w-10"
+                    size="sm"
+                    onClick={() => setVolume(volume[0] === 0 ? [75] : [0])}
+                    className="h-8 w-8 p-0 text-[#F2FCE2]/70 hover:text-[#F2FCE2]"
                   >
-                    <Maximize2 className="h-6 w-6 md:h-5 md:w-5" />
+                    {getVolumeIcon()({ className: "h-4 w-4" })}
                   </Button>
+                  <Slider
+                    value={volume}
+                    onValueChange={setVolume}
+                    max={100}
+                    step={1}
+                    className="w-20 h-2"
+                  />
                 </div>
-              </div>
-              
-            <div className="flex flex-col justify-between min-h-0">
-              <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <h2 className="text-2xl font-bold text-[#FEF7CD]">Now Playing</h2>
-                  </div>
-                <p className="text-[#F2FCE2] text-lg mb-1">{currentSong.title}</p>
-                <p className="text-[#F2FCE2]/80 text-base">{currentSong.artist}</p>
-              </div>
-              <div className="space-y-2">
-                <LyricsDisplay isPlaying={isPlaying} songId={currentSong.id} />
-                <div className="space-y-2">
-                 <div className="space-y-2">
-                     <Slider
-                       value={[songProgress]}
-                       onValueChange={(vals) => handleProgressChange(vals[0])}
-                       max={100}
-                       step={0.5}
-                       className="w-full [&>span[role=slider]]:h-6 [&>span[role=slider]]:w-6 md:[&>span[role=slider]]:h-4 md:[&>span[role=slider]]:w-4"
-                     />
-                      <div className="flex justify-between text-sm text-[#F2FCE2]">
-                        <span>{Math.floor((songProgress / 100) * duration)}s</span>
-                        <span>{Math.floor(duration)}s</span>
-                      </div>
-                   </div>
-                   
-                    {/* Mobile-optimized controls with larger touch targets */}
-                    <div className="flex justify-center items-center gap-2 sm:gap-4">
-                      {/* Secondary controls - smaller on mobile */}
-                      <Button
-                       variant="ghost"
-                       size="icon"
-                       className={`text-[#F2FCE2] transition-all duration-200 hover:scale-110 h-11 w-11 md:h-10 md:w-10 ${isShuffleOn ? 'text-[#1EAEDB] animate-pulse' : 'hover:text-[#1EAEDB]'}`}
-                       onClick={toggleShuffle}
-                     >
-                       <Shuffle className="h-5 w-5 md:h-4 md:w-4" />
-                     </Button>
 
-                     {/* Primary playback controls - larger touch targets */}
-                     <Button
-                       variant="ghost"
-                       size="icon"
-                       className="text-[#F2FCE2] hover:text-[#1EAEDB] transition-all duration-200 hover:scale-110 active:scale-95 h-12 w-12 md:h-11 md:w-11"
-                       onClick={handlePrevious}
-                     >
-                       <SkipBack className="h-7 w-7 md:h-6 md:w-6" />
-                     </Button>
-
-                     {/* Play/pause button - largest touch target */}
-                     <Button
-                       variant="ghost"
-                       size="icon"
-                       className="text-[#F2FCE2] hover:text-[#1EAEDB] transition-all duration-200 hover:scale-125 active:scale-110 hover:shadow-lg hover:shadow-[#1EAEDB]/20 h-14 w-14 md:h-12 md:w-12"
-                       onClick={togglePlay}
-                     >
-                       {isPlaying ? 
-                         <Pause className="h-8 w-8 md:h-7 md:w-7" /> : 
-                         <Play className="h-8 w-8 md:h-7 md:w-7" />
-                       }
-                     </Button>
-
-                     <Button
-                       variant="ghost"
-                       size="icon"
-                       className="text-[#F2FCE2] hover:text-[#1EAEDB] transition-all duration-200 hover:scale-110 active:scale-95 h-12 w-12 md:h-11 md:w-11"
-                       onClick={handleNext}
-                       disabled={!checkFeatureAccess('unlimitedSkips') && skipsThisHour >= limits.skipsPerHour}
-                     >
-                       <SkipForward className="h-7 w-7 md:h-6 md:w-6" />
-                     </Button>
-
-                     <Button
-                       variant="ghost"
-                       size="icon"
-                       className={`text-[#F2FCE2] transition-all duration-200 hover:scale-110 h-11 w-11 md:h-10 md:w-10 ${
-                         repeatMode !== "none" ? 'text-[#1EAEDB] animate-pulse' : 'hover:text-[#1EAEDB]'
-                       }`}
-                       onClick={cycleRepeatMode}
-                     >
-                       {repeatMode === "one" ? (
-                         <Repeat1 className="h-5 w-5 md:h-4 md:w-4" />
-                       ) : (
-                         <Repeat className="h-5 w-5 md:h-4 md:w-4" />
-                       )}
-                     </Button>
-
-                     <Button
-                       variant="ghost"
-                       size="icon"
-                       className="text-[#F2FCE2] hover:text-[#1EAEDB] transition-all duration-200 hover:scale-110 h-11 w-11 md:h-10 md:w-10"
-                     >
-                       <Download className="h-5 w-5 md:h-4 md:w-4" />
-                     </Button>
-                  </div>
-                   {/* Volume control - mobile-optimized */}
-                   <div className="flex items-center gap-3 md:gap-2">
-                     <Button
-                       variant="ghost"
-                       size="icon"
-                       className="text-[#F2FCE2] hover:text-[#1EAEDB] transition-all duration-200 hover:scale-110 h-11 w-11 md:h-10 md:w-10"
-                     >
-                       {volume[0] > 50 ? (
-                         <Volume2 className="h-5 w-5 md:h-4 md:w-4" />
-                       ) : volume[0] > 0 ? (
-                         <Volume1 className="h-5 w-5 md:h-4 md:w-4" />
-                       ) : (
-                         <VolumeX className="h-5 w-5 md:h-4 md:w-4" />
-                       )}
-                     </Button>
-                     <Slider
-                       value={volume}
-                       onValueChange={setVolume}
-                       max={100}
-                       step={1}
-                       className="flex-1 max-w-32 md:w-24 [&>span[role=slider]]:h-5 [&>span[role=slider]]:w-5 md:[&>span[role=slider]]:h-4 md:[&>span[role=slider]]:w-4"
-                     />
-                   </div>
-                </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 w-8 p-0 text-[#F2FCE2]/70 hover:text-[#F2FCE2] hidden sm:flex"
+                  >
+                    <Download className="h-4 w-4" />
+                  </Button>
               </div>
             </div>
-          </div>
+
+            {/* Mobile Progress Bar */}
+            <div className="flex sm:hidden items-center gap-2 mt-3">
+              <span className="text-xs text-[#F2FCE2]/70 min-w-[32px]">
+                {formatTime((duration * songProgress) / 100)}
+              </span>
+              <Slider
+                value={[songProgress]}
+                onValueChange={handleProgressChange}
+                max={100}
+                step={1}
+                className="flex-1 h-1"
+              />
+              <span className="text-xs text-[#F2FCE2]/70 min-w-[32px]">
+                {formatTime(duration)}
+              </span>
+            </div>
           </CardContent>
         </Card>
-      </section>
+      </div>
 
       {/* Full Screen Player */}
       <FullScreenPlayer
         isOpen={isFullScreen}
         onClose={() => setIsFullScreen(false)}
+        currentSong={currentSong}
         isPlaying={isPlaying}
         onTogglePlay={togglePlay}
         volume={volume}
         onVolumeChange={setVolume}
         progress={songProgress}
-        onProgressChange={handleProgressChange}
-        onNext={handleNext}
-        onPrevious={handlePrevious}
-        currentSong={currentSong}
+        onProgressChange={(value) => handleProgressChange([value])}
+        onNext={nextSong}
+        onPrevious={previousSong}
       />
     </>
   );
 };
-
