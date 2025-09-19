@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 
 interface PayPalButtonProps {
   planId: string;
@@ -28,11 +29,34 @@ const PayPalButton: React.FC<PayPalButtonProps> = ({
   const buttonRendered = useRef(false);
   const [isLoading, setIsLoading] = useState(true);
   const [loadingError, setLoadingError] = useState<string | null>(null);
+  const [paypalConfig, setPaypalConfig] = useState<any>(null);
 
   const containerId = `paypal-button-container-${planId}`;
 
   useEffect(() => {
-    const loadPayPalSDK = () => {
+    const fetchPayPalConfig = async () => {
+      try {
+        const { data, error } = await supabase.functions.invoke('get-paypal-config');
+        
+        if (error) {
+          throw new Error('Failed to fetch PayPal configuration');
+        }
+        
+        if (!data?.clientId) {
+          throw new Error('PayPal client ID not configured');
+        }
+        
+        setPaypalConfig(data);
+        return data.clientId;
+      } catch (error) {
+        console.error('PayPal config error:', error);
+        setLoadingError('Failed to load PayPal configuration');
+        setIsLoading(false);
+        throw error;
+      }
+    };
+
+    const loadPayPalSDK = async (clientId: string) => {
       if (window.PayPalSDKLoaded || document.querySelector('[src*="paypal.com/sdk/js"]')) {
         setIsLoading(false);
         return Promise.resolve();
@@ -40,7 +64,7 @@ const PayPalButton: React.FC<PayPalButtonProps> = ({
 
       return new Promise<void>((resolve, reject) => {
         const script = document.createElement('script');
-        script.src = 'https://www.paypal.com/sdk/js?client-id=ATua47QvA3LF0-XtC5U0sJ0F1L2yvlmloqhqiSDPn9pfC6t7q4dwNDzu2cM_xpLG8YJ1JhIJtevxVrCH&vault=true&intent=subscription';
+        script.src = `https://www.paypal.com/sdk/js?client-id=${clientId}&vault=true&intent=subscription`;
         script.onload = () => {
           window.PayPalSDKLoaded = true;
           setIsLoading(false);
@@ -117,13 +141,14 @@ const PayPalButton: React.FC<PayPalButtonProps> = ({
       }
     };
 
-    loadPayPalSDK()
+    fetchPayPalConfig()
+      .then((clientId) => loadPayPalSDK(clientId))
       .then(() => {
         // Small delay to ensure DOM is ready
         setTimeout(renderPayPalButton, 100);
       })
       .catch((error) => {
-        console.error('PayPal SDK loading error:', error);
+        console.error('PayPal loading error:', error);
         setLoadingError('Failed to load payment system');
         setIsLoading(false);
       });

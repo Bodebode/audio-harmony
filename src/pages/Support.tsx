@@ -9,7 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Heart, Coffee, Star, Gift, Music } from "lucide-react";
 import PayPalButton from "@/components/PayPalButton";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -20,15 +20,49 @@ const Support = () => {
   const [supporterEmail, setSupporterEmail] = useState('');
   const [message, setMessage] = useState('');
   const [selectedAmount, setSelectedAmount] = useState<string | null>(null);
+  const [paypalConfig, setPaypalConfig] = useState<any>(null);
+  const [configLoading, setConfigLoading] = useState(true);
   const { toast } = useToast();
   const { user, profile } = useAuth();
 
-  const predefinedAmounts = [
-    { amount: '5', planId: 'P-2LM460357N721533WNDEMQEI', color: 'silver' as const, icon: Coffee, label: 'Buy me a coffee' },
-    { amount: '10', planId: 'P-7A373816S2101190ANDEMTKY', color: 'gold' as const, icon: Heart, label: 'Show some love' },
-    { amount: '25', planId: 'P-5X178743BT784302PNDEMU2I', color: 'gold' as const, icon: Star, label: "Fanmily" },
-    { amount: '100', planId: 'P-2LE84220VT3721543NDEMV4A', color: 'blue' as const, icon: Gift, label: "Destiny Helper" }
-  ];
+  // Fetch PayPal configuration
+  useEffect(() => {
+    const fetchPayPalConfig = async () => {
+      try {
+        const { data, error } = await supabase.functions.invoke('get-paypal-config');
+        
+        if (error) {
+          console.error('Failed to fetch PayPal configuration:', error);
+          toast({
+            title: "Configuration Error",
+            description: "Failed to load payment configuration. Please try again later.",
+            variant: "destructive",
+          });
+          return;
+        }
+        
+        setPaypalConfig(data);
+      } catch (error) {
+        console.error('PayPal config error:', error);
+        toast({
+          title: "Configuration Error",
+          description: "Failed to load payment configuration. Please try again later.",
+          variant: "destructive",
+        });
+      } finally {
+        setConfigLoading(false);
+      }
+    };
+
+    fetchPayPalConfig();
+  }, []);
+
+  const predefinedAmounts = paypalConfig ? [
+    { amount: '5', planId: paypalConfig.planIds?.['5'] || '', color: 'silver' as const, icon: Coffee, label: 'Buy me a coffee' },
+    { amount: '10', planId: paypalConfig.planIds?.['10'] || '', color: 'gold' as const, icon: Heart, label: 'Show some love' },
+    { amount: '25', planId: paypalConfig.planIds?.['25'] || '', color: 'gold' as const, icon: Star, label: "Fanmily" },
+    { amount: '100', planId: paypalConfig.planIds?.['100'] || '', color: 'blue' as const, icon: Gift, label: "Destiny Helper" }
+  ] : [];
 
   const handlePayPalSuccess = async (data: any) => {
     try {
@@ -124,32 +158,97 @@ const Support = () => {
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-6">
-                    {/* Predefined Amounts */}
-                    <div className="grid grid-cols-2 gap-4">
-                      {predefinedAmounts.map(({ amount, planId, color, icon: Icon, label }) => (
-                        <div key={amount} className="space-y-3">
-                          <Button
-                            variant={selectedAmount === amount ? "default" : "outline"}
-                            className={`w-full h-20 flex flex-col gap-2 ${
-                              selectedAmount === amount 
+                    {/* Loading State */}
+                    {configLoading ? (
+                      <div className="flex items-center justify-center py-8">
+                        <div className="flex items-center gap-2 text-white/70">
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white/70"></div>
+                          <span className="text-sm">Loading payment options...</span>
+                        </div>
+                      </div>
+                    ) : predefinedAmounts.length === 0 ? (
+                      <div className="text-center py-8">
+                        <p className="text-white/70">Payment configuration not available</p>
+                      </div>
+                    ) : (
+                      <>
+                        {/* Predefined Amounts */}
+                        <div className="grid grid-cols-2 gap-4">
+                          {predefinedAmounts.map(({ amount, planId, color, icon: Icon, label }) => (
+                            <div key={amount} className="space-y-3">
+                              <Button
+                                variant={selectedAmount === amount ? "default" : "outline"}
+                                className={`w-full h-20 flex flex-col gap-2 ${
+                                  selectedAmount === amount 
+                                    ? 'bg-gradient-to-r from-[#1EAEDB] to-[#0FA0CE] text-white' 
+                                    : 'bg-white/10 text-white border-white/20 hover:bg-white/20'
+                                }`}
+                                onClick={() => setSelectedAmount(amount)}
+                                disabled={!planId}
+                              >
+                                <Icon className="h-5 w-5" />
+                                <span className="font-semibold">£{amount}</span>
+                                <Badge variant="secondary" className="text-xs">
+                                  {label}
+                                </Badge>
+                              </Button>
+                              
+                              {selectedAmount === amount && planId && (
+                                <div className="paypal-button-wrapper">
+                                  <PayPalButton
+                                    planId={planId}
+                                    amount={amount}
+                                    color={color}
+                                    style="payment"
+                                    onApprove={handlePayPalSuccess}
+                                    onError={handlePayPalError}
+                                  />
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </>
+                    )}
+                    
+                    {!configLoading && predefinedAmounts.length > 0 && (
+                      <>
+                        {/* Custom Amount */}
+                        <div className="pt-6 border-t border-white/20">
+                          <label htmlFor="custom-amount" className="block text-white font-medium mb-2">
+                            Or enter a custom amount (£)
+                          </label>
+                          <div className="flex gap-2">
+                            <Input
+                              id="custom-amount"
+                              type="number"
+                              min="1"
+                              max="1000"
+                              step="0.01"
+                              placeholder="25.00"
+                              value={customAmount}
+                              onChange={(e) => setCustomAmount(e.target.value)}
+                              className="bg-white/10 border-white/20 text-white placeholder-white/50"
+                            />
+                            <Button
+                              variant={customAmount ? "default" : "outline"}
+                              className={customAmount 
                                 ? 'bg-gradient-to-r from-[#1EAEDB] to-[#0FA0CE] text-white' 
                                 : 'bg-white/10 text-white border-white/20 hover:bg-white/20'
-                            }`}
-                            onClick={() => setSelectedAmount(amount)}
-                          >
-                            <Icon className="h-5 w-5" />
-                            <span className="font-semibold">£{amount}</span>
-                            <Badge variant="secondary" className="text-xs">
-                              {label}
-                            </Badge>
-                          </Button>
+                              }
+                              onClick={() => setSelectedAmount('custom')}
+                              disabled={!customAmount || parseFloat(customAmount) < 1}
+                            >
+                              Select
+                            </Button>
+                          </div>
                           
-                          {selectedAmount === amount && (
-                            <div className="paypal-button-wrapper">
+                          {selectedAmount === 'custom' && customAmount && (
+                            <div className="mt-4">
                               <PayPalButton
-                                planId={planId}
-                                amount={amount}
-                                color={color}
+                                planId="custom"
+                                amount={customAmount}
+                                color="blue"
                                 style="payment"
                                 onApprove={handlePayPalSuccess}
                                 onError={handlePayPalError}
@@ -157,52 +256,8 @@ const Support = () => {
                             </div>
                           )}
                         </div>
-                      ))}
-                    </div>
-
-                    {/* Custom Amount */}
-                    <div className="pt-6 border-t border-white/20">
-                      <label htmlFor="custom-amount" className="block text-white font-medium mb-2">
-                        Or enter a custom amount (£)
-                      </label>
-                      <div className="flex gap-2">
-                        <Input
-                          id="custom-amount"
-                          type="number"
-                          min="1"
-                          max="1000"
-                          step="0.01"
-                          placeholder="25.00"
-                          value={customAmount}
-                          onChange={(e) => setCustomAmount(e.target.value)}
-                          className="bg-white/10 border-white/20 text-white placeholder-white/50"
-                        />
-                        <Button
-                          variant={customAmount ? "default" : "outline"}
-                          className={customAmount 
-                            ? 'bg-gradient-to-r from-[#1EAEDB] to-[#0FA0CE] text-white' 
-                            : 'bg-white/10 text-white border-white/20 hover:bg-white/20'
-                          }
-                          onClick={() => setSelectedAmount('custom')}
-                          disabled={!customAmount || parseFloat(customAmount) < 1}
-                        >
-                          Select
-                        </Button>
-                      </div>
-                      
-                      {selectedAmount === 'custom' && customAmount && (
-                        <div className="mt-4">
-                          <PayPalButton
-                            planId="custom"
-                            amount={customAmount}
-                            color="blue"
-                            style="payment"
-                            onApprove={handlePayPalSuccess}
-                            onError={handlePayPalError}
-                          />
-                        </div>
-                      )}
-                    </div>
+                      </>
+                    )}
                   </CardContent>
                 </Card>
 
