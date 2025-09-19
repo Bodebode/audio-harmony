@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useState, useRef, useEffect, useCallback } from "react";
 import { songs, Song } from "@/data/songs";
 import { usePremium } from "@/hooks/usePremium";
+import { useSongDurations } from "@/hooks/useSongDurations";
+import { formatDuration } from "@/utils/formatDuration";
 
 type RepeatMode = "none" | "all" | "one";
 
@@ -47,6 +49,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [repeatMode, setRepeatMode] = useState<RepeatMode>("none");
   const [duration, setDuration] = useState(0);
   const { checkFeatureAccess } = usePremium();
+  const { preloadSongDurations } = useSongDurations();
   
   const audioRef = useRef<HTMLAudioElement>(null);
   const currentSong = songs[currentSongIndex];
@@ -123,12 +126,6 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
   }, [volume]);
 
-  const formatDuration = (seconds: number): string => {
-    if (isNaN(seconds) || seconds === 0) return "0:00";
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = Math.floor(seconds % 60);
-    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
-  };
 
   const togglePlay = useCallback(() => {
     setIsPlaying(!isPlaying);
