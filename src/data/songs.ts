@@ -42,6 +42,24 @@ export const songs: Song[] = [
     duration: "0:00" // Will be updated by audio element
   },
   {
+    id: 6,
+    title: "Ma f'ayo fo",
+    artist: "Bode Nathaniel",
+    artwork: "/lovable-uploads/ma-fayo-fo-artwork.png",
+    audioUrl: "/songs/Ma-Fayo-Fo.mp3",
+    duration: "0:00", // Will be updated by audio element
+    isPremium: true
+  },
+  {
+    id: 7,
+    title: "You Make Me Better",
+    artist: "Bode Nathaniel",
+    artwork: "/lovable-uploads/you-make-me-better-artwork.png",
+    audioUrl: "/songs/You-Make-Me-Better.mp3",
+    duration: "0:00", // Will be updated by audio element
+    isPremium: true
+  },
+  {
     id: 3,
     title: "Love",
     artist: "Bode Nathaniel",
