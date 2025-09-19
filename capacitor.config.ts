@@ -16,6 +16,7 @@ const config: CapacitorConfig = {
       showSpinner: false,
       splashFullScreen: true,
       splashImmersive: true,
+      splashScreen: 'public/app-icons/splash-screen.png'
     },
     StatusBar: {
       style: 'DARK',
