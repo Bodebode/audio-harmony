@@ -1,15 +1,17 @@
-import { Home, Search, Library, Crown, User } from "lucide-react";
+import { Home, Menu, Library, Crown, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { usePremium } from "@/hooks/usePremium";
 import { PremiumBadge } from "./premium/PremiumBadge";
+import { useSidebar } from "@/components/ui/sidebar";
 
 export const BottomNavigation = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { isGuest } = useAuth();
   const { isPremiumActive } = usePremium();
+  const { toggleSidebar } = useSidebar();
 
   const navItems = [
     {
@@ -19,16 +21,10 @@ export const BottomNavigation = () => {
       onClick: () => navigate("/")
     },
     {
-      icon: Search,
-      label: "Search",
-      path: "/search",
-      onClick: () => {
-        // Will trigger search modal in header
-        const searchButton = document.querySelector('[data-search-trigger]');
-        if (searchButton) {
-          (searchButton as HTMLButtonElement).click();
-        }
-      }
+      icon: Menu,
+      label: "Menu",
+      path: "/menu",
+      onClick: () => toggleSidebar()
     },
     {
       icon: Library,

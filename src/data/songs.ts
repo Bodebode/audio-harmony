@@ -26,6 +26,14 @@ export const songs: Song[] = [
     duration: "0:00"
   },
   {
+    id: 8,
+    title: "Life",
+    artist: "Bode Nathaniel",
+    artwork: "/lovable-uploads/life-artwork.png",
+    audioUrl: "/songs/Life.mp3",
+    duration: "0:00"
+  },
+  {
     id: 5,
     title: "Give Thanks",
     artist: "Bode Nathaniel",
@@ -40,14 +48,6 @@ export const songs: Song[] = [
     artwork: "/lovable-uploads/fire-artwork-new.png",
     audioUrl: "/songs/Fire.mp3",
     duration: "0:00" // Will be updated by audio element
-  },
-  {
-    id: 8,
-    title: "Life",
-    artist: "Bode Nathaniel",
-    artwork: "/lovable-uploads/life-artwork.png",
-    audioUrl: "/songs/Life.mp3",
-    duration: "0:00"
   },
   {
     id: 10,
