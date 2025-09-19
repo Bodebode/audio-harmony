@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -16,7 +17,23 @@ import { AudioProvider } from "./contexts/AudioContext";
 
 const queryClient = new QueryClient();
 
-const App = () => (
+const App = () => {
+  // Prevent right-click, text selection, and dragging
+  useEffect(() => {
+    const preventDefault = (e: Event) => e.preventDefault();
+    
+    document.addEventListener('contextmenu', preventDefault);
+    document.addEventListener('selectstart', preventDefault);
+    document.addEventListener('dragstart', preventDefault);
+    
+    return () => {
+      document.removeEventListener('contextmenu', preventDefault);
+      document.removeEventListener('selectstart', preventDefault);
+      document.removeEventListener('dragstart', preventDefault);
+    };
+  }, []);
+
+  return (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <AudioProvider>
@@ -40,6 +57,7 @@ const App = () => (
       </AudioProvider>
     </TooltipProvider>
   </QueryClientProvider>
-);
+  );
+};
 
 export default App;
