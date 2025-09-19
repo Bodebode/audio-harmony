@@ -57,11 +57,22 @@ Bode Nathaniel, music streaming, audio player, premium music, Nigerian music, go
 - [x] iOS App Icon 192x192 ✅
 - [x] Android App Icon 512x512 ✅
 - [x] Splash Screen ✅
-- [ ] App Store Screenshots (iPhone 6.7")
-- [ ] App Store Screenshots (iPhone 6.5") 
-- [ ] App Store Screenshots (iPad 12.9")
-- [ ] Privacy Policy URL ✅ (already implemented)
-- [ ] Terms of Service URL ✅ (already implemented)
+- [x] App Store Screenshots (iPhone) ✅ (5 screenshots created)
+- [x] App Store Screenshots (iPad) ✅ (2 screenshots created)
+- [x] Privacy Policy URL ✅ (already implemented)
+- [x] Terms of Service URL ✅ (already implemented)
+
+## Created Screenshots
+### iPhone Screenshots (864x1920px)
+- [x] Main Music Player Interface ✅
+- [x] Music Library & Song List ✅ 
+- [x] Premium Features & Pricing ✅
+- [x] About Artist Profile ✅
+- [x] Mobile Navigation Experience ✅
+
+### iPad Screenshots (1920x1440px)
+- [x] Main Interface with Sidebar ✅
+- [x] Premium Features (Tablet Layout) ✅
 
 ## Privacy Labels Required
 
@@ -87,7 +98,7 @@ Bode Nathaniel, music streaming, audio player, premium music, Nigerian music, go
 
 ## Next Steps for Submission
 1. ✅ Update app metadata and generate icons
-2. ❌ Create app store screenshots  
+2. ✅ Create app store screenshots  
 3. ❌ Set up Apple Developer Account ($99/year)
 4. ❌ Set up Google Play Developer Account ($25 one-time)
 5. ❌ Test on physical devices
