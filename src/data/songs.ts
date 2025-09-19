@@ -26,15 +26,6 @@ export const songs: Song[] = [
     duration: "0:00" // Will be updated by audio element
   },
   {
-    id: 3,
-    title: "Love",
-    artist: "Bode Nathaniel",
-    artwork: "/lovable-uploads/74cb0a2d-58c7-4be3-a188-27a043b76a3d.png",
-    audioUrl: "/songs/Love-2.mp3",
-    duration: "0:00", // Will be updated by audio element
-    isPremium: true
-  },
-  {
     id: 4,
     title: "Fire",
     artist: "Bode Nathaniel",
@@ -49,5 +40,14 @@ export const songs: Song[] = [
     artwork: "/lovable-uploads/give-thanks-artwork.png",
     audioUrl: "/songs/Give-Thanks.mp3",
     duration: "0:00" // Will be updated by audio element
+  },
+  {
+    id: 3,
+    title: "Love",
+    artist: "Bode Nathaniel",
+    artwork: "/lovable-uploads/74cb0a2d-58c7-4be3-a188-27a043b76a3d.png",
+    audioUrl: "/songs/Love-2.mp3",
+    duration: "0:00", // Will be updated by audio element
+    isPremium: true
   },
 ];

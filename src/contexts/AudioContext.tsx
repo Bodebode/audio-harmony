@@ -182,9 +182,25 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const nextSong = useCallback(() => {
     const nextIndex = getNextSongIndex();
     if (nextIndex !== -1) {
+      const wasPlaying = isPlaying;
+      
+      // Pause current audio first to prevent race conditions
+      const audio = audioRef.current;
+      if (audio) {
+        audio.pause();
+      }
+      setIsPlaying(false);
+      
       setCurrentSongIndex(nextIndex);
+      
+      // If it was playing, resume playback after a brief delay
+      if (wasPlaying) {
+        setTimeout(() => {
+          setIsPlaying(true);
+        }, 50);
+      }
     }
-  }, [getNextSongIndex]);
+  }, [getNextSongIndex, isPlaying]);
 
   const previousSong = useCallback(() => {
     if (!currentPlaylist) return;
@@ -194,9 +210,25 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const prevIndex = songs.findIndex(song => song.id === currentPlaylist[prevPlaylistIndex]);
     
     if (prevIndex !== -1) {
+      const wasPlaying = isPlaying;
+      
+      // Pause current audio first to prevent race conditions
+      const audio = audioRef.current;
+      if (audio) {
+        audio.pause();
+      }
+      setIsPlaying(false);
+      
       setCurrentSongIndex(prevIndex);
+      
+      // If it was playing, resume playback after a brief delay
+      if (wasPlaying) {
+        setTimeout(() => {
+          setIsPlaying(true);
+        }, 50);
+      }
     }
-  }, [currentPlaylist, currentSong]);
+  }, [currentPlaylist, currentSong, isPlaying]);
 
   const handleProgressChange = useCallback((value: number[]) => {
     const audio = audioRef.current;
