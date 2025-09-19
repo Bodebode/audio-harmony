@@ -41,4 +41,12 @@ export const songs: Song[] = [
     audioUrl: "/songs/Fire.mp3",
     duration: "0:00" // Will be updated by audio element
   },
+  {
+    id: 5,
+    title: "Give Thanks (insha Jesus)",
+    artist: "Bode Nathaniel",
+    artwork: "/lovable-uploads/give-thanks-artwork.png",
+    audioUrl: "/songs/Give-Thanks.mp3",
+    duration: "0:00" // Will be updated by audio element
+  },
 ];
