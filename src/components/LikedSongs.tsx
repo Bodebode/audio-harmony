@@ -2,18 +2,34 @@ import { Heart, Play, Pause, ChevronDown } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useLikedSongs } from "@/hooks/useLikedSongs";
+import { useAudio } from "@/contexts/AudioContext";
 import { useState } from "react";
 import { songs } from "@/data/songs";
 
 
 export const LikedSongs = () => {
-  const [isLikedPlaylistPlaying, setIsLikedPlaylistPlaying] = useState(false);
   const [isExpanded, setIsExpanded] = useState(true);
   const { isLiked, toggleLikeSong } = useLikedSongs();
+  const { playPlaylist, togglePlay, isPlaying, currentPlaylist } = useAudio();
   const likedList = songs.filter((s) => isLiked(s.id));
+  
+  // Check if current playlist matches liked songs
+  const likedSongIds = likedList.map(song => song.id);
+  const isLikedPlaylistPlaying = isPlaying && 
+    currentPlaylist && 
+    currentPlaylist.length === likedSongIds.length && 
+    currentPlaylist.every((id, index) => id === likedSongIds[index]);
 
   const handleLikedPlaylistPlayPause = () => {
-    setIsLikedPlaylistPlaying(!isLikedPlaylistPlaying);
+    if (likedList.length === 0) return;
+    
+    if (isLikedPlaylistPlaying) {
+      // Currently playing liked songs - toggle play/pause
+      togglePlay();
+    } else {
+      // Start playing liked songs playlist
+      playPlaylist(likedSongIds);
+    }
   };
 
   return (
