@@ -245,6 +245,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         ref={audioRef}
         src={currentSong?.audioUrl}
         preload="metadata"
+        controlsList="nodownload"
       />
     </AudioContext.Provider>
   );
