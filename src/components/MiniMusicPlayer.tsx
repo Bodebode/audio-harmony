@@ -137,7 +137,7 @@ export const MiniMusicPlayer = () => {
                   variant="ghost"
                   size="sm"
                   onClick={previousSong}
-                  className="h-8 w-8 p-0 text-[#F2FCE2]/70 hover:text-[#F2FCE2]"
+                  className="h-8 w-8 p-0 text-[#F2FCE2]/70 hover:text-[#F2FCE2] hover:bg-[#F2FCE2]/10 hover:bg-accent/0 transition-all duration-200"
                 >
                   <SkipBack className="h-4 w-4" />
                 </Button>
@@ -157,7 +157,7 @@ export const MiniMusicPlayer = () => {
                   variant="ghost"
                   size="sm"
                   onClick={nextSong}
-                  className="h-8 w-8 p-0 text-[#F2FCE2]/70 hover:text-[#F2FCE2]"
+                  className="h-8 w-8 p-0 text-[#F2FCE2]/70 hover:text-[#F2FCE2] hover:bg-[#F2FCE2]/10 hover:bg-accent/0 transition-all duration-200"
                 >
                   <SkipForward className="h-4 w-4" />
                 </Button>
@@ -189,8 +189,8 @@ export const MiniMusicPlayer = () => {
                   variant="ghost"
                   size="sm"
                   onClick={cycleRepeatMode}
-                  className={`h-7 w-7 p-0 ${
-                    repeatMode !== "none" ? 'text-[#1EAEDB]' : 'text-[#F2FCE2]/70 hover:text-[#F2FCE2]'
+                  className={`h-7 w-7 p-0 transition-all duration-200 ${
+                    repeatMode !== "none" ? 'text-[#1EAEDB]' : 'text-[#F2FCE2]/70 hover:text-[#F2FCE2] hover:bg-[#F2FCE2]/10 hover:bg-accent/0'
                   }`}
                 >
                   {(() => {
@@ -206,7 +206,7 @@ export const MiniMusicPlayer = () => {
                   variant="ghost"
                   size="sm"
                   onClick={() => setVolume(volume[0] === 0 ? [75] : [0])}
-                  className="h-7 w-7 p-0 text-[#F2FCE2]/70 hover:text-[#F2FCE2]"
+                  className="h-7 w-7 p-0 text-[#F2FCE2]/70 hover:text-[#F2FCE2] hover:bg-[#F2FCE2]/10 hover:bg-accent/0 transition-all duration-200"
                 >
                   {(() => {
                     const VolumeIcon = getVolumeIcon();
