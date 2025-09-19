@@ -12,6 +12,8 @@ import Auth from "./pages/Auth";
 import Profile from "./pages/Profile";
 import Merch from "./pages/Merch";
 import NotFound from "./pages/NotFound";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsOfService from "./pages/TermsOfService";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { AudioProvider } from "./contexts/AudioContext";
 
@@ -49,6 +51,8 @@ const App = () => {
               <Route path="/auth" element={<Auth />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/merch" element={<Merch />} />
+              <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+              <Route path="/terms-of-service" element={<TermsOfService />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
