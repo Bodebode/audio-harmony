@@ -17,21 +17,35 @@ const PayPalSubscription = () => {
     try {
       console.log('PayPal subscription success:', data);
       
-      // Update user profile with PayPal subscription data
-      const { error } = await supabase
+      // Update user profile with premium status
+      const { error: profileError } = await supabase
         .from('profiles')
         .update({
           is_premium: true,
-          paypal_subscription_id: data.subscriptionID,
-          paypal_subscription_status: 'active',
-          payment_method: 'paypal',
           premium_expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString() // 30 days from now
         })
         .eq('user_id', user?.id);
 
-      if (error) {
-        console.error('Error updating profile:', error);
-        throw error;
+      if (profileError) {
+        console.error('Error updating profile:', profileError);
+        throw profileError;
+      }
+
+      // Store payment info in secure table
+      const { error: paymentError } = await supabase
+        .from('user_payment_info')
+        .upsert({
+          user_id: user?.id,
+          paypal_subscription_id: data.subscriptionID,
+          paypal_subscription_status: 'active',
+          payment_method: 'paypal'
+        }, {
+          onConflict: 'user_id'
+        });
+
+      if (paymentError) {
+        console.error('Error storing payment info:', paymentError);
+        // Don't throw here as the main premium status update succeeded
       }
 
       toast({
