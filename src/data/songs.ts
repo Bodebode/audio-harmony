@@ -43,7 +43,7 @@ export const songs: Song[] = [
   },
   {
     id: 5,
-    title: "Give Thanks (insha Jesus)",
+    title: "Give Thanks",
     artist: "Bode Nathaniel",
     artwork: "/lovable-uploads/give-thanks-artwork.png",
     audioUrl: "/songs/Give-Thanks.mp3",

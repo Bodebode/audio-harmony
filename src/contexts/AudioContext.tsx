@@ -94,6 +94,15 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     };
   }, [currentSongIndex, repeatMode]);
 
+  // Reset audio to beginning when song changes
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    
+    audio.currentTime = 0;
+    setSongProgress(0);
+  }, [currentSongIndex]);
+
   // Handle play/pause state changes
   useEffect(() => {
     const audio = audioRef.current;

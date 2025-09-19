@@ -3,23 +3,14 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useLikedSongs } from "@/hooks/useLikedSongs";
 import { useState } from "react";
+import { songs } from "@/data/songs";
 
-const sampleSongs = [
-  { id: 1, title: "Afrobeat Fusion", duration: "3:45" },
-  { id: 2, title: "Lagos Nights", duration: "4:12" },
-  { id: 3, title: "Ancestral Voices", duration: "3:58" },
-  { id: 4, title: "Modern Traditions", duration: "4:23" },
-  { id: 5, title: "Unity Dance", duration: "3:41" },
-  { id: 6, title: "River Flow", duration: "4:07" },
-  { id: 7, title: "Rhythmic Soul", duration: "3:52" },
-  { id: 8, title: "Golden Dawn", duration: "4:18" }
-];
 
 export const LikedSongs = () => {
   const [isLikedPlaylistPlaying, setIsLikedPlaylistPlaying] = useState(false);
   const [isExpanded, setIsExpanded] = useState(true);
   const { isLiked, toggleLikeSong } = useLikedSongs();
-  const likedList = sampleSongs.filter((s) => isLiked(s.id));
+  const likedList = songs.filter((s) => isLiked(s.id));
 
   const handleLikedPlaylistPlayPause = () => {
     setIsLikedPlaylistPlaying(!isLikedPlaylistPlaying);
