@@ -5,7 +5,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { LyricsDisplay } from "./LyricsDisplay";
 import { useAudio } from "@/contexts/AudioContext";
 import { formatDuration } from "@/utils/formatDuration";
@@ -31,8 +31,25 @@ export const NowPlayingSection = () => {
     nextSong, 
     previousSong, 
     repeatMode, 
-    setRepeatMode
+    setRepeatMode,
+    audioRef
   } = useAudio();
+
+  // Auto-retract lyrics when song changes or ends
+  useEffect(() => {
+    if (currentSong) {
+      setShowLyrics(false);
+    }
+  }, [currentSong?.id]);
+
+  useEffect(() => {
+    const audio = audioRef?.current;
+    if (audio) {
+      const handleEnded = () => setShowLyrics(false);
+      audio.addEventListener('ended', handleEnded);
+      return () => audio.removeEventListener('ended', handleEnded);
+    }
+  }, [audioRef]);
 
   const cycleRepeatMode = () => {
     const modes = ["none", "all", "one"] as const;

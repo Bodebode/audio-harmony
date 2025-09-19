@@ -41,11 +41,18 @@ export const FullScreenPlayer = ({
   onPrevious,
   currentSong
 }: FullScreenPlayerProps) => {
-  const [showLyrics, setShowLyrics] = useState(true);
+  const [showLyrics, setShowLyrics] = useState(false);
   const { likedSongs, toggleLikeSong, isLiked: checkIsLiked } = useLikedSongs();
   const { toast } = useToast();
   
   const isLiked = checkIsLiked(currentSong.id);
+
+  // Auto-retract lyrics when song changes or ends
+  useEffect(() => {
+    if (currentSong) {
+      setShowLyrics(false);
+    }
+  }, [currentSong.id]);
 
   // Gesture controls
   const gestureRef = useGestures({
@@ -70,6 +77,13 @@ export const FullScreenPlayer = ({
     threshold: 30,
     velocityThreshold: 0.2
   });
+
+  // Auto-retract lyrics when song changes
+  useEffect(() => {
+    if (currentSong) {
+      setShowLyrics(false);
+    }
+  }, [currentSong.id]);
 
   // Keyboard controls
   useEffect(() => {

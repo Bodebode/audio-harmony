@@ -68,4 +68,40 @@ export const songs: Song[] = [
     duration: "0:00", // Will be updated by audio element
     isPremium: true
   },
+  {
+    id: 8,
+    title: "Life",
+    artist: "Bode Nathaniel",
+    artwork: "/lovable-uploads/life-artwork.png",
+    audioUrl: "/songs/Life.mp3",
+    duration: "0:00",
+    isPremium: true
+  },
+  {
+    id: 9,
+    title: "Ìsinmi",
+    artist: "Bode Nathaniel feat. Franc White",
+    artwork: "/lovable-uploads/isinmi-artwork.png",
+    audioUrl: "/songs/Isinmi.mp3",
+    duration: "0:00",
+    isPremium: true
+  },
+  {
+    id: 10,
+    title: "Angeli",
+    artist: "Bode Nathaniel",
+    artwork: "/lovable-uploads/angeli-artwork.png",
+    audioUrl: "/songs/Angel.mp3",
+    duration: "0:00",
+    isPremium: true
+  },
+  {
+    id: 11,
+    title: "Alkebulan Outro",
+    artist: "Bode Nathaniel",
+    artwork: "/lovable-uploads/alkebulan-outro-artwork.png",
+    audioUrl: "/songs/Alkebulan-Outro.mp3",
+    duration: "0:00",
+    isPremium: true
+  },
 ];
