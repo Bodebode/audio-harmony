@@ -52,7 +52,7 @@ export const songs: Song[] = [
   },
   {
     id: 7,
-    title: "You Make Me Better",
+    title: "Better",
     artist: "Bode Nathaniel",
     artwork: "/lovable-uploads/you-make-me-better-artwork.png",
     audioUrl: "/songs/You-Make-Me-Better.mp3",
