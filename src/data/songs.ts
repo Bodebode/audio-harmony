@@ -18,11 +18,19 @@ export const songs: Song[] = [
     duration: "0:00" // Will be updated by audio element
   },
   {
-    id: 2,
-    title: "Oyoyo",
+    id: 9,
+    title: "Ìsinmi",
+    artist: "Bode Nathaniel feat. Franc White",
+    artwork: "/lovable-uploads/isinmi-artwork.png",
+    audioUrl: "/songs/Isinmi.mp3",
+    duration: "0:00"
+  },
+  {
+    id: 5,
+    title: "Give Thanks",
     artist: "Bode Nathaniel",
-    artwork: "/lovable-uploads/oyoyo-artwork-new.png",
-    audioUrl: "/songs/Oyoyo.mp3",
+    artwork: "/lovable-uploads/give-thanks-artwork.png",
+    audioUrl: "/songs/Give-Thanks.mp3",
     duration: "0:00" // Will be updated by audio element
   },
   {
@@ -34,11 +42,27 @@ export const songs: Song[] = [
     duration: "0:00" // Will be updated by audio element
   },
   {
-    id: 5,
-    title: "Give Thanks",
+    id: 8,
+    title: "Life",
     artist: "Bode Nathaniel",
-    artwork: "/lovable-uploads/give-thanks-artwork.png",
-    audioUrl: "/songs/Give-Thanks.mp3",
+    artwork: "/lovable-uploads/life-artwork.png",
+    audioUrl: "/songs/Life.mp3",
+    duration: "0:00"
+  },
+  {
+    id: 10,
+    title: "Angeli",
+    artist: "Bode Nathaniel",
+    artwork: "/lovable-uploads/angeli-artwork.png",
+    audioUrl: "/songs/Angel.mp3",
+    duration: "0:00"
+  },
+  {
+    id: 2,
+    title: "Oyoyo",
+    artist: "Bode Nathaniel",
+    artwork: "/lovable-uploads/oyoyo-artwork-new.png",
+    audioUrl: "/songs/Oyoyo.mp3",
     duration: "0:00" // Will be updated by audio element
   },
   {
@@ -47,15 +71,6 @@ export const songs: Song[] = [
     artist: "Bode Nathaniel",
     artwork: "/lovable-uploads/ma-fayo-fo-artwork.png",
     audioUrl: "/songs/Ma-Fayo-Fo.mp3?v=" + Date.now(),
-    duration: "0:00", // Will be updated by audio element
-    isPremium: true
-  },
-  {
-    id: 7,
-    title: "Better",
-    artist: "Bode Nathaniel",
-    artwork: "/lovable-uploads/you-make-me-better-artwork.png",
-    audioUrl: "/songs/You-Make-Me-Better.mp3",
     duration: "0:00", // Will be updated by audio element
     isPremium: true
   },
@@ -69,30 +84,12 @@ export const songs: Song[] = [
     isPremium: true
   },
   {
-    id: 8,
-    title: "Life",
+    id: 7,
+    title: "Better",
     artist: "Bode Nathaniel",
-    artwork: "/lovable-uploads/life-artwork.png",
-    audioUrl: "/songs/Life.mp3",
-    duration: "0:00",
-    isPremium: true
-  },
-  {
-    id: 9,
-    title: "Ìsinmi",
-    artist: "Bode Nathaniel feat. Franc White",
-    artwork: "/lovable-uploads/isinmi-artwork.png",
-    audioUrl: "/songs/Isinmi.mp3",
-    duration: "0:00",
-    isPremium: true
-  },
-  {
-    id: 10,
-    title: "Angeli",
-    artist: "Bode Nathaniel",
-    artwork: "/lovable-uploads/angeli-artwork.png",
-    audioUrl: "/songs/Angel.mp3",
-    duration: "0:00",
+    artwork: "/lovable-uploads/you-make-me-better-artwork.png",
+    audioUrl: "/songs/You-Make-Me-Better.mp3",
+    duration: "0:00", // Will be updated by audio element
     isPremium: true
   },
   {
@@ -101,7 +98,6 @@ export const songs: Song[] = [
     artist: "Bode Nathaniel",
     artwork: "/lovable-uploads/alkebulan-outro-artwork.png",
     audioUrl: "/songs/Alkebulan-Outro.mp3",
-    duration: "0:00",
-    isPremium: true
+    duration: "0:00"
   },
 ];
