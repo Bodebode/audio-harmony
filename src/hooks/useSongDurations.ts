@@ -3,10 +3,10 @@ import { songs } from '@/data/songs';
 import { formatDuration } from '@/utils/formatDuration';
 
 export const useSongDurations = () => {
-  const preloadSongDurations = useCallback(() => {
+  const preloadSongDurations = useCallback((forceReload = false) => {
     songs.forEach((song) => {
-      // Skip if duration is already loaded
-      if (song.duration && song.duration !== "0:00") return;
+      // Skip if duration is already loaded (unless force reload)
+      if (!forceReload && song.duration && song.duration !== "0:00") return;
       
       const audio = new Audio();
       audio.preload = 'metadata';

@@ -46,7 +46,7 @@ export const songs: Song[] = [
     title: "Ma f'ayo fo",
     artist: "Bode Nathaniel",
     artwork: "/lovable-uploads/ma-fayo-fo-artwork.png",
-    audioUrl: "/songs/Ma-Fayo-Fo.mp3",
+    audioUrl: "/songs/Ma-Fayo-Fo.mp3?v=" + Date.now(),
     duration: "0:00", // Will be updated by audio element
     isPremium: true
   },
