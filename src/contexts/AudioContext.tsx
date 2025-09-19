@@ -154,9 +154,20 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     
     const songIndex = songs.findIndex(s => s.id === songId);
     if (songIndex !== -1) {
+      // Pause current audio first to prevent race conditions
+      const audio = audioRef.current;
+      if (audio) {
+        audio.pause();
+      }
+      setIsPlaying(false);
+      
       setCurrentSongIndex(songIndex);
       setCurrentPlaylist(songs.map(s => s.id)); // Set album as current playlist
-      setIsPlaying(true);
+      
+      // Wait for the next tick to ensure audio src has changed, then play
+      setTimeout(() => {
+        setIsPlaying(true);
+      }, 50);
     }
   }, [checkFeatureAccess]);
 

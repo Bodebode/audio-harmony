@@ -13,7 +13,7 @@ export const songs: Song[] = [
     id: 1,
     title: "Alkebulan",
     artist: "Bode Nathaniel",
-    artwork: "/lovable-uploads/alkebulan-artwork.jpeg",
+    artwork: "/lovable-uploads/alkebulan-artwork-new.jpeg",
     audioUrl: "/songs/Alkebulan.mp3",
     duration: "0:00" // Will be updated by audio element
   },
@@ -21,7 +21,7 @@ export const songs: Song[] = [
     id: 2,
     title: "Oyoyo",
     artist: "Bode Nathaniel",
-    artwork: "/lovable-uploads/oyoyo-artwork.png",
+    artwork: "/lovable-uploads/oyoyo-artwork-new.png",
     audioUrl: "/songs/Oyoyo.mp3",
     duration: "0:00" // Will be updated by audio element
   },
