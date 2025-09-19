@@ -1,7 +1,7 @@
-# Audio Harmony - App Store Submission Metadata
+# AlkePlay - App Store Submission Metadata
 
 ## Basic Information
-- **App Name**: Audio Harmony
+- **App Name**: AlkePlay
 - **Version**: 1.0.0
 - **Bundle ID**: app.lovable.6df20c0596cb44a7923dcadad2c9355e
 - **Category**: Music
@@ -13,7 +13,7 @@
 Experience Bode Nathaniel's music
 
 ### Long Description
-Immerse yourself in the soulful sounds of Bode Nathaniel with Audio Harmony - your premium music streaming companion.
+Immerse yourself in the soulful sounds of Bode Nathaniel with AlkePlay - your premium music streaming companion.
 
 **Features:**
 🎵 High-quality audio streaming
@@ -100,6 +100,6 @@ Bode Nathaniel, music streaming, audio player, premium music, Nigerian music, go
 - **Total to Launch**: 10-20 days
 
 ## Notes
-- Package.json is read-only in Lovable - update name to "audio-harmony" and version to "1.0.0" when exporting to GitHub
+- Package.json is read-only in Lovable - update name to "alkeplay" and version to "1.0.0" when exporting to GitHub
 - Ensure all payment processing complies with app store guidelines
 - Test premium subscription functionality thoroughly before submission
