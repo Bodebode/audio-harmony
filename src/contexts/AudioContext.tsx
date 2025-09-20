@@ -44,7 +44,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [volume, setVolume] = useState([75]);
   const [songProgress, setSongProgress] = useState(0);
   const [currentSongIndex, setCurrentSongIndex] = useState(0);
-  const [currentPlaylist, setCurrentPlaylist] = useState<number[] | null>(null);
+  const [currentPlaylist, setCurrentPlaylist] = useState<number[] | null>(songs.map(s => s.id));
   const [isLoading, setIsLoading] = useState(false);
   const [shouldPlayAfterLoad, setShouldPlayAfterLoad] = useState(false);
   
@@ -210,9 +210,14 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   }, [checkFeatureAccess]);
 
   const getNextSongIndex = useCallback((): number => {
-    if (!currentPlaylist) return currentSongIndex;
-    
+    const fallbackNext = (currentSongIndex + 1) % songs.length;
+    if (!currentPlaylist || currentPlaylist.length === 0) {
+      return fallbackNext;
+    }
     const currentPlaylistIndex = currentPlaylist.findIndex(id => id === currentSong.id);
+    if (currentPlaylistIndex === -1) {
+      return fallbackNext;
+    }
     const nextPlaylistIndex = (currentPlaylistIndex + 1) % currentPlaylist.length;
     return songs.findIndex(song => song.id === currentPlaylist[nextPlaylistIndex]);
   }, [currentPlaylist, currentSongIndex, currentSong]);
@@ -239,30 +244,33 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   }, [getNextSongIndex, isPlaying]);
 
   const previousSong = useCallback(() => {
-    if (!currentPlaylist) return;
-    
-    const currentPlaylistIndex = currentPlaylist.findIndex(id => id === currentSong.id);
-    const prevPlaylistIndex = currentPlaylistIndex > 0 ? currentPlaylistIndex - 1 : currentPlaylist.length - 1;
-    const prevIndex = songs.findIndex(song => song.id === currentPlaylist[prevPlaylistIndex]);
-    
+    const wasPlaying = isPlaying;
+
+    // Pause current audio first to prevent race conditions
+    const audio = audioRef.current;
+    if (audio) {
+      audio.pause();
+    }
+    setIsPlaying(false);
+
+    let prevIndex: number;
+
+    if (!currentPlaylist || currentPlaylist.length === 0) {
+      prevIndex = (currentSongIndex - 1 + songs.length) % songs.length;
+    } else {
+      const currentPlaylistIndex = currentPlaylist.findIndex(id => id === currentSong.id);
+      const prevPlaylistIndex = currentPlaylistIndex > 0 ? currentPlaylistIndex - 1 : currentPlaylist.length - 1;
+      prevIndex = songs.findIndex(song => song.id === currentPlaylist[prevPlaylistIndex]);
+    }
+
     if (prevIndex !== -1) {
-      const wasPlaying = isPlaying;
-      
-      // Pause current audio first to prevent race conditions
-      const audio = audioRef.current;
-      if (audio) {
-        audio.pause();
-      }
-      setIsPlaying(false);
-      
       setCurrentSongIndex(prevIndex);
-      
       // If it was playing, mark it to play after the new audio loads
       if (wasPlaying) {
         setShouldPlayAfterLoad(true);
       }
     }
-  }, [currentPlaylist, currentSong, isPlaying]);
+  }, [currentPlaylist, currentSong, currentSongIndex, isPlaying]);
 
   const handleProgressChange = useCallback((value: number[]) => {
     const audio = audioRef.current;
