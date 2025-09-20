@@ -7,17 +7,15 @@ import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
 import { useAuth } from '@/hooks/useAuth';
-import { Loader2, Music, UserCheck, Mail, Phone, Eye, EyeOff } from 'lucide-react';
+import { Loader2, Music, UserCheck, Eye, EyeOff } from 'lucide-react';
 
 const Auth = () => {
   const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [socialLoading, setSocialLoading] = useState<string | null>(null);
-  const [contactMethod, setContactMethod] = useState<'email' | 'phone'>('email');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [passwordError, setPasswordError] = useState('');
@@ -69,8 +67,7 @@ const Auth = () => {
     setPasswordError('');
     setIsLoading(true);
     
-    const contact = contactMethod === 'email' ? email : phone;
-    await signUp(contact, password, displayName, contactMethod);
+    await signUp(email, password, displayName);
     setIsLoading(false);
   };
 
@@ -202,48 +199,14 @@ const Auth = () => {
                     />
                   </div>
                   
-                  {/* Contact Method Toggle */}
                   <div className="space-y-2">
-                    <Label className="text-white">Contact Method</Label>
-                     <div className="flex gap-2">
-                       <Button
-                         type="button"
-                         onClick={() => setContactMethod('email')}
-                         className={`flex-1 h-12 md:h-10 ${contactMethod === 'email' 
-                           ? 'bg-[#1EAEDB] text-white' 
-                           : 'bg-white/10 text-white/70 hover:bg-white/20'
-                         }`}
-                         variant={contactMethod === 'email' ? 'default' : 'outline'}
-                       >
-                         <Mail className="mr-2 h-5 w-5 md:h-4 md:w-4" />
-                         Email
-                       </Button>
-                       <Button
-                         type="button"
-                         onClick={() => setContactMethod('phone')}
-                         className={`flex-1 h-12 md:h-10 ${contactMethod === 'phone' 
-                           ? 'bg-[#1EAEDB] text-white' 
-                           : 'bg-white/10 text-white/70 hover:bg-white/20'
-                         }`}
-                         variant={contactMethod === 'phone' ? 'default' : 'outline'}
-                       >
-                         <Phone className="mr-2 h-5 w-5 md:h-4 md:w-4" />
-                         Phone
-                       </Button>
-                     </div>
-                  </div>
-
-                  {/* Email or Phone Input */}
-                  <div className="space-y-2">
-                    <Label htmlFor={`signup-${contactMethod}`} className="text-white">
-                      {contactMethod === 'email' ? 'Email Address' : 'Phone Number'}
-                    </Label>
+                    <Label htmlFor="signup-email" className="text-white">Email Address</Label>
                     <Input
-                      id={`signup-${contactMethod}`}
-                      type={contactMethod === 'email' ? 'email' : 'tel'}
-                      placeholder={contactMethod === 'email' ? 'Enter your email' : 'Enter your phone number'}
-                      value={contactMethod === 'email' ? email : phone}
-                      onChange={(e) => contactMethod === 'email' ? setEmail(e.target.value) : setPhone(e.target.value)}
+                      id="signup-email"
+                      type="email"
+                      placeholder="Enter your email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
                       required
                       className="bg-white/10 border-white/20 text-white placeholder:text-white/50"
                     />

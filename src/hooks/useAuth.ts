@@ -80,39 +80,25 @@ export const useAuth = () => {
     return () => subscription.unsubscribe();
   }, []);
 
-  const signUp = async (contact: string, password: string, displayName?: string, contactMethod: 'email' | 'phone' = 'email') => {
+  const signUp = async (email: string, password: string, displayName?: string) => {
     const redirectUrl = `${window.location.origin}/`;
     
-    const signUpOptions = contactMethod === 'email' 
-      ? {
-          email: contact,
-          password,
-          options: {
-            emailRedirectTo: redirectUrl,
-            data: {
-              display_name: displayName || contact.split('@')[0]
-            }
-          }
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        emailRedirectTo: redirectUrl,
+        data: {
+          display_name: displayName || email.split('@')[0]
         }
-      : {
-          phone: contact,
-          password,
-          options: {
-            data: {
-              display_name: displayName || contact
-            }
-          }
-        };
-    
-    const { error } = await supabase.auth.signUp(signUpOptions);
+      }
+    });
 
     if (!error) {
       // Silent success - confirmation needed
       toast({
-        title: contactMethod === 'email' ? "Check your email" : "Check your phone",
-        description: contactMethod === 'email' 
-          ? "We've sent you a confirmation link to complete your registration."
-          : "We've sent you a confirmation code to complete your registration.",
+        title: "Check your email",
+        description: "We've sent you a confirmation link to complete your registration.",
       });
     } else {
       toast({
