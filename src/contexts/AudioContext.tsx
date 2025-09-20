@@ -45,6 +45,8 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [songProgress, setSongProgress] = useState(0);
   const [currentSongIndex, setCurrentSongIndex] = useState(0);
   const [currentPlaylist, setCurrentPlaylist] = useState<number[] | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [shouldPlayAfterLoad, setShouldPlayAfterLoad] = useState(false);
   
   const [repeatMode, setRepeatMode] = useState<RepeatMode>("none");
   const [duration, setDuration] = useState(0);
@@ -82,34 +84,54 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         audio.currentTime = 0;
         audio.play().catch(console.error);
       } else if (repeatMode === "all" || repeatMode === "none") {
-        // For "all" mode, continue to next song. For "none", play next song once
+        // For "all" and "none" mode, use nextSong() for consistency
         if (!currentPlaylist) return;
         
         const currentPlaylistIndex = currentPlaylist.findIndex(id => id === currentSong.id);
-        const nextPlaylistIndex = (currentPlaylistIndex + 1) % currentPlaylist.length;
-        const nextIndex = songs.findIndex(song => song.id === currentPlaylist[nextPlaylistIndex]);
+        const isLastSong = currentPlaylistIndex === currentPlaylist.length - 1;
         
-        if (nextIndex !== -1 && (repeatMode === "all" || nextIndex > currentSongIndex)) {
-          setCurrentSongIndex(nextIndex);
-          // Auto-play next song immediately without delay
-          setTimeout(() => {
-            setIsPlaying(true);
-          }, 100); // Minimal delay to ensure audio source changes
-        } else if (repeatMode === "none" && currentPlaylistIndex === currentPlaylist.length - 1) {
+        if (repeatMode === "all" || !isLastSong) {
+          // Continue to next song
+          nextSong();
+        } else {
           // End of playlist in "none" mode
           setIsPlaying(false);
         }
       }
     };
 
+    const handleCanPlay = () => {
+      setIsLoading(false);
+      if (shouldPlayAfterLoad) {
+        setShouldPlayAfterLoad(false);
+        setIsPlaying(true);
+      }
+    };
+
+    const handleLoadStart = () => {
+      setIsLoading(true);
+    };
+
+    const handleError = () => {
+      setIsLoading(false);
+      setShouldPlayAfterLoad(false);
+      console.error('Audio loading error');
+    };
+
     audio.addEventListener('timeupdate', handleTimeUpdate);
     audio.addEventListener('loadedmetadata', handleLoadedMetadata);
     audio.addEventListener('ended', handleEnded);
+    audio.addEventListener('canplay', handleCanPlay);
+    audio.addEventListener('loadstart', handleLoadStart);
+    audio.addEventListener('error', handleError);
 
     return () => {
       audio.removeEventListener('timeupdate', handleTimeUpdate);
       audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
       audio.removeEventListener('ended', handleEnded);
+      audio.removeEventListener('canplay', handleCanPlay);
+      audio.removeEventListener('loadstart', handleLoadStart);
+      audio.removeEventListener('error', handleError);
     };
   }, [currentSongIndex, repeatMode]);
 
@@ -209,9 +231,9 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       
       setCurrentSongIndex(nextIndex);
       
-      // If it was playing, resume playback immediately
+      // If it was playing, mark it to play after the new audio loads
       if (wasPlaying) {
-        setIsPlaying(true);
+        setShouldPlayAfterLoad(true);
       }
     }
   }, [getNextSongIndex, isPlaying]);
@@ -235,9 +257,9 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       
       setCurrentSongIndex(prevIndex);
       
-      // If it was playing, resume playback immediately
+      // If it was playing, mark it to play after the new audio loads
       if (wasPlaying) {
-        setIsPlaying(true);
+        setShouldPlayAfterLoad(true);
       }
     }
   }, [currentPlaylist, currentSong, isPlaying]);
