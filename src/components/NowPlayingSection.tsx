@@ -231,15 +231,17 @@ export const NowPlayingSection = () => {
                 </span>
               </div>
 
-              {/* Lyrics Toggle */}
-              <div className="flex justify-center">
+              {/* Lyrics Toggle - Smaller and positioned in corner */}
+              <div className="flex justify-end">
                 <Button
                   variant="ghost"
+                  size="sm"
                   onClick={() => setShowLyrics(!showLyrics)}
-                  className="text-[#F2FCE2]/70 hover:bg-[#1EAEDB]/20 hover:text-[#1EAEDB] gap-2"
+                  className="text-[#F2FCE2]/50 hover:bg-[#1EAEDB]/10 hover:text-[#1EAEDB] px-2 py-1 text-xs h-8 opacity-60 hover:opacity-100 transition-opacity"
+                  title={showLyrics ? "Hide Lyrics" : "Show Lyrics"}
                 >
-                  {showLyrics ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-                  {showLyrics ? "Hide Lyrics" : "Show Lyrics"}
+                  {showLyrics ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+                  <span className="ml-1">Lyrics</span>
                 </Button>
               </div>
             </div>

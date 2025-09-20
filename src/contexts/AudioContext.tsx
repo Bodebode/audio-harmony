@@ -80,9 +80,25 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const handleEnded = () => {
       if (repeatMode === "one") {
         audio.currentTime = 0;
-        audio.play();
-      } else {
-        nextSong();
+        audio.play().catch(console.error);
+      } else if (repeatMode === "all" || repeatMode === "none") {
+        // For "all" mode, continue to next song. For "none", play next song once
+        if (!currentPlaylist) return;
+        
+        const currentPlaylistIndex = currentPlaylist.findIndex(id => id === currentSong.id);
+        const nextPlaylistIndex = (currentPlaylistIndex + 1) % currentPlaylist.length;
+        const nextIndex = songs.findIndex(song => song.id === currentPlaylist[nextPlaylistIndex]);
+        
+        if (nextIndex !== -1 && (repeatMode === "all" || nextIndex > currentSongIndex)) {
+          setCurrentSongIndex(nextIndex);
+          // Auto-play next song immediately without delay
+          setTimeout(() => {
+            setIsPlaying(true);
+          }, 100); // Minimal delay to ensure audio source changes
+        } else if (repeatMode === "none" && currentPlaylistIndex === currentPlaylist.length - 1) {
+          // End of playlist in "none" mode
+          setIsPlaying(false);
+        }
       }
     };
 
@@ -193,11 +209,9 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       
       setCurrentSongIndex(nextIndex);
       
-      // If it was playing, resume playback after a brief delay
+      // If it was playing, resume playback immediately
       if (wasPlaying) {
-        setTimeout(() => {
-          setIsPlaying(true);
-        }, 50);
+        setIsPlaying(true);
       }
     }
   }, [getNextSongIndex, isPlaying]);
@@ -221,11 +235,9 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       
       setCurrentSongIndex(prevIndex);
       
-      // If it was playing, resume playback after a brief delay
+      // If it was playing, resume playback immediately
       if (wasPlaying) {
-        setTimeout(() => {
-          setIsPlaying(true);
-        }, 50);
+        setIsPlaying(true);
       }
     }
   }, [currentPlaylist, currentSong, isPlaying]);
