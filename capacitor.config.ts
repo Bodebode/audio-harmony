@@ -34,7 +34,7 @@ const config: CapacitorConfig = {
       keystoreAliasPassword: undefined,
       releaseType: 'APK'
     },
-    androidJavaVersion: '17'
+    androidJavaVersion: '21'
   }
 };
 
