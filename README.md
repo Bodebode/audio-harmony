@@ -41,6 +41,7 @@ Bode Nathaniel, music streaming, audio player, premium music, Nigerian music, go
 - **Analytics**: Performance monitoring, crash reporting
 - **Third-Party Advertising**: None (premium model)
 
+
 ## Developer Information
 - **Developer Name**: [Bode Nathaniel;]
 - **Developer Email**: [nathan_oj@outlook.com]
