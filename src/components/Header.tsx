@@ -1,9 +1,8 @@
 
-import { Menu, Search, ShoppingCart, Home, User } from "lucide-react";
+import { Menu, ShoppingCart, Home, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { useState } from "react";
-import { SearchModal } from "./SearchModal";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { PremiumBadge } from "./premium/PremiumBadge";
@@ -17,7 +16,6 @@ import {
 import { Avatar, AvatarFallback } from "./ui/avatar";
 
 export const Header = () => {
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isSigningOut, setIsSigningOut] = useState(false);
   const navigate = useNavigate();
   const { user, profile, isGuest, signOut } = useAuth();
@@ -75,15 +73,6 @@ export const Header = () => {
             <Home className="h-6 w-6 md:h-5 md:w-5" />
           </Button>
           
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            className="text-white hover:text-[#1EAEDB] hover:bg-white/10 transition-colors duration-200 rounded-full h-11 w-11 md:h-10 md:w-10"
-            onClick={() => setIsSearchOpen(true)}
-            data-search-trigger
-          >
-            <Search className="h-6 w-6 md:h-5 md:w-5" />
-          </Button>
           
           <Button 
             variant="ghost" 
@@ -169,7 +158,7 @@ export const Header = () => {
         </div>
       </header>
 
-      <SearchModal isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
+      
     </>
   );
 };
