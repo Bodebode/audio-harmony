@@ -2,7 +2,7 @@ import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
   appId: 'app.lovable.6df20c0596cb44a7923dcadad2c9355e',
-  appName: 'Audio Harmony',
+  appName: 'AlkePlay',
   webDir: 'dist',
   // server: {
   //   url: "https://6df20c05-96cb-44a7-923d-cadad2c9355e.lovableproject.com?forceHideBadge=true",
