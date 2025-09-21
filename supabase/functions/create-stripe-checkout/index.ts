@@ -57,14 +57,16 @@ serve(async (req) => {
       }],
       success_url: `${req.headers.get('origin')}/premium?success=true`,
       cancel_url: `${req.headers.get('origin')}/premium?canceled=true`,
-      customer: stripeCustomerId,
       client_reference_id: user.id,
       metadata: {
         user_id: user.id,
       },
     };
 
-    if (!stripeCustomerId) {
+    // Only set customer OR customer_email, never both
+    if (stripeCustomerId) {
+      checkoutData.customer = stripeCustomerId;
+    } else {
       checkoutData.customer_email = user.email;
     }
 
