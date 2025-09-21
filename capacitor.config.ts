@@ -4,24 +4,26 @@ const config: CapacitorConfig = {
   appId: 'app.lovable.6df20c0596cb44a7923dcadad2c9355e',
   appName: 'AlkePlay',
   webDir: 'dist',
-  // server: {
-  //   url: "https://6df20c05-96cb-44a7-923d-cadad2c9355e.lovableproject.com?forceHideBadge=true",
-  //   cleartext: true
-  // },
   plugins: {
     SplashScreen: {
-      launchShowDuration: 2000,
+      launchShowDuration: 3000,
       launchAutoHide: true,
       androidScaleType: 'CENTER_CROP',
       showSpinner: false,
       splashFullScreen: true,
       splashImmersive: true,
-      splashScreen: 'public/app-icons/splash-screen.png'
+      backgroundColor: '#1a1a1a'
     },
     StatusBar: {
       style: 'DARK',
       backgroundColor: '#1a1a1a',
     },
+    App: {
+      appendUserAgent: 'AlkePlay/1.0.0'
+    },
+    Storage: {
+      group: 'AlkePlay'
+    }
   },
   ios: {
     contentInset: 'automatic',
@@ -32,9 +34,18 @@ const config: CapacitorConfig = {
       keystorePassword: undefined,
       keystoreAlias: undefined,
       keystoreAliasPassword: undefined,
-      releaseType: 'APK'
+      releaseType: 'AAB',
+      signingType: 'apksigner'
     },
-    androidJavaVersion: '21'
+    permissions: [
+      'android.permission.INTERNET',
+      'android.permission.WAKE_LOCK',
+      'android.permission.ACCESS_NETWORK_STATE',
+      'android.permission.MODIFY_AUDIO_SETTINGS'
+    ],
+    allowMixedContent: false,
+    captureInput: true,
+    webContentsDebuggingEnabled: false
   }
 };
 
