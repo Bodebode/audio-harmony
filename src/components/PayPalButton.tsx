@@ -27,6 +27,8 @@ const PayPalButton: React.FC<PayPalButtonProps> = ({
 }) => {
   const paypalRef = useRef<HTMLDivElement>(null);
   const buttonRendered = useRef(false);
+  const paypalButtonInstance = useRef<any>(null);
+  const isUnmounting = useRef(false);
   const [isLoading, setIsLoading] = useState(true);
   const [loadingError, setLoadingError] = useState<string | null>(null);
   const [paypalConfig, setPaypalConfig] = useState<any>(null);
@@ -34,6 +36,8 @@ const PayPalButton: React.FC<PayPalButtonProps> = ({
   const containerId = `paypal-button-container-${planId}`;
 
   useEffect(() => {
+    isUnmounting.current = false; // Reset unmounting flag on mount
+    
     const fetchPayPalConfig = async () => {
       try {
         const { data, error } = await supabase.functions.invoke('get-paypal-config');
@@ -80,16 +84,30 @@ const PayPalButton: React.FC<PayPalButtonProps> = ({
     };
 
     const renderPayPalButton = () => {
-      if (!window.paypal || !paypalRef.current || buttonRendered.current) {
+      if (!window.paypal || !paypalRef.current || buttonRendered.current || isUnmounting.current) {
         return;
       }
 
-      // Clear any existing buttons in the container
+      // Ensure container exists and is in DOM
       const container = document.getElementById(containerId);
-      if (container) {
-        container.innerHTML = '';
+      if (!container || !document.body.contains(container)) {
+        return;
       }
 
+      // Clear any existing PayPal button instance
+      if (paypalButtonInstance.current) {
+        try {
+          if (paypalButtonInstance.current.close) {
+            paypalButtonInstance.current.close();
+          }
+        } catch (error) {
+          console.log('PayPal button cleanup warning:', error);
+        }
+        paypalButtonInstance.current = null;
+      }
+
+      // Clear container content
+      container.innerHTML = '';
       buttonRendered.current = true;
 
       const buttonConfig: any = {
@@ -100,6 +118,7 @@ const PayPalButton: React.FC<PayPalButtonProps> = ({
           label: style === 'subscription' ? 'subscribe' : 'paypal'
         },
         onApprove: (data: any, actions: any) => {
+          if (isUnmounting.current) return;
           console.log('PayPal payment approved:', data);
           if (onApprove) {
             onApprove(data);
@@ -108,6 +127,7 @@ const PayPalButton: React.FC<PayPalButtonProps> = ({
           }
         },
         onError: (err: any) => {
+          if (isUnmounting.current) return;
           console.error('PayPal payment error:', err);
           if (onError) {
             onError(err);
@@ -117,12 +137,14 @@ const PayPalButton: React.FC<PayPalButtonProps> = ({
 
       if (style === 'subscription') {
         buttonConfig.createSubscription = (data: any, actions: any) => {
+          if (isUnmounting.current) return Promise.reject('Component unmounting');
           return actions.subscription.create({
             plan_id: planId
           });
         };
       } else {
         buttonConfig.createOrder = (data: any, actions: any) => {
+          if (isUnmounting.current) return Promise.reject('Component unmounting');
           return actions.order.create({
             purchase_units: [{
               amount: {
@@ -135,9 +157,15 @@ const PayPalButton: React.FC<PayPalButtonProps> = ({
       }
 
       try {
-        window.paypal.Buttons(buttonConfig).render(`#${containerId}`);
+        paypalButtonInstance.current = window.paypal.Buttons(buttonConfig);
+        paypalButtonInstance.current.render(`#${containerId}`).catch((error: any) => {
+          if (!isUnmounting.current) {
+            console.error('Error rendering PayPal button:', error);
+          }
+        });
       } catch (error) {
-        console.error('Error rendering PayPal button:', error);
+        console.error('Error creating PayPal button:', error);
+        buttonRendered.current = false;
       }
     };
 
@@ -154,14 +182,32 @@ const PayPalButton: React.FC<PayPalButtonProps> = ({
       });
 
     return () => {
+      isUnmounting.current = true;
       buttonRendered.current = false;
+      
+      // Cleanup PayPal button instance before clearing DOM
+      if (paypalButtonInstance.current) {
+        try {
+          if (paypalButtonInstance.current.close) {
+            paypalButtonInstance.current.close();
+          }
+        } catch (error) {
+          // Silently handle cleanup errors
+          console.log('PayPal cleanup:', error);
+        }
+        paypalButtonInstance.current = null;
+      }
+
+      // Wait a bit before clearing container to let PayPal finish any pending operations
+      setTimeout(() => {
+        const container = document.getElementById(containerId);
+        if (container) {
+          container.innerHTML = '';
+        }
+      }, 50);
+      
       setIsLoading(true);
       setLoadingError(null);
-      // Clear the container on cleanup
-      const container = document.getElementById(containerId);
-      if (container) {
-        container.innerHTML = '';
-      }
     };
   }, [planId, amount, color, onApprove, onError, style, containerId]);
 
