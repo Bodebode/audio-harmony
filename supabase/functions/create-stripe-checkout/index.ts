@@ -48,15 +48,17 @@ serve(async (req) => {
     let stripeCustomerId = profile?.stripe_customer_id;
 
     // Create Stripe checkout session
-    const checkoutData = {
+    const origin = req.headers.get('origin') || 'https://6df20c05-96cb-44a7-923d-cadad2c9355e.lovableproject.com';
+    
+    const sessionData: any = {
       mode: 'subscription',
       payment_method_types: ['card'],
       line_items: [{
-        price: priceId || 'price_1QbRpCD7z6BpKOhPYEFiMJed', // Default premium price
+        price: priceId || 'price_1QbRpCD7z6BpKOhPYEFiMJed',
         quantity: 1,
       }],
-      success_url: `${req.headers.get('origin')}/premium?success=true`,
-      cancel_url: `${req.headers.get('origin')}/premium?canceled=true`,
+      success_url: `${origin}/premium?success=true`,
+      cancel_url: `${origin}/premium?canceled=true`,
       client_reference_id: user.id,
       metadata: {
         user_id: user.id,
@@ -65,9 +67,26 @@ serve(async (req) => {
 
     // Only set customer OR customer_email, never both
     if (stripeCustomerId) {
-      checkoutData.customer = stripeCustomerId;
+      sessionData.customer = stripeCustomerId;
     } else {
-      checkoutData.customer_email = user.email;
+      sessionData.customer_email = user.email;
+    }
+
+    // Convert to URLSearchParams properly
+    const formData = new URLSearchParams();
+    formData.append('mode', sessionData.mode);
+    formData.append('payment_method_types[0]', 'card');
+    formData.append('line_items[0][price]', sessionData.line_items[0].price);
+    formData.append('line_items[0][quantity]', sessionData.line_items[0].quantity.toString());
+    formData.append('success_url', sessionData.success_url);
+    formData.append('cancel_url', sessionData.cancel_url);
+    formData.append('client_reference_id', sessionData.client_reference_id);
+    formData.append('metadata[user_id]', sessionData.metadata.user_id);
+    
+    if (sessionData.customer) {
+      formData.append('customer', sessionData.customer);
+    } else if (sessionData.customer_email) {
+      formData.append('customer_email', sessionData.customer_email);
     }
 
     const response = await fetch('https://api.stripe.com/v1/checkout/sessions', {
@@ -76,7 +95,7 @@ serve(async (req) => {
         'Authorization': `Bearer ${stripeKey}`,
         'Content-Type': 'application/x-www-form-urlencoded',
       },
-      body: new URLSearchParams(checkoutData).toString(),
+      body: formData.toString(),
     });
 
     if (!response.ok) {

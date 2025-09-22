@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Crown, Zap } from "lucide-react";
+import { Crown, Loader2 } from "lucide-react";
 import PayPalButton from "@/components/PayPalButton";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -12,6 +12,37 @@ const PayPalSubscription = () => {
   const { user, profile } = useAuth();
   const { toast } = useToast();
   const { discountedFormatted, originalFormatted, savingsPercentage } = usePricing();
+  const [paypalConfig, setPaypalConfig] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchPayPalConfig = async () => {
+      try {
+        const { data, error } = await supabase.functions.invoke('get-paypal-config');
+        if (error) {
+          console.error('Error fetching PayPal config:', error);
+          toast({
+            title: "Configuration Error",
+            description: "Failed to load PayPal configuration.",
+            variant: "destructive"
+          });
+        } else {
+          setPaypalConfig(data);
+        }
+      } catch (error) {
+        console.error('Error fetching PayPal config:', error);
+        toast({
+          title: "Configuration Error", 
+          description: "Failed to load PayPal configuration.",
+          variant: "destructive"
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPayPalConfig();
+  }, [toast]);
 
   const handlePayPalSuccess = async (data: any) => {
     try {
@@ -113,13 +144,24 @@ const PayPalSubscription = () => {
             </p>
           </div>
           
-          <PayPalButton
-            planId="P-8PT12092UY4684013NDEMAQQ" // Main premium subscription plan
-            color="blue"
-            style="subscription"
-            onApprove={handlePayPalSuccess}
-            onError={handlePayPalError}
-          />
+          {loading ? (
+            <div className="flex justify-center items-center py-8">
+              <Loader2 className="h-6 w-6 animate-spin text-blue-400" />
+              <span className="ml-2 text-white/70">Loading PayPal...</span>
+            </div>
+          ) : paypalConfig?.planIds?.['25'] ? (
+            <PayPalButton
+              planId={paypalConfig.planIds['25']} // Use the $25 plan from config
+              color="blue"
+              style="subscription"
+              onApprove={handlePayPalSuccess}
+              onError={handlePayPalError}
+            />
+          ) : (
+            <div className="text-center py-4">
+              <p className="text-red-400 text-sm">PayPal configuration not available</p>
+            </div>
+          )}
         </div>
 
         {/* Terms */}
