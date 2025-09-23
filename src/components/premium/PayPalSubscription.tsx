@@ -149,9 +149,9 @@ const PayPalSubscription = () => {
               <Loader2 className="h-6 w-6 animate-spin text-blue-400" />
               <span className="ml-2 text-white/70">Loading PayPal...</span>
             </div>
-          ) : paypalConfig?.planIds?.['25'] ? (
+          ) : paypalConfig?.planIds?.['5'] ? (
             <PayPalButton
-              planId={paypalConfig.planIds['25']} // Use the $25 plan from config
+              planId={paypalConfig.planIds['5']} // Use the $5 plan from config
               color="blue"
               style="subscription"
               onApprove={handlePayPalSuccess}
