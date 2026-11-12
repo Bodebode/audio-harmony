@@ -5,6 +5,7 @@ import { usePremium } from "@/hooks/usePremium";
 import { useAuth } from "@/hooks/useAuth";
 import { UpgradePrompt } from "./premium/UpgradePrompt";
 import { SignUpBanner } from "./SignUpBanner";
+import { canUseWebPayments } from '@/lib/platform';
 
 export const BottomBanner = () => {
   const navigate = useNavigate();
@@ -12,7 +13,7 @@ export const BottomBanner = () => {
   const { isGuest } = useAuth();
   
   // Hide banner for premium users (no ads feature)
-  if (checkFeatureAccess('noAds')) {
+  if (!canUseWebPayments() || checkFeatureAccess('noAds')) {
     return null;
   }
 

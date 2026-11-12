@@ -14,6 +14,8 @@ import { usePremium } from "@/hooks/usePremium";
 import { useNavigate, Navigate } from "react-router-dom";
 import { User, Crown, Settings, LogOut, ArrowLeft, MessageCircle, Activity, Menu } from "lucide-react";
 import { PremiumBadge } from "@/components/premium/PremiumBadge";
+import { canUseWebPayments } from '@/lib/platform';
+import { DeleteAccount } from '@/components/DeleteAccount';
 
 const Profile = () => {
   const { user, profile, isGuest, signOut, loading } = useAuth();
@@ -133,7 +135,7 @@ const Profile = () => {
                 </Card>
 
                 {/* Subscription Management */}
-                <Card className="glass-card border-white/20">
+                {canUseWebPayments() && <Card className="glass-card border-white/20">
                   <CardHeader>
                     <CardTitle className="text-white flex items-center gap-2">
                       <Crown className="h-5 w-5" />
@@ -179,6 +181,7 @@ const Profile = () => {
                   </CardContent>
                 </Card>
 
+                }
                 {/* Messages & Inbox - Coming Soon */}
                 <Card className="glass-card border-white/20">
                   <CardHeader>
@@ -240,6 +243,7 @@ const Profile = () => {
                       <LogOut className="h-4 w-4 mr-2" />
                       Sign Out
                     </Button>
+                    <div className="mt-4"><DeleteAccount /></div>
                   </CardContent>
                 </Card>
               </div>

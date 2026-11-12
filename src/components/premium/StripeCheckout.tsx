@@ -4,6 +4,7 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import { canUseWebPayments } from '@/lib/platform';
 
 interface StripeCheckoutProps {
   priceId?: string;
@@ -16,6 +17,7 @@ export const StripeCheckout = ({ priceId, className, children }: StripeCheckoutP
   const { user } = useAuth();
 
   const handleCheckout = async () => {
+    if (!canUseWebPayments()) return;
     if (!user) {
       toast.error("Please sign in to continue");
       return;
@@ -50,6 +52,8 @@ export const StripeCheckout = ({ priceId, className, children }: StripeCheckoutP
       setLoading(false);
     }
   };
+
+  if (!canUseWebPayments()) return null;
 
   return (
     <Button 

@@ -1,5 +1,6 @@
 
 import { Navigate } from "react-router-dom";
+import { canUseWebPayments } from '@/lib/platform';
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/Sidebar";
 import { Header } from "@/components/Header";
@@ -51,7 +52,7 @@ const Index = () => {
           <Library />
           <AboutArtist />
           <LikedSongs />
-          {!isPremiumActive && !isGuest && (
+          {canUseWebPayments() && !isPremiumActive && !isGuest && (
             <section className="p-6">
               <CompactPremiumShowcase />
             </section>

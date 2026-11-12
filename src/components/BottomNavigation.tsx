@@ -5,6 +5,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { usePremium } from "@/hooks/usePremium";
 import { PremiumBadge } from "./premium/PremiumBadge";
 import { useSidebar } from "@/components/ui/sidebar";
+import { canOpenPaymentRoute } from '@/lib/platform';
 
 export const BottomNavigation = () => {
   const navigate = useNavigate();
@@ -60,7 +61,7 @@ export const BottomNavigation = () => {
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 bg-black/90 backdrop-blur-lg border-t border-white/10 pb-safe-area-inset-bottom">
       <div className="flex justify-around items-center py-2 px-4">
-        {navItems.map((item) => {
+        {navItems.filter(item => canOpenPaymentRoute(item.path)).map((item) => {
           const Icon = item.icon;
           const active = isActive(item.path);
           

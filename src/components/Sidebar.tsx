@@ -2,6 +2,7 @@
 import { PlayCircle, User, Mail, Library, Heart, Crown, ChevronDown } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { canUseWebPayments } from '@/lib/platform';
 import { PremiumBadge } from "./premium/PremiumBadge";
 import { usePremium } from "@/hooks/usePremium";
 import { useAuth } from "@/hooks/useAuth";
@@ -123,7 +124,7 @@ export const AppSidebar = () => {
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
-              ) : !isPremiumActive && (
+              ) : canUseWebPayments() && !isPremiumActive && (
                 <SidebarMenuItem className="animate-fade-in" style={{ animationDelay: `${sidebarItems.length * 0.1}s` }}>
                   <Collapsible open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
                     <SidebarMenuButton className="hover:bg-gradient-to-r hover:from-yellow-500/20 hover:to-amber-500/20 transition-all duration-300 group">
@@ -181,7 +182,7 @@ export const AppSidebar = () => {
                )}
                
                {/* Support the Artist Section */}
-               <SidebarMenuItem className="animate-fade-in mt-2" style={{ animationDelay: `${sidebarItems.length * 0.1 + 0.1}s` }}>
+               {canUseWebPayments() && <SidebarMenuItem className="animate-fade-in mt-2" style={{ animationDelay: `${sidebarItems.length * 0.1 + 0.1}s` }}>
                  <SidebarMenuButton className="hover:bg-gradient-to-r hover:from-pink-500/20 hover:to-red-500/20 transition-all duration-300 group">
                    <Link 
                      to="/support" 
@@ -191,7 +192,7 @@ export const AppSidebar = () => {
                      <span className="group-hover:translate-x-1 transition-transform duration-200">Support the Artist</span>
                    </Link>
                  </SidebarMenuButton>
-               </SidebarMenuItem>
+               </SidebarMenuItem>}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

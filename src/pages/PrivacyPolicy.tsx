@@ -1,84 +1,35 @@
-import { AppSidebar } from "@/components/Sidebar";
-import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
+import { Link } from 'react-router-dom';
 
-const PrivacyPolicy = () => {
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background/95 to-background/90 text-foreground">
-      <AppSidebar />
-      <Header />
-      
-      <main className="ml-0 lg:ml-64 pt-16 pb-20">
-        <div className="max-w-4xl mx-auto px-4 py-8">
-          <div className="bg-card/50 backdrop-blur-sm rounded-xl p-8 border border-border/20">
-            <h1 className="text-4xl font-bold mb-8 bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-              Privacy Policy
-            </h1>
-            
-            <div className="prose prose-invert max-w-none space-y-6">
-              <section>
-                <h2 className="text-2xl font-semibold mb-4 text-primary">Information We Collect</h2>
-                <p className="text-muted-foreground leading-relaxed">
-                  We collect information you provide directly to us, such as when you create an account, make a purchase, 
-                  or contact us for support. This may include your email address, display name, and payment information.
-                </p>
-              </section>
-
-              <section>
-                <h2 className="text-2xl font-semibold mb-4 text-primary">How We Use Your Information</h2>
-                <ul className="list-disc list-inside text-muted-foreground space-y-2">
-                  <li>To provide and maintain our music streaming service</li>
-                  <li>To process payments and manage subscriptions</li>
-                  <li>To send you technical notices and support messages</li>
-                  <li>To improve our services and user experience</li>
-                </ul>
-              </section>
-
-              <section>
-                <h2 className="text-2xl font-semibold mb-4 text-primary">Data Security</h2>
-                <p className="text-muted-foreground leading-relaxed">
-                  We implement appropriate technical and organizational security measures to protect your personal information 
-                  against unauthorized access, alteration, disclosure, or destruction. Payment information is processed securely 
-                  through trusted payment providers.
-                </p>
-              </section>
-
-              <section>
-                <h2 className="text-2xl font-semibold mb-4 text-primary">Third-Party Services</h2>
-                <p className="text-muted-foreground leading-relaxed">
-                  We use third-party services including Stripe and PayPal for payment processing, and Supabase for backend 
-                  services. These services have their own privacy policies governing the collection and use of your information.
-                </p>
-              </section>
-
-              <section>
-                <h2 className="text-2xl font-semibold mb-4 text-primary">Your Rights</h2>
-                <p className="text-muted-foreground leading-relaxed">
-                  You have the right to access, update, or delete your personal information. You can manage your account 
-                  settings or contact us if you need assistance with your data rights.
-                </p>
-              </section>
-
-              <section>
-                <h2 className="text-2xl font-semibold mb-4 text-primary">Contact Us</h2>
-                <p className="text-muted-foreground leading-relaxed">
-                  If you have any questions about this Privacy Policy, please contact us through our support page.
-                </p>
-              </section>
-
-              <section>
-                <p className="text-sm text-muted-foreground border-t border-border/20 pt-4">
-                  Last updated: {new Date().toLocaleDateString()}
-                </p>
-              </section>
-            </div>
-          </div>
-        </div>
-      </main>
-
-      <Footer />
-    </div>
-  );
-};
-
-export default PrivacyPolicy;
+export default function PrivacyPolicy() {
+  return <main className="min-h-screen bg-background text-foreground px-6 py-12">
+    <article className="mx-auto max-w-3xl space-y-8">
+      <h1 className="text-3xl font-semibold">AlkePlay Privacy Policy</h1>
+      <p className="text-muted-foreground">Last updated: November 12, 2026</p>
+      <section className="space-y-3">
+        <h2 className="text-xl font-semibold">Information collected</h2>
+        <p>When you create an account, AlkePlay stores your email address, account ID, and display name with Supabase. If you upload a profile photo, it is stored in a publicly accessible avatar bucket. Guest listening does not require an account.</p>
+        <p>Liked songs are saved locally on your device. Audio requests and sign-in requests are processed by our hosting providers and Supabase. Their operational logs can include IP addresses, request times, and technical error information. AlkePlay does not currently send listening history to a dedicated analytics service.</p>
+      </section>
+      <section className="space-y-3">
+        <h2 className="text-xl font-semibold">Purposes and service providers</h2>
+        <p>Account information is used to authenticate you, display your profile, and provide the music service. Request logs support service delivery, security, and troubleshooting. Supabase and our hosting providers process information to provide these services.</p>
+        <p>The Android app has no Premium checkout or Stripe/PayPal purchase links. On the website only, Stripe and PayPal process payments; AlkePlay may store subscription identifiers and statuses and supporter names, emails, messages, and transaction references. AlkePlay does not store payment card numbers.</p>
+        <p>Uploaded avatars are publicly accessible to anyone with their link. Payment providers handle their own records under their privacy policies.</p>
+      </section>
+      <section className="space-y-3">
+        <h2 className="text-xl font-semibold">Security and retention</h2>
+        <p>Connections to our hosted services use HTTPS, and account data access is restricted to the signed-in user. We retain your account and profile while your account exists. Operational logs, backups, and payment-provider records may remain according to the respective provider’s retention and legal requirements.</p>
+      </section>
+      <section className="space-y-3">
+        <h2 className="text-xl font-semibold">Account deletion and your choices</h2>
+        <p>Delete your account in Profile Settings → Delete Account, or use our <Link className="text-primary underline" to="/delete-account">account deletion page</Link>. You must sign in to verify ownership. Successful deletion permanently removes your login, profile, uploaded avatar, and payment/support records stored by AlkePlay. Saved likes on the current device are cleared. Clear app or browser data on other devices to remove their locally stored likes.</p>
+        <p>Deleting an account does not cancel an existing website subscription. Cancel billing separately with Stripe or PayPal before deleting. Those providers may retain transaction records as required by law.</p>
+      </section>
+      <section className="space-y-3">
+        <h2 className="text-xl font-semibold">Contact</h2>
+        <p>For privacy questions, use the contact links in the <Link to="/#contact" className="text-primary underline">artist contact section</Link>.</p>
+      </section>
+      <Link to="/" className="inline-block text-primary underline">Back to AlkePlay</Link>
+    </article>
+  </main>;
+}

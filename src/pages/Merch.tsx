@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
+import { canUseWebPayments } from '@/lib/platform';
 import { ArrowLeft, ShoppingCart, Star, Truck, Shield, Heart } from "lucide-react";
 
 const Merch = () => {
@@ -93,12 +94,12 @@ const Merch = () => {
                       The official store will be launching very soon with exclusive items you won't find anywhere else!
                     </p>
                     <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                      <Button 
+                      {canUseWebPayments() && <Button
                         onClick={() => navigate('/support')}
                         className="bg-gradient-to-r from-[#1EAEDB] to-[#0FA0CE] text-white"
                       >
                         Support the Artist Now
-                      </Button>
+                      </Button>}
                       <Button variant="outline" className="border-white/20 text-white hover:bg-white/10">
                         Get Notified
                       </Button>

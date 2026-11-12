@@ -3,7 +3,9 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { canUseWebPayments } from './lib/platform';
+import DeleteAccountPage from './pages/DeleteAccount';
 import Index from "./pages/Index";
 import AboutArtist from "./pages/AboutArtist";
 import Premium from "./pages/Premium";
@@ -46,12 +48,13 @@ const App = () => {
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/about-artist" element={<AboutArtist />} />
-              <Route path="/premium" element={<Premium />} />
-              <Route path="/support" element={<Support />} />
+              <Route path="/premium" element={canUseWebPayments() ? <Premium /> : <Navigate to="/" replace />} />
+              <Route path="/support" element={canUseWebPayments() ? <Support /> : <Navigate to="/" replace />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/merch" element={<Merch />} />
               <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+              <Route path="/delete-account" element={<DeleteAccountPage />} />
               <Route path="/terms-of-service" element={<TermsOfService />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />

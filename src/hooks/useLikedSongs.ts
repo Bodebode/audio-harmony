@@ -24,6 +24,12 @@ const subscribe = (listener: () => void) => {
 
 const getSnapshot = () => likedSongsStore;
 
+export const clearLikedSongs = () => {
+  likedSongsStore = [];
+  localStorage.removeItem('likedSongs');
+  emitChange();
+};
+
 export const useLikedSongs = () => {
   const { toast } = useToast();
   const likedSongs = useSyncExternalStore(subscribe, getSnapshot, getSnapshot);

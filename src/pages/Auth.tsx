@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
 import { useAuth } from '@/hooks/useAuth';
+import { canUseWebPayments } from '@/lib/platform';
 import { Loader2, Music, UserCheck, Eye, EyeOff } from 'lucide-react';
 
 const Auth = () => {
@@ -92,7 +93,7 @@ const Auth = () => {
               Bode Nathaniel
             </h1>
           </div>
-          <p className="text-white/80">Access your premium music experience</p>
+          <p className="text-white/80">{canUseWebPayments() ? 'Access your premium music experience' : 'Listen to Bode Nathaniel’s music for free'}</p>
         </div>
 
         <Card className="bg-black/60 backdrop-blur-lg border-white/10">

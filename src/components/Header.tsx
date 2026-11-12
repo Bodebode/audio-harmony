@@ -3,6 +3,7 @@ import { Menu, ShoppingCart, Home, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { useState } from "react";
+import { canUseWebPayments } from '@/lib/platform';
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { PremiumBadge } from "./premium/PremiumBadge";
@@ -137,12 +138,12 @@ export const Header = () => {
                   >
                     Profile Settings
                   </DropdownMenuItem>
-                  <DropdownMenuItem 
+                  {canUseWebPayments() && <DropdownMenuItem
                     onClick={() => navigate('/premium')}
                     className="text-white hover:bg-white/10 cursor-pointer"
                   >
                     {profile?.is_premium ? 'Manage Subscription' : 'Upgrade to Premium'}
-                  </DropdownMenuItem>
+                  </DropdownMenuItem>}
                   <DropdownMenuSeparator className="bg-white/10" />
                 </>
               )}

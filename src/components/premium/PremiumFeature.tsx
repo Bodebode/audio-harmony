@@ -4,6 +4,7 @@ import { usePremium, PremiumFeatures } from "@/hooks/usePremium";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { ReactNode } from "react";
+import { canUseWebPayments } from '@/lib/platform';
 
 interface PremiumFeatureProps {
   feature: keyof PremiumFeatures;
@@ -63,7 +64,7 @@ export const PremiumFeature = ({
               </p>
             </div>
             
-            {showUpgradeButton && (
+            {canUseWebPayments() && showUpgradeButton && (
               <Button
                 onClick={() => navigate('/auth')}
                 size="sm"

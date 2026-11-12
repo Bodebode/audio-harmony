@@ -1,7 +1,7 @@
 import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'app.lovable.6df20c0596cb44a7923dcadad2c9355e',
+  appId: 'com.alkeplay.app',
   appName: 'AlkePlay',
   webDir: 'dist',
   plugins: {
@@ -37,12 +37,6 @@ const config: CapacitorConfig = {
       releaseType: 'AAB',
       signingType: 'apksigner'
     },
-    permissions: [
-      'android.permission.INTERNET',
-      'android.permission.WAKE_LOCK',
-      'android.permission.ACCESS_NETWORK_STATE',
-      'android.permission.MODIFY_AUDIO_SETTINGS'
-    ],
     allowMixedContent: false,
     captureInput: true,
     webContentsDebuggingEnabled: false

@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { canUseWebPayments } from '@/lib/platform';
 
 interface PayPalButtonProps {
   planId: string;
@@ -36,6 +37,7 @@ const PayPalButton: React.FC<PayPalButtonProps> = ({
   const containerId = `paypal-button-container-${planId}`;
 
   useEffect(() => {
+    if (!canUseWebPayments()) return;
     isUnmounting.current = false; // Reset unmounting flag on mount
     
     const fetchPayPalConfig = async () => {
@@ -210,6 +212,8 @@ const PayPalButton: React.FC<PayPalButtonProps> = ({
       setLoadingError(null);
     };
   }, [planId, amount, color, onApprove, onError, style, containerId]);
+
+  if (!canUseWebPayments()) return null;
 
   // Show loading state
   if (isLoading) {
