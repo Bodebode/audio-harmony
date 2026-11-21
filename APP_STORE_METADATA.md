@@ -96,13 +96,20 @@ privacy policy **before** shipping that change.
    Capacitor's default deployment target unless Xcode tells you otherwise.
 
 ## Assets
-- [x] App icon 1024x1024: `public/app-icons/ios-icon-1024.png` (no alpha channel)
-- [x] Splash screen: `public/app-icons/splash-screen.png`
+- [x] App icon 1024x1024 installed in the Xcode asset catalog:
+      `ios/App/App/Assets.xcassets/AppIcon.appiconset/AppIcon-512@2x.png`
+      (full-bleed brand navy, no alpha, no white surround — derived from
+      `public/app-icons/ios-icon-1024.png`)
+- [x] Splash installed in the Xcode asset catalog:
+      `ios/App/App/Assets.xcassets/Splash.imageset/` (brand navy with the
+      AlkePlay artwork centred). The old `public/app-icons/splash-screen.png`
+      still says "Audio Harmony" and must NOT be used for the store listing.
 - [ ] iPhone screenshots — **must be real captures from the installed build**,
       not AI-generated mockups. Apple rejects listings whose screenshots do not
       match the running app.
 - [ ] iPad screenshots (only if you support iPad)
-- [ ] App Store Connect app icon upload (1024x1024, no transparency)
+- [ ] App Store Connect app icon upload (1024x1024, no transparency) — use
+      `ios/App/App/Assets.xcassets/AppIcon.appiconset/AppIcon-512@2x.png`
 
 ### Screenshot set to capture (iPhone 6.7" and 6.5")
 1. Home / main player
