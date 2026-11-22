@@ -144,6 +144,20 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setSongProgress(0);
   }, [currentSongIndex]);
 
+  // Stop playback when the user signs out
+  useEffect(() => {
+    const stop = () => {
+      const audio = audioRef.current;
+      if (audio) {
+        audio.pause();
+        audio.currentTime = 0;
+      }
+      setIsPlaying(false);
+    };
+    window.addEventListener('alkeplay-signout', stop);
+    return () => window.removeEventListener('alkeplay-signout', stop);
+  }, []);
+
   // Handle play/pause state changes
   useEffect(() => {
     const audio = audioRef.current;

@@ -149,6 +149,8 @@ export const useAuth = () => {
   };
 
   const signOut = async () => {
+    // Stop any playing music immediately when the user signs out
+    window.dispatchEvent(new Event('alkeplay-signout'));
     try {
       const { error } = await supabase.auth.signOut();
       
