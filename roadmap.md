@@ -11,3 +11,7 @@
 # Captioned App Store screenshots
 - [x] Prepare and inspect captioned player and library images at 1290 × 2796 pixels, RGB PNG, with full screens preserved.
 - [ ] Prepare the matching lyrics image — waiting for a real simulator screenshot with lyrics expanded.
+
+# iPhone icon replacement
+- [x] Replace the iOS asset catalog icon with the supplied gold AlkePlay logo and match the favicon.
+- [ ] Upload and select a new iOS build with the replacement icon — requires the user's Mac, Xcode signing and App Store Connect.
