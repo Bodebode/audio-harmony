@@ -7,3 +7,7 @@
 - [ ] Verify account deletion end-to-end using a disposable signed-in account — external Supabase has no available browser test session.
 - [ ] Build and sign Android AAB and complete Play Console setup — needs local JDK/Android SDK, user's upload keystore and Play Console account.
 - [ ] Publish and verify live privacy/deletion URLs — user must publish the updated website.
+
+# Captioned App Store screenshots
+- [x] Prepare and inspect captioned player and library images at 1290 × 2796 pixels, RGB PNG, with full screens preserved.
+- [ ] Prepare the matching lyrics image — waiting for a real simulator screenshot with lyrics expanded.
