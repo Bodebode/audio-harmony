@@ -4,7 +4,7 @@ Updated November 12, 2026. iOS is postponed. This guide is preparation, not a cl
 
 ## Prepared in this project
 - Application/package ID: `com.alkeplay.app`. Your ownership of alkeplay.com makes this a suitable reverse-domain identifier. It does not need www. If you already uploaded a different package to Play Console, this is a new app identity, not an update to that listing.
-- Android versionName `1.0.0`, versionCode `1`. Increment versionCode on every later upload. npm version is not the Android store version.
+- Android versionName `1.0.1`, versionCode `4`. Increment versionCode on every later upload. npm version is not the Android store version.
 - Complete Capacitor Android project with Gradle wrapper and Java activity.
 - compileSdk and targetSdk: **36**; minSdk: 23. New mobile app submissions now require Android 16/API 36, not the previously suggested API 34.
 - Native Premium and artist-support checkout routes redirect to the player. Upgrade/payment entry points are hidden. Website payments remain unchanged. Existing subscription entitlements are not made free or changed by this release.
